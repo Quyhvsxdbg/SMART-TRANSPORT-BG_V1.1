@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giấy phép kinh doanh</title>
+
+    <!-- Thêm các thư viện cần thiết cho xuất Word -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.37.11/docxtemplater.js"></script>
+    <script src="https://unpkg.com/pizzip@3.1.4/dist/pizzip.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        body {
+            font-family: "Times New Roman", serif;
+            font-size: 13px;
+            line-height: 1.4;
+            background: white;
+            width: 210mm;
+            height: 297mm;
+            margin: 0 auto;
+            padding: 20mm;
+            min-height: 297mm;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            font-size: 14px;
+            margin-left: 30mm;
+            margin-top: 10mm;
+            margin-bottom: 40mm;
+            letter-spacing: 1px;
+        }
+
+        .license-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25mm;
+            width: 100%;
+        }
+
+        .license-number {
+            font-size: 14px;
+            font-weight: normal;
+        }
+
+        .page-number {
+            font-size: 14px;
+        }
+
+        .company-section {
+            text-align: center;
+            margin-bottom: 5mm;
+        }
+
+        .company-name {
+            font-size: 14px;
+        }
+
+        .company-address {
+            font-size: 13px;
+            margin: 2mm 0;
+        }
+
+        .company-phone {
+            font-size: 13px;
+            margin-bottom: 5mm;
+        }
+
+        .middle-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 3mm;
+            width: 100%;
+        }
+
+        .date-info {
+            display: flex;
+            gap: 15mm;
+            font-size: 13px;
+        }
+
+        .right-info {
+            text-align: right;
+            font-size: 12px;
+            line-height: 1.3;
+            max-width: 50%;
+        }
+
+        .owner-name {
+            text-align: center;
+            font-size: 14px;
+            margin-bottom: 15mm;
+        }
+
+        .business-activity {
+            margin-bottom: 20mm;
+            font-size: 13px;
+            white-space: pre-wrap;
+            line-height: 2;
+            padding-left: 20px;
+            max-height: calc(100% - 200mm);
+            overflow-y: auto;
+        }
+
+        .footer-section {
+            position: absolute;
+            bottom: 20mm;
+            left: 20mm;
+            right: 20mm;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            width: calc(100% - 40mm);
+            padding-top: 10mm;
+            background-color: white;
+        }
+
+        .qr-placeholder {
+            width: 25mm;
+            height: 25mm;
+            border: 2px solid #000;
+            background: white;
+            position: relative;
+        }
+
+        .qr-placeholder::before {
+            content: '';
+            position: absolute;
+            top: 2mm;
+            left: 2mm;
+            width: 6mm;
+            height: 6mm;
+            background: #000;
+        }
+
+        .qr-placeholder::after {
+            content: '';
+            position: absolute;
+            top: 2mm;
+            right: 2mm;
+            width: 6mm;
+            height: 6mm;
+            background: #000;
+        }
+
+        .signature-area {
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .signature-date {
+            font-style: italic;
+            margin-bottom: 3mm;
+        }
+
+        .signature-title1 {
+            font-weight: bold;
+            margin-bottom: 2mm;
+        }
+
+        .signature-title2 {
+            font-weight: bold;
+            margin-bottom: 15mm;
+        }
+
+        .signature-name {
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        /* Cập nhật CSS cho button container */
+        .button-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-family: "Times New Roman", serif;
+        }
+
+        .print-button {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .print-button:hover {
+            background-color: #45a049;
+        }
+
+        .export-button {
+            background-color: #2b579a;
+            color: white;
+        }
+
+        .export-button:hover {
+            background-color: #1e3f6f;
+        }
+
+        #loading-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            z-index: 2000;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media print {
+            body {
+                width: 210mm;
+                height: 297mm;
+                margin: 0;
+                padding: 20mm;
+            }
+
+            .button-container {
+                display: none;
+            }
+        }
+
+        @media screen {
+            body {
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                margin: 20px auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Button Container -->
+    <div class="button-container">
+        <button class="button print-button" onclick="window.print()">
+            <i class="fas fa-print"></i> In Tài Liệu
+        </button>
+        <button class="button export-button" onclick="exportToWordTemplate()">
+            <i class="fas fa-file-word"></i> Xuất Word
+        </button>
+    </div>
+
+    <!-- Loading Message -->
+    <div id="loading-message">Đang tải dữ liệu...</div>
+
+    <div class="header">
+        BẮC GIANG
+    </div>
+
+    <div class="license-info">
+        <div class="license-number" id="so-giay-phep">______/GPKDVT</div>
+        <div class="page-number">1</div>
+    </div>
+
+    <div class="company-section">
+        <div class="company-name" id="ten-doanh-nghiep">TÊN DOANH NGHIỆP</div>
+        <div class="company-address" id="dia-chi">Địa chỉ</div>
+        <div class="company-phone" id="so-dien-thoai">Số điện thoại</div>
+    </div>
+
+    <div class="middle-section">
+        <div class="date-info" id="ngay-cap-info">
+            <span id="ngay-cap">__</span>
+            <span id="thang-cap">__</span>
+            <span id="nam-cap">____</span>
+        </div>
+        <div class="right-info">
+            <span id="so-DKKD">Số DKKD</span><br>
+            <span id="co-quan-cap">Cơ quan cấp</span>
+        </div>
+    </div>
+
+    <div class="owner-name" id="nguoi-dai-dien">
+        NGƯỜI ĐẠI DIỆN
+    </div>
+
+    <div class="business-activity" id="loai-hinh-van-tai">
+        Loai hình vận tải
+    </div>
+
+    <div class="footer-section">
+        <div class="qr-placeholder"></div>
+
+        <div class="signature-area">
+            <div class="signature-date" id="ngay-ky-footer">
+                <em id="tinh-footer">Bắc Giang</em>&nbsp;&nbsp;&nbsp;&nbsp;<em
+                    id="ngay-ky">__</em>&nbsp;&nbsp;&nbsp;&nbsp;<em id="thang-ky">__</em>&nbsp;&nbsp;&nbsp;&nbsp;<em
+                    id="nam-ky">____</em>
+            </div>
+            <div class="signature-title1">KT. GIÁM ĐỐC</div>
+            <div class="signature-title2">PHÓ GIÁM ĐỐC</div>
+            <div class="signature-name" id="ten-nguoi-ky">Hoàng Văn Hải</div>
+        </div>
+    </div>
+
+    <script>
+        // Constants for AppSheet connection
+        const appId = 'd22767b5-f711-42f8-bbbd-4cf04b26ef3d';
+        const accessKey = 'V2-Qcjpo-7Ybu9-g87XI-TFLes-kJGWn-btYR5-cLMmk-FjrRj';
+        const region = 'www';
+
+        // Biến toàn cục để lưu dữ liệu
+        let globalLicenseData = null;
+
+        // Function to get ID from URL parameter
+        function getGiayPhepIDFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('ID_GPKD');
+        }
+
+        // Generic function to make API calls
+        async function callAPI(tableName, selector) {
+            const response = await fetch(`https://${region}.appsheet.com/api/v2/apps/${appId}/tables/${tableName}/Action`, {
+                method: 'POST',
+                headers: {
+                    'ApplicationAccessKey': accessKey,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    Action: 'Find',
+                    Properties: {
+                        Selector: selector
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status} for table: ${tableName}`);
+            }
+
+            return await response.json();
+        }
+
+        // Main function to fetch all data simultaneously
+        async function fetchData() {
+            const idGiayPhep = getGiayPhepIDFromURL();
+            console.log("ID from URL:", idGiayPhep);
+
+            if (!idGiayPhep) {
+                hideLoadingMessage();
+                alert('Không tìm thấy ID_GPKD trong URL.');
+                return;
+            }
+
+            try {
+                // Prepare all API calls
+                const currentDate = new Date().toISOString();
+
+                const apiCalls = [
+                    // 1. Get GIAYPHEPKINHDOANHNOIDIA data
+                    callAPI('GIAYPHEPKINHDOANHNOIDIA', `Filter(GIAYPHEPKINHDOANHNOIDIA, [ID_GPKD] = "${idGiayPhep}")`),
+
+                    // 2. Get ThongTin data (for header)
+                    callAPI('ThongTin', `Filter(ThongTin, [Ngay_hieu_luc] <= "${currentDate}")`)
+                ];
+
+                // Execute first batch of API calls
+                console.log("Bắt đầu gọi API đầu tiên...");
+                const [giayPhepResult, tinhResult] = await Promise.all(apiCalls);
+
+                console.log("Giấy phép data:", giayPhepResult);
+                console.log("Tỉnh data:", tinhResult);
+
+                // Validate giay phep data
+                if (!giayPhepResult || giayPhepResult.length === 0) {
+                    hideLoadingMessage();
+                    alert('Không tìm thấy dữ liệu giấy phép với ID: ' + idGiayPhep);
+                    return;
+                }
+
+                // Get Ref_DoanhNghiep from giay phep data
+                const refDoanhNghiep = giayPhepResult[0].Ref_DoanhNghiep;
+                if (!refDoanhNghiep) {
+                    hideLoadingMessage();
+                    alert('Không tìm thấy thông tin doanh nghiệp liên kết.');
+                    return;
+                }
+
+                // Make the third API call for doanh nghiep data
+                console.log("Gọi API doanh nghiệp với ID:", refDoanhNghiep);
+                const doanhNghiepResult = await callAPI('THONGTINDONVIVANTAI', `Filter(THONGTINDONVIVANTAI, [IDDoanhNghiep] = "${refDoanhNghiep}")`);
+
+                console.log("Doanh nghiệp data:", doanhNghiepResult);
+
+                // Validate doanh nghiep data
+                if (!doanhNghiepResult || doanhNghiepResult.length === 0) {
+                    hideLoadingMessage();
+                    alert('Không tìm thấy thông tin doanh nghiệp với ID: ' + refDoanhNghiep);
+                    return;
+                }
+
+                // Lưu dữ liệu vào biến toàn cục
+                globalLicenseData = {
+                    giayPhep: giayPhepResult[0],
+                    doanhNghiep: doanhNghiepResult[0],
+                    tinh: tinhResult
+                };
+
+                // Process and populate all data
+                populateData(giayPhepResult[0], doanhNghiepResult[0], tinhResult);
+
+                // Hide loading message
+                hideLoadingMessage();
+                console.log("Hoàn thành tải dữ liệu!");
+
+            } catch (error) {
+                console.error('Lỗi:', error);
+                hideLoadingMessage();
+                alert('Đã xảy ra lỗi khi lấy dữ liệu: ' + error.message);
+            }
+        }
+
+        // Populate all data into HTML elements
+        function populateData(giayPhepData, doanhNghiepData, tinhData) {
+            // Update header with Tinh data
+            if (tinhData && tinhData.length > 0) {
+                const sortedTinhData = tinhData.sort((a, b) =>
+                    new Date(b.Ngay_hieu_luc) - new Date(a.Ngay_hieu_luc)
+                );
+                document.querySelector('.header').textContent = (sortedTinhData[0].Tinh || 'BẮC GIANG').toUpperCase();
+            }
+
+            // Thêm vào hàm populateData
+            if (tinhData && tinhData.length > 0) {
+                const sortedTinhData = tinhData.sort((a, b) =>
+                    new Date(b.Ngay_hieu_luc) - new Date(a.Ngay_hieu_luc)
+                );
+                const tenTinh = sortedTinhData[0].Tinh || 'Bắc Giang';
+                document.getElementById('tinh-footer').textContent = tenTinh;
+            }
+
+            // Populate license number
+            if (giayPhepData.SoGiayPhep) {
+                document.getElementById('so-giay-phep').textContent = giayPhepData.SoGiayPhep;
+            }
+
+            // Populate company information
+            if (doanhNghiepData.TenDoanhNghiep) {
+                document.getElementById('ten-doanh-nghiep').textContent = doanhNghiepData.TenDoanhNghiep;
+            }
+
+            // Construct full address
+            let fullAddress = '';
+            if (doanhNghiepData.SoNha_TDP) fullAddress += doanhNghiepData.SoNha_TDP + ', ';
+            if (doanhNghiepData.XaPhuongThiTran) fullAddress += doanhNghiepData.XaPhuongThiTran + ', ';
+            if (doanhNghiepData.QuanHuyen) fullAddress += doanhNghiepData.QuanHuyen + ', ';
+            if (doanhNghiepData.TinhThanh) fullAddress += doanhNghiepData.TinhThanh;
+
+            if (fullAddress) {
+                document.getElementById('dia-chi').textContent = fullAddress;
+            }
+
+            if (doanhNghiepData.SoDienThoai) {
+                document.getElementById('so-dien-thoai').textContent = doanhNghiepData.SoDienThoai;
+            }
+
+            // Format and populate issue date
+            if (giayPhepData.NgayCap) {
+                const issueDate = new Date(giayPhepData.NgayCap);
+                const day = issueDate.getDate().toString().padStart(2, '0');
+                const month = (issueDate.getMonth() + 1).toString().padStart(2, '0');
+                const year = issueDate.getFullYear();
+
+                document.getElementById('ngay-cap').textContent = day;
+                document.getElementById('thang-cap').textContent = month;
+                document.getElementById('nam-cap').textContent = year;
+            }
+
+            // Populate tax code and issuing authority
+            if (doanhNghiepData.SoDKKD) {
+                document.getElementById('so-DKKD').textContent = doanhNghiepData.SoDKKD || '';
+            }
+            if (doanhNghiepData.CQCapDKKD) {
+                document.getElementById('co-quan-cap').textContent = doanhNghiepData.CQCapDKKD;
+            }
+
+            // Populate representative name
+            if (doanhNghiepData.NguoiDaiDienTheoPhapLuat) {
+                document.getElementById('nguoi-dai-dien').textContent = doanhNghiepData.NguoiDaiDienTheoPhapLuat;
+            }
+
+            // Populate business activity
+            if (giayPhepData.LoaiHinhVanTai) {
+                const loaiHinhMapping = {
+                    'Tuyến cố định': 'Kinh doanh vận tải hành khách bằng xe ô tô theo tuyến cố định',
+                    'Buýt': 'Kinh doanh vận tải hành khách công cộng bằng xe buýt',
+                    'Taxi': 'Kinh doanh vận tải hành khách bằng xe taxi',
+                    'Hàng hoá': 'Kinh doanh vận tải hàng hóa bằng xe ô tô',
+                    'Hợp đồng': 'Kinh doanh vận tải hành khách theo hợp đồng'
+                };
+
+                const loaiHinhList = giayPhepData.LoaiHinhVanTai.split(',').map(item => item.trim());
+                const fullDescriptions = loaiHinhList
+                    .map(loaiHinh => `- ${loaiHinhMapping[loaiHinh] || loaiHinh}`)
+                    .join('\n');
+
+                document.getElementById('loai-hinh-van-tai').textContent = fullDescriptions;
+            }
+
+            // Populate signature date
+            const signDate = giayPhepData.NgayThuHoi ? new Date(giayPhepData.NgayThuHoi) : new Date();
+            const signDay = signDate.getDate().toString().padStart(2, '0');
+            const signMonth = (signDate.getMonth() + 1).toString().padStart(2, '0');
+            const signYear = signDate.getFullYear();
+
+            document.getElementById('ngay-ky').textContent = signDay;
+            document.getElementById('thang-ky').textContent = signMonth;
+            document.getElementById('nam-ky').textContent = signYear;
+        }
+
+        // Hàm xuất Word template
+        async function exportToWordTemplate() {
+            try {
+                if (!globalLicenseData) {
+                    alert('Dữ liệu chưa được tải. Vui lòng đợi dữ liệu tải xong.');
+                    return;
+                }
+
+                document.getElementById('loading-message').style.display = 'block';
+                document.getElementById('loading-message').textContent = 'Đang xuất file Word...';
+
+                const { giayPhep, doanhNghiep, tinh } = globalLicenseData;
+
+                // Xử lý dữ liệu địa chỉ
+                let fullAddress = '';
+                if (doanhNghiep.SoNha_TDP) fullAddress += doanhNghiep.SoNha_TDP + ', ';
+                if (doanhNghiep.XaPhuongThiTran) fullAddress += doanhNghiep.XaPhuongThiTran + ', ';
+                if (doanhNghiep.QuanHuyen) fullAddress += doanhNghiep.QuanHuyen + ', ';
+                if (doanhNghiep.TinhThanh) fullAddress += doanhNghiep.TinhThanh;
+
+                // Xử lý ngày cấp
+                let ngayCap = '', thangCap = '', namCap = '';
+                if (giayPhep.NgayCap) {
+                    const issueDate = new Date(giayPhep.NgayCap);
+                    ngayCap = issueDate.getDate().toString().padStart(2, '0');
+                    thangCap = (issueDate.getMonth() + 1).toString().padStart(2, '0');
+                    namCap = issueDate.getFullYear().toString();
+                }
+
+                // Xử lý ngày ký
+                const signDate = giayPhep.NgayThuHoi ? new Date(giayPhep.NgayThuHoi) : new Date();
+                const ngayKy = signDate.getDate().toString().padStart(2, '0');
+                const thangKy = (signDate.getMonth() + 1).toString().padStart(2, '0');
+                const namKy = signDate.getFullYear().toString();
+
+                // Xử lý loại hình vận tải
+                let loaiHinhVanTai = '';
+                if (giayPhep.LoaiHinhVanTai) {
+                    const loaiHinhMapping = {
+                        'Tuyến cố định': 'Kinh doanh vận tải hành khách bằng xe ô tô theo tuyến cố định',
+                        'Buýt': 'Kinh doanh vận tải hành khách công cộng bằng xe buýt',
+                        'Taxi': 'Kinh doanh vận tải hành khách bằng xe taxi',
+                        'Hàng hoá': 'Kinh doanh vận tải hàng hóa bằng xe ô tô',
+                        'Hợp đồng': 'Kinh doanh vận tải hành khách theo hợp đồng'
+                    };
+
+                    const loaiHinhList = giayPhep.LoaiHinhVanTai.split(',').map(item => item.trim());
+                    loaiHinhVanTai = loaiHinhList
+                        .map(loaiHinh => `- ${loaiHinhMapping[loaiHinh] || loaiHinh}`)
+                        .join('\n');
+                }
+
+                // Xử lý tên tỉnh
+                let tenTinh = 'Bắc Giang'; // Giá trị mặc định với chữ in thường
+                if (tinh && tinh.length > 0) {
+                    const sortedTinhData = tinh.sort((a, b) =>
+                        new Date(b.Ngay_hieu_luc) - new Date(a.Ngay_hieu_luc)
+                    );
+                    // Lấy tên tỉnh mới nhất và đảm bảo chữ cái đầu viết hoa
+                    tenTinh = sortedTinhData[0].Tinh || 'Bắc Giang';
+                    // Chuyển đổi chuỗi để có dạng "Xxx Xxx"
+                    tenTinh = tenTinh.toLowerCase().split(' ')
+                        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                        .join(' ');
+                }
+
+
+                // Lấy template từ server
+                const response = await fetch('https://hoangmv.github.io/templates/giayphep_template.docx');
+                if (!response.ok) {
+                    throw new Error('Không thể tải template Word');
+                }
+                const templateContent = await response.arrayBuffer();
+
+                // Tạo instance mới của PizZip và docxtemplater
+                const zip = new PizZip(templateContent);
+                const doc = new window.docxtemplater(zip, {
+                    paragraphLoop: true,
+                    linebreaks: true
+                });
+
+                // Đặt dữ liệu vào template
+                const data = {
+                    tinh_header: tenTinh.toUpperCase(), // Chữ in hoa cho header
+                    tinh: tenTinh,
+                    so_giay_phep: giayPhep.SoGiayPhep || '',
+                    ten_doanh_nghiep: doanhNghiep.TenDoanhNghiep || '',
+                    dia_chi: fullAddress,
+                    so_dien_thoai: doanhNghiep.SoDienThoai || '',
+                    ngay_cap: ngayCap,
+                    thang_cap: thangCap,
+                    nam_cap: namCap,
+                    so_dkkd: doanhNghiep.SoDKKD || '',
+                    co_quan_cap: doanhNghiep.CQCapDKKD || '',
+                    nguoi_dai_dien: doanhNghiep.NguoiDaiDienTheoPhapLuat || '',
+                    loai_hinh_van_tai: loaiHinhVanTai,
+                    ngay_ky: ngayKy,
+                    thang_ky: thangKy,
+                    nam_ky: namKy,
+                    ten_nguoi_ky: 'Hoàng Văn Hải'
+                };
+
+                // Render template với dữ liệu
+                doc.setData(data);
+                doc.render();
+
+                // Tạo và tải file
+                const blob = doc.getZip().generate({
+                    type: "blob",
+                    mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                });
+
+                const fileName = `Giay_phep_kinh_doanh_${giayPhep.SoGiayPhep || 'unknown'}.docx`;
+                saveAs(blob, fileName);
+
+                document.getElementById('loading-message').textContent = 'Đang tải dữ liệu...';
+                hideLoadingMessage();
+
+            } catch (error) {
+                console.error('Error exporting to Word template:', error);
+                if (error.properties && error.properties.errors) {
+                    console.log('Template Error details:', error.properties.errors);
+                }
+                alert('Có lỗi khi xuất file Word: ' + error.message);
+                hideLoadingMessage();
+            }
+        }
+
+        // Hide loading message
+        function hideLoadingMessage() {
+            document.getElementById('loading-message').classList.add('hidden');
+        }
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', fetchData);
+    </script>
+</body>
+
+</html>
