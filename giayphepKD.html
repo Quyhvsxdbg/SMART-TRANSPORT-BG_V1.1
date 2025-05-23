@@ -491,11 +491,9 @@
             }
 
             // Format and populate issue date
-            if (doanhNghiepData.NgayCap) {  // Changed from giayPhepData.NgayCap to doanhNghiepData.NgayCap
-                const issueDate = new Date(doanhNghiepData.NgayCap);
-                const day = issueDate.getDate().toString().padStart(2, '0');
-                const month = (issueDate.getMonth() + 1).toString().padStart(2, '0');
-                const year = issueDate.getFullYear();
+            if (doanhNghiepData.NgayCap) {
+                // Split the date string by '/' and parse directly
+                const [day, month, year] = doanhNghiepData.NgayCap.split('/');
 
                 document.getElementById('ngay-cap').textContent = day;
                 document.getElementById('thang-cap').textContent = month;
@@ -533,15 +531,17 @@
                 document.getElementById('loai-hinh-van-tai').textContent = fullDescriptions;
             }
 
-            // Populate signature date
-            const signDate = giayPhepData.NgayThuHoi ? new Date(giayPhepData.NgayThuHoi) : new Date();
-            const signDay = signDate.getDate().toString().padStart(2, '0');
-            const signMonth = (signDate.getMonth() + 1).toString().padStart(2, '0');
-            const signYear = signDate.getFullYear();
+            // Populate signature date - changed to use giayPhepData.NgayCap
+            if (giayPhepData.NgayCap) {
+                const signDate = new Date(giayPhepData.NgayCap);
+                const signDay = signDate.getDate().toString().padStart(2, '0');
+                const signMonth = (signDate.getMonth() + 1).toString().padStart(2, '0');
+                const signYear = signDate.getFullYear();
 
-            document.getElementById('ngay-ky').textContent = signDay;
-            document.getElementById('thang-ky').textContent = signMonth;
-            document.getElementById('nam-ky').textContent = signYear;
+                document.getElementById('ngay-ky').textContent = signDay;
+                document.getElementById('thang-ky').textContent = signMonth;
+                document.getElementById('nam-ky').textContent = signYear;
+            }
         }
 
         // Hàm xuất Word template
@@ -566,18 +566,21 @@
 
                 // Xử lý ngày cấp
                 let ngayCap = '', thangCap = '', namCap = '';
-                if (doanhNghiep.NgayCap) {  // Changed from giayPhep.NgayCap to doanhNghiep.NgayCap
-                    const issueDate = new Date(doanhNghiep.NgayCap);
-                    ngayCap = issueDate.getDate().toString().padStart(2, '0');
-                    thangCap = (issueDate.getMonth() + 1).toString().padStart(2, '0');
-                    namCap = issueDate.getFullYear().toString();
+                if (doanhNghiep.NgayCap) {
+                    const [day, month, year] = doanhNghiep.NgayCap.split('/');
+                    ngayCap = day;
+                    thangCap = month;
+                    namCap = year;
                 }
 
                 // Xử lý ngày ký
-                const signDate = giayPhep.NgayThuHoi ? new Date(giayPhep.NgayThuHoi) : new Date();
-                const ngayKy = signDate.getDate().toString().padStart(2, '0');
-                const thangKy = (signDate.getMonth() + 1).toString().padStart(2, '0');
-                const namKy = signDate.getFullYear().toString();
+                let ngayKy = '', thangKy = '', namKy = '';
+                if (giayPhep.NgayCap) {
+                    const signDate = new Date(giayPhep.NgayCap);
+                    ngayKy = signDate.getDate().toString().padStart(2, '0');
+                    thangKy = (signDate.getMonth() + 1).toString().padStart(2, '0');
+                    namKy = signDate.getFullYear().toString();
+                }
 
                 // Xử lý loại hình vận tải
                 let loaiHinhVanTai = '';
