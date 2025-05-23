@@ -491,8 +491,8 @@
             }
 
             // Format and populate issue date
-            if (giayPhepData.NgayCap) {
-                const issueDate = new Date(giayPhepData.NgayCap);
+            if (doanhNghiepData.NgayCap) {  // Changed from giayPhepData.NgayCap to doanhNghiepData.NgayCap
+                const issueDate = new Date(doanhNghiepData.NgayCap);
                 const day = issueDate.getDate().toString().padStart(2, '0');
                 const month = (issueDate.getMonth() + 1).toString().padStart(2, '0');
                 const year = issueDate.getFullYear();
@@ -566,8 +566,8 @@
 
                 // Xử lý ngày cấp
                 let ngayCap = '', thangCap = '', namCap = '';
-                if (giayPhep.NgayCap) {
-                    const issueDate = new Date(giayPhep.NgayCap);
+                if (doanhNghiep.NgayCap) {  // Changed from giayPhep.NgayCap to doanhNghiep.NgayCap
+                    const issueDate = new Date(doanhNghiep.NgayCap);
                     ngayCap = issueDate.getDate().toString().padStart(2, '0');
                     thangCap = (issueDate.getMonth() + 1).toString().padStart(2, '0');
                     namCap = issueDate.getFullYear().toString();
@@ -679,6 +679,25 @@
 
         // Load data when page loads
         document.addEventListener('DOMContentLoaded', fetchData);
+
+        document.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+        }, false);
+
+        document.onkeydown = function (e) {
+            if (e.keyCode == 123) {
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) {
+                return false;
+            }
+        };
     </script>
 </body>
 
