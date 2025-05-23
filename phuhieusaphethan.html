@@ -445,19 +445,24 @@
             const day = today.getDate().toString().padStart(2, '0');
             const currentMonth = (today.getMonth() + 1).toString().padStart(2, '0');
 
+            // Format next month (only add leading zero for months 1-2)
+            const formattedMonth = month <= 2 ?
+                month.toString().padStart(2, '0') :
+                month.toString();
+
             // Update date
             document.getElementById('ngay-thang').textContent =
                 `Bắc Giang, ngày ${day} tháng ${currentMonth} năm ${year}`;
 
             // Update title with next month
             document.getElementById('title-thang').textContent =
-                `Danh sách các phương tiện sẽ hết hạn phù hiệu trong tháng ${month}/${year}`;
+                `Danh sách các phương tiện sẽ hết hạn phù hiệu trong tháng ${formattedMonth}/${year}`;
 
             document.getElementById('thang-thong-bao').textContent =
-                `tháng ${month}/${year}`;
+                `tháng ${formattedMonth}/${year}`;
 
             document.getElementById('table-title-thang').textContent =
-                `DANH SÁCH CÁC PHƯƠNG TIỆN SẼ HẾT HẠN PHÙ HIỆU VẬN TẢI TRONG THÁNG ${month}/${year}`;
+                `DANH SÁCH CÁC PHƯƠNG TIỆN SẼ HẾT HẠN PHÙ HIỆU VẬN TẢI TRONG THÁNG ${formattedMonth}/${year}`;
         }
 
         // Format dates as dd/mm/yyyy
@@ -542,12 +547,17 @@
                     linebreaks: true
                 });
 
+                // Format month theo quy tắc mới cho tháng hết hạn
+                const thang_het_han = month <= 2 ?
+                    month.toString().padStart(2, '0') :
+                    month.toString();
+
                 // Set data for template
                 const data = {
                     ngayKy: today.getDate().toString().padStart(2, '0'),
                     thangKy: (today.getMonth() + 1).toString().padStart(2, '0'),
                     nam: today.getFullYear(),
-                    thang_het_han: month,
+                    thang_het_han: thang_het_han,
                     nam_het_han: year,
                     don_vi_list: donViList
                 };
