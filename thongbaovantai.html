@@ -715,83 +715,83 @@
 
             switch (tableType) {
                 case 'phuHieu':
-                    subHeaderText = 'Danh sách các phương tiện được cấp phù hiệu vận tải';
+                    subHeaderText = '- Danh sách các phương tiện được cấp phù hiệu vận tải';
                     headerHtml = `
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th style="width: 4%;">STT</th>
-                                    <th style="width: 8%;">Biển kiểm soát</th>
-                                    <th style="width: 7%;">Số ghế</th>
-                                    <th style="width: 7%;">Tải trọng</th>
-                                    <th style="width: 10%;">Số phù hiệu</th>
-                                    <th style="width: 9%;">Loại phù hiệu</th>
-                                    <th style="width: 9%;">Có giá trị đến</th>
-                                    <th style="width: 10%;">Tuyến khai thác</th>
-                                    <th style="width: 10%;">Tuyến buýt</th>
-                                    <th style="width: 15%;">Tên đơn vị vận tải</th>
-                                    <th style="width: 14%;">Địa chỉ chi tiết</th>
-                                </tr>
-                            </thead>
-                            <tbody>`;
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 4%;">STT</th>
+                            <th style="width: 8%;">Biển kiểm soát</th>
+                            <th style="width: 7%;">Số ghế</th>
+                            <th style="width: 7%;">Tải trọng</th>
+                            <th style="width: 10%;">Số phù hiệu</th>
+                            <th style="width: 9%;">Loại phù hiệu</th>
+                            <th style="width: 9%;">Có giá trị đến</th>
+                            <th style="width: 10%;">Tuyến khai thác</th>
+                            <th style="width: 10%;">Tuyến buýt</th>
+                            <th style="width: 15%;">Tên đơn vị vận tải</th>
+                            <th style="width: 14%;">Địa chỉ chi tiết</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
                     break;
                 case 'gpkd':
-                    subHeaderText = 'Danh sách các đơn vị được cấp giấy phép kinh doanh vận tải bằng xe ô tô';
+                    subHeaderText = '- Danh sách các đơn vị được cấp giấy phép kinh doanh vận tải bằng xe ô tô';
                     headerHtml = `
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th style="width: 4%;">STT</th>
-                                    <th style="width: 20%;">Tên đơn vị vận tải</th>
-                                    <th style="width: 24%;">Địa chỉ chi tiết</th>
-                                    <th style="width: 10%;">Số ĐKKD</th>
-                                    <th style="width: 14%;">Số GP</th>
-                                    <th style="width: 10%;">Ngày cấp</th>
-                                    <th style="width: 18%;">Loại hình được cấp</th>
-                                </tr>
-                            </thead>
-                            <tbody>`;
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 4%;">STT</th>
+                            <th style="width: 20%;">Tên đơn vị vận tải</th>
+                            <th style="width: 24%;">Địa chỉ chi tiết</th>
+                            <th style="width: 10%;">Số ĐKKD</th>
+                            <th style="width: 14%;">Số GP</th>
+                            <th style="width: 10%;">Ngày cấp</th>
+                            <th style="width: 18%;">Loại hình được cấp</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
                     break;
                 case 'phuHieuThuHoi':
-                    subHeaderText = 'Danh sách các phương tiện bị thu hồi phù hiệu vận tải';
+                    subHeaderText = '- Danh sách các phương tiện bị thu hồi phù hiệu vận tải';
                     headerHtml = `
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th style="width: 4%;">STT</th>
-                                    <th style="width: 10%;">Biển số</th>
-                                    <th style="width: 10%;">Số Phù hiệu</th>
-                                    <th style="width: 10%;">Loại PH</th>
-                                    <th style="width: 10%;">Hạn Phù hiệu</th>
-                                    <th style="width: 10%;">Tuyến cố định</th>
-                                    <th style="width: 10%;">Tuyến buýt</th>
-                                    <th style="width: 15%;">Tên đơn vị vận tải</th>
-                                    <th style="width: 15%;">Địa chỉ chi tiết</th>
-                                   <th style="width: 12%;">Chỉ chú</th>
-                               </tr>
-                           </thead>
-                           <tbody>`;
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 4%;">STT</th>
+                            <th style="width: 10%;">Biển số</th>
+                            <th style="width: 10%;">Số Phù hiệu</th>
+                            <th style="width: 10%;">Loại PH</th>
+                            <th style="width: 10%;">Hạn Phù hiệu</th>
+                            <th style="width: 10%;">Tuyến cố định</th>
+                            <th style="width: 10%;">Tuyến buýt</th>
+                            <th style="width: 15%;">Tên đơn vị vận tải</th>
+                            <th style="width: 15%;">Địa chỉ chi tiết</th>
+                           <th style="width: 12%;">Chỉ chú</th>
+                       </tr>
+                   </thead>
+                   <tbody>`;
                     break;
                 case 'gpkdThuHoi':
-                    subHeaderText = 'Danh sách các đơn vị bị thu hồi giấy phép kinh doanh vận tải bằng xe ô tô';
+                    subHeaderText = '- Danh sách các đơn vị bị thu hồi giấy phép kinh doanh vận tải bằng xe ô tô';
                     headerHtml = `
-                       <table>
-                               <thead>
-                                   <tr>
-                                       <th style="width: 4%;">STT</th>
-                                       <th style="width: 15%;">Tên đơn vị vận tải</th>
-                                       <th style="width: 24%;">Địa chỉ chi tiết</th>
-                                       <th style="width: 10%;">Số ĐKKD</th>
-                                       <th style="width: 12%;">Số GP KDVT</th>
-                                       <th style="width: 10%;">Ngày cấp</th>
-                                       <th style="width: 18%;">Loại hình KDVT đã được cấp</th>
-                                   </tr>
-                               </thead>
-                               <tbody>`;
+               <table>
+                       <thead>
+                           <tr>
+                               <th style="width: 4%;">STT</th>
+                               <th style="width: 15%;">Tên đơn vị vận tải</th>
+                               <th style="width: 24%;">Địa chỉ chi tiết</th>
+                               <th style="width: 10%;">Số ĐKKD</th>
+                               <th style="width: 12%;">Số GP KDVT</th>
+                               <th style="width: 10%;">Ngày cấp</th>
+                               <th style="width: 18%;">Loại hình KDVT đã được cấp</th>
+                           </tr>
+                       </thead>
+                       <tbody>`;
                     break;
             }
 
-            let html = `<div class="sub-header">${subIndex}.${tableType === 'phuHieu' ? '1' : tableType === 'gpkd' ? '2' : tableType === 'phuHieuThuHoi' ? '3' : '4'}. ${subHeaderText}</div>`;
+            let html = `<div class="sub-header">${subHeaderText}</div>`;
             html += headerHtml;
 
             data.forEach((item, index) => {
@@ -800,58 +800,58 @@
                 switch (tableType) {
                     case 'phuHieu':
                         rowHtml = `
-                           <tr>
-                               <td>${index + 1}</td>
-                               <td>${item.BienSo || ''}</td>
-                               <td>${item['Số ghế'] || ''}</td>
-                               <td>${item['Tải trọng'] || ''}</td>
-                               <td>${item.SoPhuHieu || ''}</td>
-                               <td>${item.LoaiPH || ''}</td>
-                               <td>${formatDate(item.NgayHetHan)}</td>
-                               <td class="text-left">${item['Tuyến khai thác'] || ''}</td>
-                               <td class="text-left">${item['Tuyến buýt'] || ''}</td>
-                               <td class="text-left">${item.tenDoanhNghiep || ''}</td>
-                               <td class="text-left">${item.diaChiDoanhNghiep || ''}</td>
-                         </tr>`;
+                   <tr>
+                       <td>${index + 1}</td>
+                       <td>${item.BienSo || ''}</td>
+                       <td>${item['Số ghế'] || ''}</td>
+                       <td>${item['Tải trọng'] || ''}</td>
+                       <td>${item.SoPhuHieu || ''}</td>
+                       <td>${item.LoaiPH || ''}</td>
+                       <td>${formatDate(item.NgayHetHan)}</td>
+                       <td class="text-left">${item['Tuyến khai thác'] || ''}</td>
+                       <td class="text-left">${item['Tuyến buýt'] || ''}</td>
+                       <td class="text-left">${item.tenDoanhNghiep || ''}</td>
+                       <td class="text-left">${item.diaChiDoanhNghiep || ''}</td>
+                 </tr>`;
                         break;
                     case 'gpkd':
                         rowHtml = `
-                         <tr>
-                             <td>${index + 1}</td>
-                             <td class="text-left">${item.tenDoanhNghiep || ''}</td>
-                             <td class="text-left">${item.diaChiDoanhNghiep || ''}</td>
-                             <td>${item.SoDKKD || ''}</td>
-                             <td>${item.SoGiayPhep || ''}</td>
-                             <td>${formatDate(item.NgayCap)}</td>
-                             <td>${item.LoaiHinhVanTai || ''}</td>
-                         </tr>`;
+                 <tr>
+                     <td>${index + 1}</td>
+                     <td class="text-left">${item.tenDoanhNghiep || ''}</td>
+                     <td class="text-left">${item.diaChiDoanhNghiep || ''}</td>
+                     <td>${item.SoDKKD || ''}</td>
+                     <td>${item.SoGiayPhep || ''}</td>
+                     <td>${formatDate(item.NgayCap)}</td>
+                     <td>${item.LoaiHinhVanTai || ''}</td>
+                 </tr>`;
                         break;
                     case 'phuHieuThuHoi':
                         rowHtml = `
-                         <tr>
-                             <td>${index + 1}</td>
-                             <td>${item['Biển số'] || ''}</td>
-                             <td>${item['Số Phù hiệu'] || ''}</td>
-                             <td>${item['Loại Phù hiệu'] || ''}</td>
-                             <td>${formatDate(item['Ngày hết hạn phù hiệu'])}</td>
-                             <td class="text-left">${item['Tuyến khai thác'] || ''}</td>
-                             <td class="text-left">${item['Tuyến buýt'] || ''}</td>
-                             <td class="text-left">${item.tenDoanhNghiep || ''}</td>
-                             <td class="text-left">${item.diaChiDoanhNghiep || ''}</td>
-                             <td class="text-left">${item['Văn bản ngừng'] || ''}</td>
-                         </tr>`;
+                 <tr>
+                     <td>${index + 1}</td>
+                     <td>${item['Biển số'] || ''}</td>
+                     <td>${item['Số Phù hiệu'] || ''}</td>
+                     <td>${item['Loại Phù hiệu'] || ''}</td>
+                     <td>${formatDate(item['Ngày hết hạn phù hiệu'])}</td>
+                     <td class="text-left">${item['Tuyến khai thác'] || ''}</td>
+                     <td class="text-left">${item['Tuyến buýt'] || ''}</td>
+                     <td class="text-left">${item.tenDoanhNghiep || ''}</td>
+                     <td class="text-left">${item.diaChiDoanhNghiep || ''}</td>
+                     <td class="text-left">${item['Văn bản ngừng'] || ''}</td>
+                 </tr>`;
                         break;
                     case 'gpkdThuHoi':
                         rowHtml = `
-                         <tr>
-                             <td>${index + 1}</td>
-                             <td class="text-left">${item.tenDoanhNghiep || ''}</td>
-                             <td class="text-left">${item.diaChiDoanhNghiep || ''}</td>
-                             <td>${item['Số ĐKKD'] || ''}</td>
-                             <td>${item['Số GP KDVT'] || ''}</td>
-                             <td>${formatDate(item['Ngày cấp'])}</td>
-                             <td>${item['Loại hình vận tải'] || ''}</td>
-                         </tr>`;
+                 <tr>
+                     <td>${index + 1}</td>
+                     <td class="text-left">${item.tenDoanhNghiep || ''}</td>
+                     <td class="text-left">${item.diaChiDoanhNghiep || ''}</td>
+                     <td>${item['Số ĐKKD'] || ''}</td>
+                     <td>${item['Số GP KDVT'] || ''}</td>
+                     <td>${formatDate(item['Ngày cấp'])}</td>
+                     <td>${item['Loại hình vận tải'] || ''}</td>
+                 </tr>`;
                         break;
                 }
 
