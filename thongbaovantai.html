@@ -316,11 +316,30 @@
             margin-bottom: 20px;
         }
 
+        .group-header {
+            background-color: #f0f0f0;
+            font-weight: bold;
+            font-size: 14pt;
+            padding: 8px;
+            text-align: left;
+            border: 1px solid black;
+        }
+
+        .sub-header {
+            background-color: #f8f8f8;
+            font-weight: bold;
+            font-style: italic;
+            padding: 5px 8px;
+            text-align: left;
+            border: 1px solid black;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
             border: 1px solid black;
             page-break-inside: auto;
+            margin-bottom: 20px;
         }
 
         th,
@@ -368,6 +387,11 @@
 
         .hidden {
             display: none;
+        }
+
+        .location-group {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
         }
     </style>
 </head>
@@ -448,33 +472,13 @@
                 </div>
 
                 <div class="text-block">
-                    Để phục vụ công tác kiểm tra, giám sát của các cơ quan chức năng và chính quyền địa phương trong
-                    hoạt
-                    động kinh doanh vận tải bằng xe ô tô, Sở Xây dựng tỉnh Bắc Giang thông báo danh sách phương tiện,
-                    loại
-                    phù hiệu đã cấp, thời hạn có hiệu lực của phù hiệu và đơn vị kinh doanh vận tải đã được cấp giấy
-                    phép
-                    kinh doanh vận tải bằng xe ô tô; danh sách phương tiện bị thu hồi, bị tước phù hiệu; danh sách đơn
-                    vị
-                    kinh doanh vận tải bị thu hồi, bị tước giấy phép kinh doanh vận tải bằng xe ô tô trong <span
-                        id="thang-thong-bao-2">tháng</span>, cụ
-                    thể như sau:
-                </div>
 
-                <div class="text-block">
-                    <strong>1.</strong> Danh sách các phương tiện được cấp phù hiệu vận tải: Phụ lục I kèm theo;
-                </div>
-                <div class="text-block">
-                    <strong>2.</strong> Danh sách các đơn vị được cấp Giấy phép kinh doanh vận tải bằng xe ô tô: Phụ lục
-                    II
-                    kèm theo;
-                </div>
-                <div class="text-block">
-                    <strong>3.</strong> Danh sách phương tiện bị thu hồi, bị tước phù hiệu: Phụ lục III kèm theo;
-                </div>
-                <div class="text-block">
-                    <strong>4.</strong> Danh sách đơn vị kinh doanh vận tải bị thu hồi, bị tước giấy phép kinh doanh vận
-                    tải: Phụ lục IV kèm theo.
+                    Để phục vụ công tác kiểm tra, giám sát của các cơ quan chức năng và chính quyền địa phương trong
+                    hoạt động kinh doanh vận tải bằng xe ô tô, Sở Xây dựng tỉnh Bắc Giang thông báo danh sách phương
+                    tiện, loại phù hiệu đã cấp, thời hạn có hiệu lực của phù hiệu và đơn vị kinh doanh vận tải đã được
+                    cấp giấy phép kinh doanh vận tải bằng xe ô tô; danh sách phương tiện bị thu hồi, bị tước phù hiệu;
+                    danh sách đơn vị kinh doanh vận tải bị thu hồi, bị tước giấy phép kinh doanh vận tải bằng xe ô tô
+                    trong tháng <span id="thang-thong-bao-2">tháng</span>, cụ thể theo phụ lục đính kèm.
                 </div>
 
                 <div class="text-block">
@@ -505,124 +509,16 @@
             </div>
         </div>
 
-        <!-- Second page - Phụ lục I -->
+        <!-- Combined page for all appendixes -->
         <div class="page landscape-page">
             <div class="landscape-container">
                 <div class="table-container">
                     <div class="table-title">
-                        PHỤ LỤC I<br>
-                        <span id="table-title-thang-1">DANH SÁCH CÁC PHƯƠNG TIỆN ĐƯỢC CẤP PHÙ HIỆU VẬN TẢI TRONG
-                            THÁNG</span>
+                        DANH SÁCH ĐƠN VỊ, PHƯƠNG TIỆN VẬN TẢI
                     </div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th style="width: 4%;">STT</th>
-                                <th style="width: 8%;">Biển kiểm soát</th>
-                                <th style="width: 7%;">Số ghế</th>
-                                <th style="width: 7%;">Tải trọng</th>
-                                <th style="width: 10%;">Số phù hiệu</th>
-                                <th style="width: 9%;">Loại phù hiệu</th>
-                                <th style="width: 9%;">Có giá trị đến</th>
-                                <th style="width: 14%;">Tuyến khai thác</th>
-                                <th style="width: 15%;">Đơn vị được cấp phù hiệu</th>
-                                <th style="width: 17%;">Địa chỉ</th>
-                            </tr>
-                        </thead>
-                        <tbody id="table-body-1">
-                            <!-- Table rows will be dynamically populated from PHUHIEUXE -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Third page - Phụ lục II -->
-        <div class="page landscape-page">
-            <div class="landscape-container">
-                <div class="table-container">
-                    <div class="table-title">
-                        PHỤ LỤC II<br>
-                        <span id="table-title-thang-2">DANH SÁCH CÁC ĐƠN VỊ ĐƯỢC CẤP GIẤY PHÉP KINH DOANH VẬN TẢI BẰNG
-                            XE Ô
-                            TÔ TRONG THÁNG</span>
+                    <div id="combined-tables">
+                        <!-- All grouped tables will be displayed here -->
                     </div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th style="width: 4%;">STT</th>
-                                <th style="width: 20%;">Tên đơn vị</th>
-                                <th style="width: 24%;">Địa chỉ</th>
-                                <th style="width: 10%;">Số ĐKKD</th>
-                                <th style="width: 14%;">Số GP</th>
-                                <th style="width: 10%;">Ngày cấp</th>
-                                <th style="width: 18%;">Loại hình được cấp</th>
-                            </tr>
-                        </thead>
-                        <tbody id="table-body-2">
-                            <!-- Table rows will be dynamically populated from GIAYPHEPKINHDOANHNOIDIA -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Fourth page - Phụ lục III -->
-        <div class="page landscape-page">
-            <div class="landscape-container">
-                <div class="table-container">
-                    <div class="table-title">
-                        PHỤ LỤC III<br>
-                        <span id="table-title-thang-3">DANH SÁCH CÁC PHƯƠNG TIỆN BỊ THU HỒI PHÙ HIỆU VẬN TẢI TRONG
-                            THÁNG</span>
-                    </div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th style="width: 4%;">STT</th>
-                                <th style="width: 10%;">Biển số</th>
-                                <th style="width: 10%;">Số Phù hiệu</th>
-                                <th style="width: 10%;">Loại PH</th>
-                                <th style="width: 10%;">Hạn Phù hiệu</th>
-                                <th style="width: 18%;">Tên đơn vị</th>
-                                <th style="width: 22%;">Địa chỉ</th>
-                                <th style="width: 16%;">Văn bản ngừng</th>
-                            </tr>
-                        </thead>
-                        <tbody id="table-body-3">
-                            <!-- Table rows will be dynamically populated from PHUHIEU_THUHOI_CHITIET -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Fifth page - Phụ lục IV -->
-        <div class="page landscape-page">
-            <div class="landscape-container">
-                <div class="table-container">
-                    <div class="table-title">
-                        PHỤ LỤC IV<br>
-                        <span id="table-title-thang-4">DANH SÁCH CÁC ĐƠN VỊ BỊ THU HỒI GIẤY PHÉP KINH DOANH VẬN TẢI BẰNG
-                            XE
-                            Ô TÔ TRONG THÁNG</span>
-                    </div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th style="width: 4%;">STT</th>
-                                <th style="width: 15%;">Tên đơn vị</th>
-                                <th style="width: 24%;">Địa chỉ</th>
-                                <th style="width: 10%;">Số ĐKKD</th>
-                                <th style="width: 12%;">Số GP KDVT</th>
-                                <th style="width: 10%;">Ngày cấp</th>
-                                <th style="width: 18%;">Loại hình KDVT đã được cấp</th>
-                            </tr>
-                        </thead>
-                        <tbody id="table-body-4">
-                            <!-- Table rows will be dynamically populated from GPKD_THUHOI_CHITIET -->
-                        </tbody>
-                    </table>
                 </div>
             </div>
         </div>
@@ -639,7 +535,6 @@
             const yearSelect = document.getElementById('year-select');
             const currentYear = new Date().getFullYear();
 
-            // Add years from 2020 to current year + 2
             for (let year = 2020; year <= currentYear + 2; year++) {
                 const option = document.createElement('option');
                 option.value = year;
@@ -651,22 +546,18 @@
             }
         }
 
-        // Function to set current month and year as default
         function setDefaultMonthYear() {
             const today = new Date();
             const currentMonth = today.getMonth() + 1;
-
             document.getElementById('month-select').value = currentMonth;
         }
 
-        // Function to get selected month and year
         function getSelectedMonthYear() {
             const month = parseInt(document.getElementById('month-select').value);
             const year = parseInt(document.getElementById('year-select').value);
             return { month, year };
         }
 
-        // Function to load data for selected month - cải thiện xử lý lỗi
         function loadDataForSelectedMonth() {
             const monthSelect = document.getElementById('month-select');
             const yearSelect = document.getElementById('year-select');
@@ -689,7 +580,6 @@
             fetchData(month, year);
         }
 
-        // Function to format date for filtering (yyyy-mm-dd)
         function formatDateForFilter(month, year) {
             const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
             const lastDay = new Date(year, month, 0).getDate();
@@ -697,96 +587,48 @@
             return { startDate, endDate };
         }
 
-        // Function to cleanup old dynamically created pages
-        function cleanupOldPages() {
-            // Remove dynamically created pages
-            const dynamicPages = document.querySelectorAll('[id*="-page-"]');
-            const dynamicBreaks = document.querySelectorAll('.page-break:not(:first-of-type):not(:nth-of-type(2)):not(:nth-of-type(3)):not(:nth-of-type(4))');
-
-            dynamicPages.forEach(page => {
-                const parentPage = page.closest('.landscape-page');
-                if (parentPage && parentPage.id && parentPage.id.includes('-page-')) {
-                    parentPage.remove();
-                }
-            });
-
-            // Remove extra page breaks
-            const allBreaks = document.querySelectorAll('.page-break');
-            if (allBreaks.length > 4) {
-                for (let i = 4; i < allBreaks.length; i++) {
-                    allBreaks[i].remove();
-                }
-            }
-        }
-
-        // Main function to fetch data - cải thiện xử lý tháng/năm
-        async function fetchData(selectedMonth = null, selectedYear = null) {
+        // Function to fetch all THONGTINDONVIVANTAI data for lookup
+        async function fetchAllCompanyData() {
             try {
-                // Show loading message
-                document.getElementById('loading-message').classList.remove('hidden');
-
-                // Clean up old pages first
-                cleanupOldPages();
-
-                // Get month and year với xử lý an toàn hơn
-                let month, year;
-                if (selectedMonth !== null && selectedYear !== null &&
-                    !isNaN(selectedMonth) && !isNaN(selectedYear)) {
-                    month = selectedMonth;
-                    year = selectedYear;
-                } else {
-                    // Lấy từ dropdown nếu có, nếu không thì dùng tháng hiện tại
-                    const monthSelect = document.getElementById('month-select');
-                    const yearSelect = document.getElementById('year-select');
-
-                    if (monthSelect && yearSelect && monthSelect.value && yearSelect.value) {
-                        month = parseInt(monthSelect.value);
-                        year = parseInt(yearSelect.value);
-                    } else {
-                        const today = new Date();
-                        month = today.getMonth() + 1;
-                        year = today.getFullYear();
-                    }
-                }
-
-                console.log(`Fetching data for month: ${month}, year: ${year}`);
-
-                // Update page 1 content with selected month
-                updatePage1Content(month, year);
-
-                // Fetch data from all tables with date filtering
-                const [phuHieuData, gpkdData, phuHieuThuHoiData, gpkdThuHoiData] = await Promise.all([
-                    fetchTableDataWithFilter('PHUHIEUXE', 'ID_PhuHieu', 'NgayCap', month, year),
-                    fetchTableDataWithFilter('GIAYPHEPKINHDOANHNOIDIA', 'ID_GPKD', 'NgayCap', month, year),
-                    fetchTableDataWithFilter('PHUHIEU_THUHOI_CHITIET', 'ID_Row', 'Ngày hết hạn phù hiệu', month, year),
-                    fetchTableDataWithFilter('GPKD_THUHOI_CHITIET', 'ID_Row', 'Ngày thu hồi', month, year)
-                ]);
-
-                // Log kết quả để debug
-                console.log('Data fetched:', {
-                    phuHieuData: phuHieuData?.length || 0,
-                    gpkdData: gpkdData?.length || 0,
-                    phuHieuThuHoiData: phuHieuThuHoiData?.length || 0,
-                    gpkdThuHoiData: gpkdThuHoiData?.length || 0
+                const response = await fetch(`https://${region}.appsheet.com/api/v2/apps/${appId}/tables/THONGTINDONVIVANTAI/Action`, {
+                    method: 'POST',
+                    headers: {
+                        'ApplicationAccessKey': accessKey,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        Action: 'Find',
+                        Properties: {
+                            Selector: 'SELECT(THONGTINDONVIVANTAI[IDDoanhNghiep], TRUE)'
+                        }
+                    })
                 });
 
-                // Populate all tables with data
-                populateTable1Data(phuHieuData || []);
-                populateTable2Data(gpkdData || []);
-                populateTable3Data(phuHieuThuHoiData || []);
-                populateTable4Data(gpkdThuHoiData || []);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
 
-                // Hide loading message
-                hideLoadingMessage();
+                const result = await response.json();
 
+                const companyLookup = {};
+                result.forEach(company => {
+                    if (company.IDDoanhNghiep) {
+                        companyLookup[company.IDDoanhNghiep] = {
+                            tenDoanh: company.TenDoanhNghiep || '',
+                            diaChi: company.SoNha_TDP || '',
+                            xaPhuongThiTran: company.XaPhuongThiTran || '',
+                            quanHuyen: company.QuanHuyen || ''
+                        };
+                    }
+                });
+
+                return companyLookup;
             } catch (error) {
-                console.error('Lỗi:', error);
-                hideLoadingMessage();
-                alert('Đã xảy ra lỗi khi lấy dữ liệu: ' + error.message);
+                console.error('Lỗi khi lấy dữ liệu công ty:', error);
+                return {};
             }
         }
 
-        // Function to fetch data from any table with date filtering
         async function fetchTableDataWithFilter(tableName, idField, dateField, month, year) {
             try {
                 const { startDate, endDate } = formatDateForFilter(month, year);
@@ -818,123 +660,339 @@
             }
         }
 
-        // Function to create multi-page tables
-        function createMultiPageTable(data, tableId, titlePrefix, maxRowsPerPage = 25) {
-            // Find original elements
-            const originalPage = document.querySelector(`#${tableId}`).closest('.landscape-page');
-            const originalTableBody = document.getElementById(tableId);
-            const originalTable = originalTableBody.closest('table');
+        // Function to group data by XaPhuongThiTran
+        function groupDataByLocation(data, companyLookup) {
+            const grouped = {};
 
-            // Clear original table body
-            originalTableBody.innerHTML = '';
+            data.forEach(item => {
+                let xaPhuong = '';
+                let quanHuyen = '';
+                let companyInfo = null;
 
-            if (data.length === 0) {
-                const columnCount = originalTable.querySelector('thead tr').children.length;
-                const row = document.createElement('tr');
-                row.innerHTML = `<td colspan="${columnCount}" style="text-align: center; font-style: italic;">Không có dữ liệu</td>`;
-                originalTableBody.appendChild(row);
-                return;
-            }
+                // Try different ID fields to match with company lookup
+                const possibleIds = [item.Ref_DonViCapPhuHieu, item.Ref_DoanhNghiep, item.RefDonVi, item.IDDoanhNghiep];
 
-            // Split data into chunks
-            const chunks = [];
-            for (let i = 0; i < data.length; i += maxRowsPerPage) {
-                chunks.push(data.slice(i, i + maxRowsPerPage));
-            }
-
-            // Populate first page
-            populateTableChunk(chunks[0], originalTableBody, 0, tableId);
-
-            // Create additional pages if needed
-            if (chunks.length > 1) {
-                for (let i = 1; i < chunks.length; i++) {
-                    createAdditionalPage(originalPage, chunks[i], i, tableId, titlePrefix, maxRowsPerPage);
+                for (const id of possibleIds) {
+                    if (id && companyLookup[id]) {
+                        companyInfo = companyLookup[id];
+                        xaPhuong = companyInfo.xaPhuongThiTran;
+                        quanHuyen = companyInfo.quanHuyen;
+                        break;
+                    }
                 }
-            }
-        }
 
-        // Function to create additional pages
-        function createAdditionalPage(originalPage, data, pageIndex, tableId, titlePrefix, maxRowsPerPage) {
-            const newPage = originalPage.cloneNode(true);
-            newPage.id = `${originalPage.id}-page-${pageIndex + 1}`;
-
-            const newTableBody = newPage.querySelector(`#${tableId}`);
-            newTableBody.id = `${tableId}-page-${pageIndex + 1}`;
-
-            const newTitle = newPage.querySelector('.table-title span');
-            if (newTitle) {
-                newTitle.textContent = newTitle.textContent + ` (Trang ${pageIndex + 1})`;
-            }
-
-            newTableBody.innerHTML = '';
-            populateTableChunk(data, newTableBody, pageIndex * maxRowsPerPage, tableId);
-
-            // Chỉ thêm trang mới, không thêm page-break
-            originalPage.parentNode.insertBefore(newPage, originalPage.nextSibling);
-        }
-
-        // Function to populate a chunk of data
-        function populateTableChunk(data, tableBody, startIndex, tableId) {
-            data.forEach((item, index) => {
-                const row = document.createElement('tr');
-                const actualIndex = startIndex + index + 1;
-
-                // Handle different table types
-                switch (tableId) {
-                    case 'table-body-1': // Phụ lục I
-                        row.innerHTML = `
-                           <td>${actualIndex}</td>
-                           <td>${item.BienSo || ''}</td>
-                           <td>${item['Số ghế'] || ''}</td>
-                           <td>${item['Tải trọng'] || ''}</td>
-                           <td>${item.SoPhuHieu || ''}</td>
-                           <td>${item.LoaiPH || ''}</td>
-                           <td>${formatDate(item.NgayHetHan)}</td>
-                           <td class="text-left">${item['Tuyến khai thác'] || ''}</td>
-                           <td class="text-left">${item.Ten_don_vi || ''}</td>
-                           <td class="text-left">${item['Địa chỉ'] || ''}</td>
-                       `;
-                        break;
-                    case 'table-body-2': // Phụ lục II
-                        row.innerHTML = `
-                           <td>${actualIndex}</td>
-                           <td class="text-left">${item.TenDonVi || ''}</td>
-                           <td class="text-left">${item.DiaChi || ''}</td>
-                           <td>${item.SoDKKD || ''}</td>
-                           <td>${item.SoGiayPhep || ''}</td>
-                           <td>${formatDate(item.NgayCap)}</td>
-                           <td class="text-left">${item.LoaiHinhVanTai || ''}</td>
-                       `;
-                        break;
-                    case 'table-body-3': // Phụ lục III
-                        row.innerHTML = `
-                           <td>${actualIndex}</td>
-                           <td>${item['Biển số'] || ''}</td>
-                           <td>${item['Số Phù hiệu'] || ''}</td>
-                           <td>${item['Loại Phù hiệu'] || ''}</td>
-                           <td>${formatDate(item['Ngày hết hạn phù hiệu'])}</td>
-                          <td class="text-left">${item['Tên đơn vị'] || ''}</td>
-                          <td class="text-left">${item['Địa chỉ'] || ''}</td>
-                          <td class="text-left">${item['Văn bản ngừng'] || ''}</td>
-                      `;
-                        break;
-                    case 'table-body-4': // Phụ lục IV
-                        row.innerHTML = `
-                          <td>${actualIndex}</td>
-                          <td class="text-left">${item['Tên đơn vị'] || ''}</td>
-                          <td class="text-left">${item['Địa chỉ'] || ''}</td>
-                          <td>${item['Số ĐKKD'] || ''}</td>
-                          <td>${item['Số GP KDVT'] || ''}</td>
-                          <td>${formatDate(item['Ngày cấp'])}</td>
-                          <td>${item['Loại hình vận tải'] || ''}</td>
-                      `;
-                        break;
+                if (!xaPhuong) {
+                    xaPhuong = 'Không xác định';
+                    quanHuyen = 'Không xác định';
                 }
-                tableBody.appendChild(row);
+
+                const locationKey = `${xaPhuong}, ${quanHuyen}`;
+
+                if (!grouped[locationKey]) {
+                    grouped[locationKey] = [];
+                }
+
+                // Add company info to item
+                if (companyInfo) {
+                    item.tenDoanhNghiep = companyInfo.tenDoanh;
+                    item.diaChiDoanhNghiep = companyInfo.diaChi;
+                }
+
+                grouped[locationKey].push(item);
             });
+
+            return grouped;
         }
 
-        // Format dates as dd/mm/yyyy with proper administrative formatting
+        // Function to create table for specific data type
+        function createTableByType(data, tableType, subIndex) {
+            if (!data || data.length === 0) {
+                return '';
+            }
+
+            let headerHtml = '';
+            let subHeaderText = '';
+
+            switch (tableType) {
+                case 'phuHieu':
+                    subHeaderText = 'Danh sách các phương tiện được cấp phù hiệu vận tải';
+                    headerHtml = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 4%;">STT</th>
+                                    <th style="width: 8%;">Biển kiểm soát</th>
+                                    <th style="width: 7%;">Số ghế</th>
+                                    <th style="width: 7%;">Tải trọng</th>
+                                    <th style="width: 10%;">Số phù hiệu</th>
+                                    <th style="width: 9%;">Loại phù hiệu</th>
+                                    <th style="width: 9%;">Có giá trị đến</th>
+                                    <th style="width: 10%;">Tuyến khai thác</th>
+                                    <th style="width: 10%;">Tuyến buýt</th>
+                                    <th style="width: 15%;">Tên đơn vị vận tải</th>
+                                    <th style="width: 14%;">Địa chỉ chi tiết</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+                    break;
+                case 'gpkd':
+                    subHeaderText = 'Danh sách các đơn vị được cấp giấy phép kinh doanh vận tải bằng xe ô tô';
+                    headerHtml = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 4%;">STT</th>
+                                    <th style="width: 20%;">Tên đơn vị vận tải</th>
+                                    <th style="width: 24%;">Địa chỉ chi tiết</th>
+                                    <th style="width: 10%;">Số ĐKKD</th>
+                                    <th style="width: 14%;">Số GP</th>
+                                    <th style="width: 10%;">Ngày cấp</th>
+                                    <th style="width: 18%;">Loại hình được cấp</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+                    break;
+                case 'phuHieuThuHoi':
+                    subHeaderText = 'Danh sách các phương tiện bị thu hồi phù hiệu vận tải';
+                    headerHtml = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 4%;">STT</th>
+                                    <th style="width: 10%;">Biển số</th>
+                                    <th style="width: 10%;">Số Phù hiệu</th>
+                                    <th style="width: 10%;">Loại PH</th>
+                                    <th style="width: 10%;">Hạn Phù hiệu</th>
+                                    <th style="width: 10%;">Tuyến cố định</th>
+                                    <th style="width: 10%;">Tuyến buýt</th>
+                                    <th style="width: 15%;">Tên đơn vị vận tải</th>
+                                    <th style="width: 15%;">Địa chỉ chi tiết</th>
+                                   <th style="width: 12%;">Chỉ chú</th>
+                               </tr>
+                           </thead>
+                           <tbody>`;
+                    break;
+                case 'gpkdThuHoi':
+                    subHeaderText = 'Danh sách các đơn vị bị thu hồi giấy phép kinh doanh vận tải bằng xe ô tô';
+                    headerHtml = `
+                       <table>
+                               <thead>
+                                   <tr>
+                                       <th style="width: 4%;">STT</th>
+                                       <th style="width: 15%;">Tên đơn vị vận tải</th>
+                                       <th style="width: 24%;">Địa chỉ chi tiết</th>
+                                       <th style="width: 10%;">Số ĐKKD</th>
+                                       <th style="width: 12%;">Số GP KDVT</th>
+                                       <th style="width: 10%;">Ngày cấp</th>
+                                       <th style="width: 18%;">Loại hình KDVT đã được cấp</th>
+                                   </tr>
+                               </thead>
+                               <tbody>`;
+                    break;
+            }
+
+            let html = `<div class="sub-header">${subIndex}.${tableType === 'phuHieu' ? '1' : tableType === 'gpkd' ? '2' : tableType === 'phuHieuThuHoi' ? '3' : '4'}. ${subHeaderText}</div>`;
+            html += headerHtml;
+
+            data.forEach((item, index) => {
+                let rowHtml = '';
+
+                switch (tableType) {
+                    case 'phuHieu':
+                        rowHtml = `
+                           <tr>
+                               <td>${index + 1}</td>
+                               <td>${item.BienSo || ''}</td>
+                               <td>${item['Số ghế'] || ''}</td>
+                               <td>${item['Tải trọng'] || ''}</td>
+                               <td>${item.SoPhuHieu || ''}</td>
+                               <td>${item.LoaiPH || ''}</td>
+                               <td>${formatDate(item.NgayHetHan)}</td>
+                               <td class="text-left">${item['Tuyến khai thác'] || ''}</td>
+                               <td class="text-left">${item['Tuyến buýt'] || ''}</td>
+                               <td class="text-left">${item.tenDoanhNghiep || ''}</td>
+                               <td class="text-left">${item.diaChiDoanhNghiep || ''}</td>
+                         </tr>`;
+                        break;
+                    case 'gpkd':
+                        rowHtml = `
+                         <tr>
+                             <td>${index + 1}</td>
+                             <td class="text-left">${item.tenDoanhNghiep || ''}</td>
+                             <td class="text-left">${item.diaChiDoanhNghiep || ''}</td>
+                             <td>${item.SoDKKD || ''}</td>
+                             <td>${item.SoGiayPhep || ''}</td>
+                             <td>${formatDate(item.NgayCap)}</td>
+                             <td>${item.LoaiHinhVanTai || ''}</td>
+                         </tr>`;
+                        break;
+                    case 'phuHieuThuHoi':
+                        rowHtml = `
+                         <tr>
+                             <td>${index + 1}</td>
+                             <td>${item['Biển số'] || ''}</td>
+                             <td>${item['Số Phù hiệu'] || ''}</td>
+                             <td>${item['Loại Phù hiệu'] || ''}</td>
+                             <td>${formatDate(item['Ngày hết hạn phù hiệu'])}</td>
+                             <td class="text-left">${item['Tuyến khai thác'] || ''}</td>
+                             <td class="text-left">${item['Tuyến buýt'] || ''}</td>
+                             <td class="text-left">${item.tenDoanhNghiep || ''}</td>
+                             <td class="text-left">${item.diaChiDoanhNghiep || ''}</td>
+                             <td class="text-left">${item['Văn bản ngừng'] || ''}</td>
+                         </tr>`;
+                        break;
+                    case 'gpkdThuHoi':
+                        rowHtml = `
+                         <tr>
+                             <td>${index + 1}</td>
+                             <td class="text-left">${item.tenDoanhNghiep || ''}</td>
+                             <td class="text-left">${item.diaChiDoanhNghiep || ''}</td>
+                             <td>${item['Số ĐKKD'] || ''}</td>
+                             <td>${item['Số GP KDVT'] || ''}</td>
+                             <td>${formatDate(item['Ngày cấp'])}</td>
+                             <td>${item['Loại hình vận tải'] || ''}</td>
+                         </tr>`;
+                        break;
+                }
+
+                html += rowHtml;
+            });
+
+            html += '</tbody></table>';
+            return html;
+        }
+
+        // Function to create combined grouped table
+        function createCombinedGroupedTable(groupedData1, groupedData2, groupedData3, groupedData4) {
+            let html = '';
+            let locationIndex = 1;
+
+            // Get all unique locations from all datasets
+            const allLocations = new Set([
+                ...Object.keys(groupedData1),
+                ...Object.keys(groupedData2),
+                ...Object.keys(groupedData3),
+                ...Object.keys(groupedData4)
+            ]);
+
+            // Sort locations alphabetically
+            const sortedLocations = Array.from(allLocations).sort();
+
+            for (const location of sortedLocations) {
+                // Check if this location has any data
+                const hasData1 = groupedData1[location] && groupedData1[location].length > 0;
+                const hasData2 = groupedData2[location] && groupedData2[location].length > 0;
+                const hasData3 = groupedData3[location] && groupedData3[location].length > 0;
+                const hasData4 = groupedData4[location] && groupedData4[location].length > 0;
+
+                if (!hasData1 && !hasData2 && !hasData3 && !hasData4) {
+                    continue;
+                }
+
+                html += `<div class="location-group">`;
+                html += `<div class="group-header">${locationIndex}. ${location}</div>`;
+
+                // Add each section if it has data
+                if (hasData1) {
+                    html += createTableByType(groupedData1[location], 'phuHieu', locationIndex);
+                }
+
+                if (hasData2) {
+                    html += createTableByType(groupedData2[location], 'gpkd', locationIndex);
+                }
+
+                if (hasData3) {
+                    html += createTableByType(groupedData3[location], 'phuHieuThuHoi', locationIndex);
+                }
+
+                if (hasData4) {
+                    html += createTableByType(groupedData4[location], 'gpkdThuHoi', locationIndex);
+                }
+
+                html += `</div>`;
+                locationIndex++;
+            }
+
+            return html;
+        }
+
+        // Main function to fetch data
+        async function fetchData(selectedMonth = null, selectedYear = null) {
+            try {
+                // Show loading message
+                document.getElementById('loading-message').classList.remove('hidden');
+
+                // Get month and year
+                let month, year;
+                if (selectedMonth !== null && selectedYear !== null &&
+                    !isNaN(selectedMonth) && !isNaN(selectedYear)) {
+                    month = selectedMonth;
+                    year = selectedYear;
+                } else {
+                    const monthSelect = document.getElementById('month-select');
+                    const yearSelect = document.getElementById('year-select');
+
+                    if (monthSelect && yearSelect && monthSelect.value && yearSelect.value) {
+                        month = parseInt(monthSelect.value);
+                        year = parseInt(yearSelect.value);
+                    } else {
+                        const today = new Date();
+                        month = today.getMonth() + 1;
+                        year = today.getFullYear();
+                    }
+                }
+
+                console.log(`Fetching data for month: ${month}, year: ${year}`);
+
+                // Update page 1 content with selected month
+                updatePage1Content(month, year);
+
+                // First fetch company lookup data
+                const companyLookup = await fetchAllCompanyData();
+
+                // Fetch data from all tables with date filtering
+                const [phuHieuData, gpkdData, phuHieuThuHoiData, gpkdThuHoiData] = await Promise.all([
+                    fetchTableDataWithFilter('PHUHIEUXE', 'ID_PhuHieu', 'NgayCap', month, year),
+                    fetchTableDataWithFilter('GIAYPHEPKINHDOANHNOIDIA', 'ID_GPKD', 'NgayCap', month, year),
+                    fetchTableDataWithFilter('PHUHIEU_THUHOI_CHITIET', 'ID_Row', 'Ngày hết hạn phù hiệu', month, year),
+                    fetchTableDataWithFilter('GPKD_THUHOI_CHITIET', 'ID_Row', 'Ngày thu hồi', month, year)
+                ]);
+
+                // Group data by location
+                const groupedPhuHieu = groupDataByLocation(phuHieuData || [], companyLookup);
+                const groupedGpkd = groupDataByLocation(gpkdData || [], companyLookup);
+                const groupedPhuHieuThuHoi = groupDataByLocation(phuHieuThuHoiData || [], companyLookup);
+                const groupedGpkdThuHoi = groupDataByLocation(gpkdThuHoiData || [], companyLookup);
+
+                // Create combined table
+                const combinedHtml = createCombinedGroupedTable(
+                    groupedPhuHieu,
+                    groupedGpkd,
+                    groupedPhuHieuThuHoi,
+                    groupedGpkdThuHoi
+                );
+
+                // Populate combined table
+                const combinedContainer = document.getElementById('combined-tables');
+                if (combinedContainer) {
+                    if (combinedHtml) {
+                        combinedContainer.innerHTML = combinedHtml;
+                    } else {
+                        combinedContainer.innerHTML = '<p style="text-align: center; font-style: italic;">Không có dữ liệu</p>';
+                    }
+                }
+
+                // Hide loading message
+                hideLoadingMessage();
+
+            } catch (error) {
+                console.error('Lỗi:', error);
+                hideLoadingMessage();
+                alert('Đã xảy ra lỗi khi lấy dữ liệu: ' + error.message);
+            }
+        }
+
+        // Format dates as dd/mm/yyyy
         function formatDate(dateString) {
             if (!dateString) return '';
             const date = new Date(dateString);
@@ -946,7 +1004,7 @@
             return `${day}/${formattedMonth}/${date.getFullYear()}`;
         }
 
-        // Function to update page 1 content with proper administrative date formatting
+        // Function to update page 1 content
         function updatePage1Content(month, year) {
             const today = new Date();
             const day = today.getDate().toString().padStart(2, '0');
@@ -963,10 +1021,9 @@
             document.getElementById('ngay-thang').textContent =
                 `Bắc Giang, ngày ${day} tháng ${formattedCurrentMonth} năm ${year}`;
 
-            // Update titles with selected month - đảm bảo month và year được định nghĩa
+            // Update titles with selected month
             const monthYearText = `${formattedMonth}/${year}`;
 
-            // Kiểm tra và cập nhật các phần tử một cách an toàn
             const thangThongBao1 = document.getElementById('thang-thong-bao');
             if (thangThongBao1) {
                 thangThongBao1.textContent = `tháng ${monthYearText}`;
@@ -976,43 +1033,6 @@
             if (thangThongBao2) {
                 thangThongBao2.textContent = `tháng ${monthYearText}`;
             }
-
-            const tableTitle1 = document.getElementById('table-title-thang-1');
-            if (tableTitle1) {
-                tableTitle1.textContent = `DANH SÁCH CÁC PHƯƠNG TIỆN ĐƯỢC CẤP PHÙ HIỆU VẬN TẢI TRONG THÁNG ${monthYearText}`;
-            }
-
-            const tableTitle2 = document.getElementById('table-title-thang-2');
-            if (tableTitle2) {
-                tableTitle2.textContent = `DANH SÁCH CÁC ĐƠN VỊ ĐƯỢC CẤP GIẤY PHÉP KINH DOANH VẬN TẢI BẰNG XE Ô TÔ TRONG THÁNG ${monthYearText}`;
-            }
-
-            const tableTitle3 = document.getElementById('table-title-thang-3');
-            if (tableTitle3) {
-                tableTitle3.textContent = `DANH SÁCH CÁC PHƯƠNG TIỆN BỊ THU HỒI PHÙ HIỆU VẬN TẢI TRONG THÁNG ${monthYearText}`;
-            }
-
-            const tableTitle4 = document.getElementById('table-title-thang-4');
-            if (tableTitle4) {
-                tableTitle4.textContent = `DANH SÁCH CÁC ĐƠN VỊ BỊ THU HỒI GIẤY PHÉP KINH DOANH VẬN TẢI BẰNG XE Ô TÔ TRONG THÁNG ${monthYearText}`;
-            }
-        }
-
-        // Updated populate functions using multi-page tables
-        function populateTable1Data(data) {
-            createMultiPageTable(data, 'table-body-1', 'PHỤ LỤC I', 25);
-        }
-
-        function populateTable2Data(data) {
-            createMultiPageTable(data, 'table-body-2', 'PHỤ LỤC II', 25);
-        }
-
-        function populateTable3Data(data) {
-            createMultiPageTable(data, 'table-body-3', 'PHỤ LỤC III', 25);
-        }
-
-        function populateTable4Data(data) {
-            createMultiPageTable(data, 'table-body-4', 'PHỤ LỤC IV', 25);
         }
 
         // Hide loading message
@@ -1020,12 +1040,12 @@
             document.getElementById('loading-message').classList.add('hidden');
         }
 
-        // Function to export to Word - cải thiện xử lý tháng/năm
+        // Function to export to Word
         async function exportToWordTemplate() {
             try {
                 document.getElementById('loading-message').classList.remove('hidden');
 
-                // Get selected month info với xử lý an toàn
+                // Get selected month info
                 let month, year;
                 const monthSelect = document.getElementById('month-select');
                 const yearSelect = document.getElementById('year-select');
@@ -1047,7 +1067,10 @@
 
                 const today = new Date();
 
-                // Fetch data from all tables with filtering for selected month
+                // Fetch company lookup data first
+                const companyLookup = await fetchAllCompanyData();
+
+                // Fetch data from all tables
                 const [phuHieuData, gpkdData, phuHieuThuHoiData, gpkdThuHoiData] = await Promise.all([
                     fetchTableDataWithFilter('PHUHIEUXE', 'ID_PhuHieu', 'NgayCap', month, year),
                     fetchTableDataWithFilter('GIAYPHEPKINHDOANHNOIDIA', 'ID_GPKD', 'NgayCap', month, year),
@@ -1055,63 +1078,116 @@
                     fetchTableDataWithFilter('GPKD_THUHOI_CHITIET', 'ID_Row', 'Ngày thu hồi', month, year)
                 ]);
 
-                // Prepare data for Word template - Phụ lục I
-                const phuLuc1List = (phuHieuData || []).map((item, index) => {
-                    return {
-                        stt: (index + 1).toString(),
-                        bien_so: item.BienSo || '',
-                        so_ghe: item['Số ghế'] || '',
-                        tai_trong: item['Tải trọng'] || '',
-                        so_phu_hieu: item.SoPhuHieu || '',
-                        loai_phu_hieu: item.LoaiPH || '',
-                        co_gia_tri_den: formatDate(item.NgayHetHan),
-                        tuyen_khai_thac: item['Tuyến khai thác'] || '',
-                        ten_don_vi: item.Ten_don_vi || '',
-                        dia_chi: item['Địa chỉ'] || ''
-                    };
-                });
+                // Group data by location
+                const groupedPhuHieu = groupDataByLocation(phuHieuData || [], companyLookup);
+                const groupedGpkd = groupDataByLocation(gpkdData || [], companyLookup);
+                const groupedPhuHieuThuHoi = groupDataByLocation(phuHieuThuHoiData || [], companyLookup);
+                const groupedGpkdThuHoi = groupDataByLocation(gpkdThuHoiData || [], companyLookup);
 
-                // Prepare data for Word template - Phụ lục II
-                const phuLuc2List = (gpkdData || []).map((item, index) => {
-                    return {
-                        stt: (index + 1).toString(),
-                        ten_don_vi: item.TenDonVi || '',
-                        dia_chi: item.DiaChi || '',
-                        so_dkkd: item.SoDKKD || '',
-                        so_gp: item.SoGiayPhep || '',
-                        ngay_cap: formatDate(item.NgayCap),
-                        loai_hinh: item.LoaiHinhVanTai || ''
-                    };
-                });
+                // Prepare grouped data for Word template
+                const prepareGroupedDataForWord = () => {
+                    const result = [];
 
-                // Prepare data for Word template - Phụ lục III
-                const phuLuc3List = (phuHieuThuHoiData || []).map((item, index) => {
-                    return {
-                        stt: (index + 1).toString(),
-                        bien_so: item['Biển số'] || '',
-                        so_phu_hieu: item['Số Phù hiệu'] || '',
-                        loai_ph: item['Loại Phù hiệu'] || '',
-                        han_phu_hieu: formatDate(item['Ngày hết hạn phù hiệu']),
-                        ten_don_vi: item['Tên đơn vị'] || '',
-                        dia_chi: item['Địa chỉ'] || '',
-                        van_ban_ngung: item['Văn bản ngừng'] || ''
-                    };
-                });
+                    // Get all unique locations
+                    const allLocations = new Set([
+                        ...Object.keys(groupedPhuHieu),
+                        ...Object.keys(groupedGpkd),
+                        ...Object.keys(groupedPhuHieuThuHoi),
+                        ...Object.keys(groupedGpkdThuHoi)
+                    ]);
 
-                // Prepare data for Word template - Phụ lục IV
-                const phuLuc4List = (gpkdThuHoiData || []).map((item, index) => {
-                    return {
-                        stt: (index + 1).toString(),
-                        ten_don_vi: item['Tên đơn vị'] || '',
-                        dia_chi: item['Địa chỉ'] || '',
-                        so_dkkd: item['Số ĐKKD'] || '',
-                        so_gp_kdvt: item['Số GP KDVT'] || '',
-                        ngay_cap: formatDate(item['Ngày cấp']),
-                        loai_hinh_kdvt: item['Loại hình vận tải'] || ''
-                    };
-                });
+                    const sortedLocations = Array.from(allLocations).sort();
+                    let locationIndex = 1;
 
-                const response = await fetch('https://hoangmv.github.io/templates/thong_bao.docx');
+                    for (const location of sortedLocations) {
+                        const locationData = {
+                            locationIndex: locationIndex,
+                            locationName: location,
+                            phuHieuGrouped: [],
+                            gpkdGrouped: [],
+                            phuHieuThuHoiGrouped: [],
+                            gpkdThuHoiGrouped: [],
+                            hasPhuHieu: false,
+                            hasGpkd: false,
+                            hasPhuHieuThuHoi: false,
+                            hasGpkdThuHoi: false
+                        };
+
+                        // Prepare phù hiệu data
+                        if (groupedPhuHieu[location] && groupedPhuHieu[location].length > 0) {
+                            locationData.hasPhuHieu = true;
+                            locationData.phuHieuGrouped = groupedPhuHieu[location].map((item, index) => ({
+                                stt: (index + 1).toString(),
+                                bien_so: item.BienSo || '',
+                                so_ghe: item['Số ghế'] || '',
+                                tai_trong: item['Tải trọng'] || '',
+                                so_phu_hieu: item.SoPhuHieu || '',
+                                loai_phu_hieu: item.LoaiPH || '',
+                                co_gia_tri_den: formatDate(item.NgayHetHan),
+                                tuyen_khai_thac: item['Tuyến khai thác'] || '',
+                                tuyen_buyt: item['Tuyến buýt'] || '',
+                                ten_don_vi: item.tenDoanhNghiep || '',
+                                dia_chi: item.diaChiDoanhNghiep || ''
+                            }));
+                        }
+
+                        // Prepare GPKD data
+                        if (groupedGpkd[location] && groupedGpkd[location].length > 0) {
+                            locationData.hasGpkd = true;
+                            locationData.gpkdGrouped = groupedGpkd[location].map((item, index) => ({
+                                stt: (index + 1).toString(),
+                                ten_don_vi: item.tenDoanhNghiep || '',
+                                dia_chi: item.diaChiDoanhNghiep || '',
+                                so_dkkd: item.SoDKKD || '',
+                                so_gp: item.SoGiayPhep || '',
+                                ngay_cap: formatDate(item.NgayCap),
+                                loai_hinh: item.LoaiHinhVanTai || ''
+                            }));
+                        }
+
+                        // Prepare phù hiệu thu hồi data
+                        if (groupedPhuHieuThuHoi[location] && groupedPhuHieuThuHoi[location].length > 0) {
+                            locationData.hasPhuHieuThuHoi = true;
+                            locationData.phuHieuThuHoiGrouped = groupedPhuHieuThuHoi[location].map((item, index) => ({
+                                stt: (index + 1).toString(),
+                                bien_so: item['Biển số'] || '',
+                                so_phu_hieu: item['Số Phù hiệu'] || '',
+                                loai_ph: item['Loại Phù hiệu'] || '',
+                                han_phu_hieu: formatDate(item['Ngày hết hạn phù hiệu']),
+                                tuyen_khai_thac: item['Tuyến khai thác'] || '',
+                                tuyen_buyt: item['Tuyến buýt'] || '',
+                                ten_don_vi: item.tenDoanhNghiep || '',
+                                dia_chi: item.diaChiDoanhNghiep || '',
+                                van_ban_ngung: item['Văn bản ngừng'] || ''
+                            }));
+                        }
+
+                        // Prepare GPKD thu hồi data
+                        if (groupedGpkdThuHoi[location] && groupedGpkdThuHoi[location].length > 0) {
+                            locationData.hasGpkdThuHoi = true;
+                            locationData.gpkdThuHoiGrouped = groupedGpkdThuHoi[location].map((item, index) => ({
+                                stt: (index + 1).toString(),
+                                ten_don_vi: item.tenDoanhNghiep || '',
+                                dia_chi: item.diaChiDoanhNghiep || '',
+                                so_dkkd: item['Số ĐKKD'] || '',
+                                so_gp_kdvt: item['Số GP KDVT'] || '',
+                                ngay_cap: formatDate(item['Ngày cấp']),
+                                loai_hinh_kdvt: item['Loại hình vận tải'] || ''
+                            }));
+                        }
+
+                        // Only add location if it has data
+                        if (locationData.hasPhuHieu || locationData.hasGpkd ||
+                            locationData.hasPhuHieuThuHoi || locationData.hasGpkdThuHoi) {
+                            result.push(locationData);
+                            locationIndex++;
+                        }
+                    }
+
+                    return result;
+                };
+
+                const response = await fetch('https://hoangmv.github.io/templates/Thong_bao_van_tai.docx');
                 if (!response.ok) {
                     throw new Error('Không thể tải template Word');
                 }
@@ -1123,29 +1199,26 @@
                     linebreaks: true
                 });
 
-                // Xử lý ngày tháng theo quy tắc hành chính
+                // Process date formatting
                 const ngayKy = today.getDate().toString().padStart(2, '0');
                 const thangKy = today.getMonth() + 1;
                 const formattedThangKy = thangKy <= 2 ?
                     thangKy.toString().padStart(2, '0') :
                     thangKy.toString();
 
-                // Xử lý tháng thông báo theo quy tắc
                 const thang_thong_bao = month <= 2 ?
                     month.toString().padStart(2, '0') :
                     month.toString();
 
-                // Set data for template với định dạng ngày tháng mới
+                // Set data for template
                 const data = {
                     ngayKy: ngayKy,
                     thangKy: formattedThangKy,
                     nam: today.getFullYear(),
                     thang_thong_bao: thang_thong_bao,
                     nam_thong_bao: year,
-                    phu_luc_1_list: phuLuc1List,
-                    phu_luc_2_list: phuLuc2List,
-                    phu_luc_3_list: phuLuc3List,
-                    phu_luc_4_list: phuLuc4List
+                    locations: prepareGroupedDataForWord(),
+                    totalLocations: prepareGroupedDataForWord().length
                 };
 
                 console.log('Word template data:', data);
@@ -1178,13 +1251,8 @@
 
         // Initialize page when DOM is loaded
         document.addEventListener('DOMContentLoaded', function () {
-            // Populate year selector
             populateYearSelector();
-
-            // Set default month and year
             setDefaultMonthYear();
-
-            // Load data for current month
             const { month, year } = getSelectedMonthYear();
             fetchData(month, year);
         });
