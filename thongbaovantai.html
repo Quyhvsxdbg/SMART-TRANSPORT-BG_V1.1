@@ -393,6 +393,17 @@
             margin-bottom: 30px;
             page-break-inside: avoid;
         }
+
+        /* Thêm style cho thống kê */
+        /* .statistics-section {
+            margin: 20px 0;
+            color: red;
+            font-weight: bold;
+        } */
+
+        .stat-item {
+            margin: 5px 0;
+        }
     </style>
 </head>
 
@@ -472,13 +483,27 @@
                 </div>
 
                 <div class="text-block">
-
                     Để phục vụ công tác kiểm tra, giám sát của các cơ quan chức năng và chính quyền địa phương trong
                     hoạt động kinh doanh vận tải bằng xe ô tô, Sở Xây dựng tỉnh Bắc Giang thông báo danh sách phương
                     tiện, loại phù hiệu đã cấp, thời hạn có hiệu lực của phù hiệu và đơn vị kinh doanh vận tải đã được
                     cấp giấy phép kinh doanh vận tải bằng xe ô tô; danh sách phương tiện bị thu hồi, bị tước phù hiệu;
                     danh sách đơn vị kinh doanh vận tải bị thu hồi, bị tước giấy phép kinh doanh vận tải bằng xe ô tô
-                    trong tháng <span id="thang-thong-bao-2">tháng</span>, cụ thể theo phụ lục đính kèm.
+                    trong <span id="thang-thong-bao-2">tháng</span>, cụ thể như sau:
+                </div>
+
+                <!-- Thêm phần thống kê -->
+                <div class="text-block" id="statistics-content">
+                    <div class="stat-item">- Phương tiện được cấp phù hiệu: <span id="stat-phu-hieu">0</span> xe;</div>
+                    <div class="stat-item">- Đơn vị được cấp giấy phép kinh doanh vận tải: <span id="stat-gpkd">0</span>
+                        đơn vị;</div>
+                    <div class="stat-item">- Phương tiện thu hồi, tước phù hiệu: <span
+                            id="stat-phu-hieu-thu-hoi">0</span> xe;</div>
+                    <div class="stat-item">- Đơn vị kinh doanh vận tải bị thu hồi, bị tước giấy phép kinh doanh vận tải
+                        bằng xe ô tô: <span id="stat-gpkd-thu-hoi">0</span> đơn vị.</div>
+                </div>
+
+                <div class="text-block" style="font-style: italic; margin-top: 8px; margin-left: 200px;">
+                    (Chi tiết theo phụ lục đính kèm)
                 </div>
 
                 <div class="text-block">
@@ -529,6 +554,14 @@
         const appId = 'd22767b5-f711-42f8-bbbd-4cf04b26ef3d';
         const accessKey = 'V2-Qcjpo-7Ybu9-g87XI-TFLes-kJGWn-btYR5-cLMmk-FjrRj';
         const region = 'www';
+
+        // Biến toàn cục để lưu thống kê
+        let globalStats = {
+            phuHieu: 0,
+            gpkd: 0,
+            phuHieuThuHoi: 0,
+            gpkdThuHoi: 0
+        };
 
         // Function to populate year selector
         function populateYearSelector() {
@@ -704,6 +737,27 @@
             return grouped;
         }
 
+        // Function to calculate statistics
+        function calculateStatistics(phuHieuData, gpkdData, phuHieuThuHoiData, gpkdThuHoiData) {
+            globalStats = {
+                phuHieu: phuHieuData ? phuHieuData.length : 0,
+                gpkd: gpkdData ? gpkdData.length : 0,
+                phuHieuThuHoi: phuHieuThuHoiData ? phuHieuThuHoiData.length : 0,
+                gpkdThuHoi: gpkdThuHoiData ? gpkdThuHoiData.length : 0
+            };
+
+            // Update statistics display
+            updateStatisticsDisplay();
+        }
+
+        // Function to update statistics display
+        function updateStatisticsDisplay() {
+            document.getElementById('stat-phu-hieu').textContent = globalStats.phuHieu;
+            document.getElementById('stat-gpkd').textContent = globalStats.gpkd;
+            document.getElementById('stat-phu-hieu-thu-hoi').textContent = globalStats.phuHieuThuHoi;
+            document.getElementById('stat-gpkd-thu-hoi').textContent = globalStats.gpkdThuHoi;
+        }
+
         // Function to create table for specific data type
         function createTableByType(data, tableType, subIndex) {
             if (!data || data.length === 0) {
@@ -755,39 +809,39 @@
                 case 'phuHieuThuHoi':
                     subHeaderText = '- Danh sách các phương tiện bị thu hồi phù hiệu vận tải';
                     headerHtml = `
-                <table>
-                    <thead>
-                        <tr>
-                            <th style="width: 4%;">STT</th>
-                            <th style="width: 10%;">Biển số</th>
-                            <th style="width: 10%;">Số Phù hiệu</th>
-                            <th style="width: 10%;">Loại PH</th>
-                            <th style="width: 10%;">Hạn Phù hiệu</th>
-                            <th style="width: 10%;">Tuyến cố định</th>
-                            <th style="width: 10%;">Tuyến buýt</th>
-                            <th style="width: 15%;">Tên đơn vị vận tải</th>
-                            <th style="width: 15%;">Địa chỉ chi tiết</th>
-                           <th style="width: 12%;">Chỉ chú</th>
-                       </tr>
-                   </thead>
-                   <tbody>`;
+                    <table>
+                   <thead>
+                       <tr>
+                           <th style="width: 4%;">STT</th>
+                           <th style="width: 10%;">Biển số</th>
+                           <th style="width: 10%;">Số Phù hiệu</th>
+                           <th style="width: 10%;">Loại PH</th>
+                           <th style="width: 10%;">Hạn Phù hiệu</th>
+                           <th style="width: 10%;">Tuyến cố định</th>
+                           <th style="width: 10%;">Tuyến buýt</th>
+                           <th style="width: 15%;">Tên đơn vị vận tải</th>
+                           <th style="width: 15%;">Địa chỉ chi tiết</th>
+                          <th style="width: 12%;">Chỉ chú</th>
+                      </tr>
+                  </thead>
+                  <tbody>`;
                     break;
                 case 'gpkdThuHoi':
                     subHeaderText = '- Danh sách các đơn vị bị thu hồi giấy phép kinh doanh vận tải bằng xe ô tô';
                     headerHtml = `
-               <table>
-                       <thead>
-                           <tr>
-                               <th style="width: 4%;">STT</th>
-                               <th style="width: 15%;">Tên đơn vị vận tải</th>
-                               <th style="width: 24%;">Địa chỉ chi tiết</th>
-                               <th style="width: 10%;">Số ĐKKD</th>
-                               <th style="width: 12%;">Số GP KDVT</th>
-                               <th style="width: 10%;">Ngày cấp</th>
-                               <th style="width: 18%;">Loại hình KDVT đã được cấp</th>
-                           </tr>
-                       </thead>
-                       <tbody>`;
+              <table>
+                      <thead>
+                          <tr>
+                              <th style="width: 4%;">STT</th>
+                              <th style="width: 15%;">Tên đơn vị vận tải</th>
+                              <th style="width: 24%;">Địa chỉ chi tiết</th>
+                              <th style="width: 10%;">Số ĐKKD</th>
+                              <th style="width: 12%;">Số GP KDVT</th>
+                              <th style="width: 10%;">Ngày cấp</th>
+                              <th style="width: 18%;">Loại hình KDVT đã được cấp</th>
+                          </tr>
+                      </thead>
+                      <tbody>`;
                     break;
             }
 
@@ -800,58 +854,58 @@
                 switch (tableType) {
                     case 'phuHieu':
                         rowHtml = `
-                   <tr>
-                       <td>${index + 1}</td>
-                       <td>${item.BienSo || ''}</td>
-                       <td>${item['Số ghế'] || ''}</td>
-                       <td>${item['Tải trọng'] || ''}</td>
-                       <td>${item.SoPhuHieu || ''}</td>
-                       <td>${item.LoaiPH || ''}</td>
-                       <td>${formatDate(item.NgayHetHan)}</td>
-                       <td class="text-left">${item['Tuyến khai thác'] || ''}</td>
-                       <td class="text-left">${item['Tuyến buýt'] || ''}</td>
-                       <td class="text-left">${item.tenDoanhNghiep || ''}</td>
-                       <td class="text-left">${item.diaChiDoanhNghiep || ''}</td>
-                 </tr>`;
+                  <tr>
+                      <td>${index + 1}</td>
+                      <td>${item.BienSo || ''}</td>
+                      <td>${item['Số ghế'] || ''}</td>
+                      <td>${item['Tải trọng'] || ''}</td>
+                      <td>${item.SoPhuHieu || ''}</td>
+                      <td>${item.LoaiPH || ''}</td>
+                      <td>${formatDate(item.NgayHetHan)}</td>
+                      <td class="text-left">${item['Tuyến khai thác'] || ''}</td>
+                      <td class="text-left">${item['Tuyến buýt'] || ''}</td>
+                      <td class="text-left">${item.tenDoanhNghiep || ''}</td>
+                      <td class="text-left">${item.diaChiDoanhNghiep || ''}</td>
+                </tr>`;
                         break;
                     case 'gpkd':
                         rowHtml = `
-                 <tr>
-                     <td>${index + 1}</td>
-                     <td class="text-left">${item.tenDoanhNghiep || ''}</td>
-                     <td class="text-left">${item.diaChiDoanhNghiep || ''}</td>
-                     <td>${item.SoDKKD || ''}</td>
-                     <td>${item.SoGiayPhep || ''}</td>
-                     <td>${formatDate(item.NgayCap)}</td>
-                     <td>${item.LoaiHinhVanTai || ''}</td>
-                 </tr>`;
+                <tr>
+                    <td>${index + 1}</td>
+                    <td class="text-left">${item.tenDoanhNghiep || ''}</td>
+                    <td class="text-left">${item.diaChiDoanhNghiep || ''}</td>
+                    <td>${item.SoDKKD || ''}</td>
+                    <td>${item.SoGiayPhep || ''}</td>
+                    <td>${formatDate(item.NgayCap)}</td>
+                    <td>${item.LoaiHinhVanTai || ''}</td>
+                </tr>`;
                         break;
                     case 'phuHieuThuHoi':
                         rowHtml = `
-                 <tr>
-                     <td>${index + 1}</td>
-                     <td>${item['Biển số'] || ''}</td>
-                     <td>${item['Số Phù hiệu'] || ''}</td>
-                     <td>${item['Loại Phù hiệu'] || ''}</td>
-                     <td>${formatDate(item['Ngày hết hạn phù hiệu'])}</td>
-                     <td class="text-left">${item['Tuyến khai thác'] || ''}</td>
-                     <td class="text-left">${item['Tuyến buýt'] || ''}</td>
-                     <td class="text-left">${item.tenDoanhNghiep || ''}</td>
-                     <td class="text-left">${item.diaChiDoanhNghiep || ''}</td>
-                     <td class="text-left">${item['Văn bản ngừng'] || ''}</td>
-                 </tr>`;
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${item['Biển số'] || ''}</td>
+                    <td>${item['Số Phù hiệu'] || ''}</td>
+                    <td>${item['Loại Phù hiệu'] || ''}</td>
+                    <td>${formatDate(item['Ngày hết hạn phù hiệu'])}</td>
+                    <td class="text-left">${item['Tuyến khai thác'] || ''}</td>
+                    <td class="text-left">${item['Tuyến buýt'] || ''}</td>
+                    <td class="text-left">${item.tenDoanhNghiep || ''}</td>
+                    <td class="text-left">${item.diaChiDoanhNghiep || ''}</td>
+                    <td class="text-left">${item['Văn bản ngừng'] || ''}</td>
+                </tr>`;
                         break;
                     case 'gpkdThuHoi':
                         rowHtml = `
-                 <tr>
-                     <td>${index + 1}</td>
-                     <td class="text-left">${item.tenDoanhNghiep || ''}</td>
-                     <td class="text-left">${item.diaChiDoanhNghiep || ''}</td>
-                     <td>${item['Số ĐKKD'] || ''}</td>
-                     <td>${item['Số GP KDVT'] || ''}</td>
-                     <td>${formatDate(item['Ngày cấp'])}</td>
-                     <td>${item['Loại hình vận tải'] || ''}</td>
-                 </tr>`;
+                <tr>
+                    <td>${index + 1}</td>
+                    <td class="text-left">${item.tenDoanhNghiep || ''}</td>
+                    <td class="text-left">${item.diaChiDoanhNghiep || ''}</td>
+                    <td>${item['Số ĐKKD'] || ''}</td>
+                    <td>${item['Số GP KDVT'] || ''}</td>
+                    <td>${formatDate(item['Ngày cấp'])}</td>
+                    <td>${item['Loại hình vận tải'] || ''}</td>
+                </tr>`;
                         break;
                 }
 
@@ -957,6 +1011,9 @@
                     fetchTableDataWithFilter('PHUHIEU_THUHOI_CHITIET', 'ID_Row', 'Ngày hết hạn phù hiệu', month, year),
                     fetchTableDataWithFilter('GPKD_THUHOI_CHITIET', 'ID_Row', 'Ngày thu hồi', month, year)
                 ]);
+
+                // Calculate and update statistics
+                calculateStatistics(phuHieuData, gpkdData, phuHieuThuHoiData, gpkdThuHoiData);
 
                 // Group data by location
                 const groupedPhuHieu = groupDataByLocation(phuHieuData || [], companyLookup);
@@ -1187,7 +1244,7 @@
                     return result;
                 };
 
-                const response = await fetch('https://hoangmv.github.io/templates/Thong_bao_van_tai.docx');
+                const response = await fetch('templates/Thong_bao_van_tai.docx');
                 if (!response.ok) {
                     throw new Error('Không thể tải template Word');
                 }
@@ -1218,7 +1275,12 @@
                     thang_thong_bao: thang_thong_bao,
                     nam_thong_bao: year,
                     locations: prepareGroupedDataForWord(),
-                    totalLocations: prepareGroupedDataForWord().length
+                    totalLocations: prepareGroupedDataForWord().length,
+                    // Thêm thống kê vào data cho Word template
+                    stat_phu_hieu: globalStats.phuHieu,
+                    stat_gpkd: globalStats.gpkd,
+                    stat_phu_hieu_thu_hoi: globalStats.phuHieuThuHoi,
+                    stat_gpkd_thu_hoi: globalStats.gpkdThuHoi
                 };
 
                 console.log('Word template data:', data);
