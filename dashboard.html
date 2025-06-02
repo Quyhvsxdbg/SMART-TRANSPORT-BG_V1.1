@@ -1,0 +1,3881 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống Quản lý Vận tải</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Thêm thư viện SheetJS cho xuất Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Giữ nguyên toàn bộ CSS cũ -->
+    <style>
+        /* CSS cũ không thay đổi */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .chart-container canvas {
+            max-height: 300px !important;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .pie-chart-container {
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .desktop-chart-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        @media (max-width: 1024px) {
+            .desktop-chart-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-wrapper {
+            overflow: hidden;
+            border-radius: 0.5rem;
+        }
+
+        /* Filter styles */
+        .filter-disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        /* Specific filter styles */
+        .specific-filters {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            align-items: end;
+        }
+
+        .filter-section {
+            transition: all 0.3s ease;
+        }
+
+        .filter-section.hidden {
+            display: none;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .filter-group label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+        }
+
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+
+        /* Navigation styles */
+        .nav-btn.active {
+            background-color: #1e40af !important;
+            border-bottom: 3px solid #fbbf24;
+        }
+
+        .tab-content {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Notification styles */
+        .notification {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+            }
+
+            to {
+                transform: translateX(0);
+            }
+        }
+
+        /* Modal styles */
+        .fixed.inset-0 {
+            animation: modalFadeIn 0.3s ease-out;
+            backdrop-filter: blur(4px);
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                backdrop-filter: blur(0px);
+            }
+
+            to {
+                opacity: 1;
+                backdrop-filter: blur(4px);
+            }
+        }
+
+        .fixed.inset-0>div {
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: scale(0.9) translateY(-20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Warning styles for expiring items */
+        .warning-badge {
+            background-color: #FEF3C7;
+            color: #D97706;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        .expiring-row {
+            background-color: #FEF3C7 !important;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-blue-800 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center space-x-4">
+                <i class="fas fa-bus text-2xl"></i>
+                <h1 class="text-2xl font-bold">Hệ thống Quản lý Vận tải</h1>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="bg-blue-700 text-white">
+        <div class="container mx-auto px-4">
+            <div class="flex space-x-8 overflow-x-auto">
+                <button class="nav-btn active py-3 px-4 hover:bg-blue-600 whitespace-nowrap" data-tab="dashboard">
+                    <i class="fas fa-chart-dashboard mr-2"></i>Dashboard
+                </button>
+                <button class="nav-btn py-3 px-4 hover:bg-blue-600 whitespace-nowrap" data-tab="licenses">
+                    <i class="fas fa-file-alt mr-2"></i>Giấy phép
+                </button>
+                <button class="nav-btn py-3 px-4 hover:bg-blue-600 whitespace-nowrap" data-tab="emblems">
+                    <i class="fas fa-certificate mr-2"></i>Phù hiệu
+                </button>
+                <button class="nav-btn py-3 px-4 hover:bg-blue-600 whitespace-nowrap" data-tab="international">
+                    <i class="fas fa-globe mr-2"></i>GP Liên vận QT
+                </button>
+                <button class="nav-btn py-3 px-4 hover:bg-blue-600 whitespace-nowrap" data-tab="international-emblems">
+                    <i class="fas fa-shield-alt mr-2"></i>Phù hiệu LV
+                </button>
+                <button class="nav-btn py-3 px-4 hover:bg-blue-600 whitespace-nowrap" data-tab="international-books">
+                    <i class="fas fa-book mr-2"></i>Sổ liên vận
+                </button>
+                <button class="nav-btn py-3 px-4 hover:bg-blue-600 whitespace-nowrap" data-tab="statistics">
+                    <i class="fas fa-chart-bar mr-2"></i>Thống kê
+                </button>
+                <button class="nav-btn py-3 px-4 hover:bg-blue-600 whitespace-nowrap" data-tab="reports">
+                    <i class="fas fa-file-chart-line mr-2"></i>Báo cáo
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-6">
+        <!-- Date Range Selector -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <!-- Filter Mode Toggle -->
+            <div class="flex flex-wrap items-center gap-4 mb-4">
+                <div class="flex items-center space-x-2">
+                    <input type="checkbox" id="applyToAll" class="rounded" checked>
+                    <label for="applyToAll" class="font-medium text-blue-600">Lọc toàn bộ</label>
+                </div>
+            </div>
+
+            <!-- Date Range and Main Filter Controls -->
+            <div class="flex flex-wrap items-center gap-4 mb-4">
+                <div class="flex items-center space-x-2">
+                    <label class="font-medium">Từ ngày:</label>
+                    <input type="date" id="startDate" class="border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="flex items-center space-x-2">
+                    <label class="font-medium">Đến ngày:</label>
+                    <input type="date" id="endDate" class="border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                </div>
+                <button onclick="applyFilters()" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
+                    <i class="fas fa-search mr-2"></i>Lọc dữ liệu
+                </button>
+                <button onclick="clearAllFilters()" class="bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700">
+                    <i class="fas fa-times mr-2"></i>Xóa bộ lọc
+                </button>
+                <button onclick="exportCurrentTabData()"
+                    class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">
+                    <i class="fas fa-download mr-2"></i>Xuất Excel
+                </button>
+            </div>
+
+            <!-- Bộ lọc riêng cho từng tab -->
+            <div id="specificFilters" class="specific-filters filter-disabled">
+                <!-- Bộ lọc cho Giấy phép -->
+                <div id="licenseFilters" class="filter-section hidden">
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label>TÊN ĐƠN VỊ</label>
+                            <input type="text" id="licenseCompanyFilter" placeholder="Nhập tên đơn vị..."
+                                class="w-full">
+                        </div>
+                        <div class="filter-group">
+                            <label>LOẠI CẤP</label>
+                            <select id="licenseTypeFilter" class="w-full">
+                                <option value="">Tất cả</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>LOẠI HÌNH VẬN TẢI</label>
+                            <select id="licenseTransportFilter" class="w-full">
+                                <option value="">Tất cả</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>TRẠNG THÁI</label>
+                            <select id="licenseStatusFilter" class="w-full">
+                                <option value="">Tất cả</option>
+                                <option value="active">Còn hiệu lực</option>
+                                <option value="expired">Hết hiệu lực</option>
+                                <option value="revoked">Đã thu hồi</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bộ lọc cho Phù hiệu -->
+                <div id="emblemFilters" class="filter-section hidden">
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label>TÊN ĐƠN VỊ</label>
+                            <input type="text" id="emblemCompanyFilter" placeholder="Nhập tên đơn vị..." class="w-full">
+                        </div>
+                        <div class="filter-group">
+                            <label>LOẠI PHÙ HIỆU</label>
+                            <select id="emblemTypeFilter" class="w-full">
+                                <option value="">Tất cả</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>LOẠI CẤP</label>
+                            <select id="emblemCapFilter" class="w-full">
+                                <option value="">Tất cả</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>TRẠNG THÁI</label>
+                            <select id="emblemStatusFilter" class="w-full">
+                                <option value="">Tất cả</option>
+                                <option value="active">Còn hiệu lực</option>
+                                <option value="expired">Hết hạn</option>
+                                <option value="revoked">Đã thu hồi</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bộ lọc cho GP Liên vận QT -->
+                <div id="internationalFilters" class="filter-section hidden">
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label>TÊN ĐƠN VỊ</label>
+                            <input type="text" id="internationalCompanyFilter" placeholder="Nhập tên đơn vị..."
+                                class="w-full">
+                        </div>
+                        <div class="filter-group">
+                            <label>LOẠI CẤP</label>
+                            <select id="internationalTypeFilter" class="w-full">
+                                <option value="">Tất cả</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>MÔ HÌNH HOẠT ĐỘNG</label>
+                            <select id="internationalModelFilter" class="w-full">
+                                <option value="">Tất cả</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>TRẠNG THÁI</label>
+                            <select id="internationalStatusFilter" class="w-full">
+                                <option value="">Tất cả</option>
+                                <option value="active">Đang hoạt động</option>
+                                <option value="suspended">Ngừng tạm thời</option>
+                                <option value="revoked">Bị thu hồi</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bộ lọc cho Phù hiệu Liên vận -->
+                <div id="internationalEmblemFilters" class="filter-section hidden">
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label>TÊN DOANH NGHIỆP</label>
+                            <input type="text" id="intEmblemCompanyFilter" placeholder="Nhập tên doanh nghiệp..."
+                                class="w-full">
+                        </div>
+                        <div class="filter-group">
+                            <label>TRẠNG THÁI</label>
+                            <select id="intEmblemStatusFilter" class="w-full">
+                                <option value="">Tất cả</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>LOẠI HÌNH LIÊN VẬN</label>
+                            <select id="intEmblemTypeFilter" class="w-full">
+                                <option value="">Tất cả</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>TRẠNG THÁI CẤP</label>
+                            <select id="intEmblemCapStatusFilter" class="w-full">
+                                <option value="">Tất cả</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bộ lọc cho Sổ Liên vận -->
+                <div id="internationalBookFilters" class="filter-section hidden">
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label>TÊN CHÍNH</label>
+                            <input type="text" id="intBookCompanyFilter" placeholder="Nhập tên..." class="w-full">
+                        </div>
+                        <div class="filter-group">
+                            <label>TRẠNG THÁI</label>
+                            <select id="intBookStatusFilter" class="w-full">
+                                <option value="">Tất cả</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>LOẠI HÌNH LIÊN VẬN</label>
+                            <select id="intBookTypeFilter" class="w-full">
+                                <option value="">Tất cả</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>TRẠNG THÁI CẤP</label>
+                            <select id="intBookCapStatusFilter" class="w-full">
+                                <option value="">Tất cả</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <!-- Quick Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-6 mb-8">
+                <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-blue-100">GPKD được cấp</p>
+                            <p class="text-3xl font-bold" id="totalLicenses">0</p>
+                        </div>
+                        <i class="fas fa-file-alt text-4xl text-blue-200"></i>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-green-100">Phù hiệu có hiệu lực</p>
+                            <p class="text-3xl font-bold" id="activeEmblems">0</p>
+                        </div>
+                        <i class="fas fa-certificate text-4xl text-green-200"></i>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-purple-100">GP Liên vận QT</p>
+                            <p class="text-3xl font-bold" id="totalInternational">0</p>
+                        </div>
+                        <i class="fas fa-globe text-4xl text-purple-200"></i>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-orange-100">Phù hiệu quá hạn</p>
+                            <p class="text-3xl font-bold" id="expiredEmblems">0</p>
+                        </div>
+                        <i class="fas fa-exclamation-triangle text-4xl text-orange-200"></i>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-red-100">GP bị thu hồi</p>
+                            <p class="text-3xl font-bold" id="revokedLicenses">0</p>
+                        </div>
+                        <i class="fas fa-ban text-4xl text-red-200"></i>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-r from-cyan-500 to-cyan-600 text-white rounded-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-cyan-100">Phù hiệu LV</p>
+                            <p class="text-3xl font-bold" id="totalIntEmblems">0</p>
+                        </div>
+                        <i class="fas fa-shield-alt text-4xl text-cyan-200"></i>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white rounded-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-indigo-100">Sổ liên vận</p>
+                            <p class="text-3xl font-bold" id="totalIntBooks">0</p>
+                        </div>
+                        <i class="fas fa-book text-4xl text-indigo-200"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">Giấy phép theo thời gian</h3>
+                    <div class="chart-container">
+                        <canvas id="licenseChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">Phù hiệu theo loại hình</h3>
+                    <div class="pie-chart-container">
+                        <canvas id="emblemChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Licenses Tab -->
+        <div id="licenses" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold mb-4">Quản lý Giấy phép Kinh doanh Vận tải</h3>
+
+                <!-- License Summary Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
+                        <h4 class="font-semibold text-blue-800">GPKD được cấp</h4>
+                        <p class="text-2xl font-bold text-blue-600" id="licensesIssued">0</p>
+                    </div>
+                    <div class="bg-red-50 border-l-4 border-red-500 p-4">
+                        <h4 class="font-semibold text-red-800">GPKD bị thu hồi</h4>
+                        <p class="text-2xl font-bold text-red-600" id="licensesRevoked">0</p>
+                    </div>
+                    <div class="bg-green-50 border-l-4 border-green-500 p-4">
+                        <h4 class="font-semibold text-green-800">GPKD còn hiệu lực</h4>
+                        <p class="text-2xl font-bold text-green-600" id="activeLicenses">0</p>
+                    </div>
+                </div>
+
+                <!-- License Details Table -->
+                <div class="overflow-x-auto mt-6">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-2 text-left">Số giấy phép</th>
+                                <th class="px-4 py-2 text-left">Tên đơn vị</th>
+                                <th class="px-4 py-2 text-center">Ngày cấp</th>
+                                <th class="px-4 py-2 text-center">Loại hình vận tải</th>
+                                <th class="px-4 py-2 text-center">Trạng thái</th>
+                                <th class="px-4 py-2 text-center">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="licensesTableBody">
+                            <!-- Dữ liệu sẽ được load từ API -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Emblems Tab -->
+        <div id="emblems" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold mb-4">Quản lý Phù hiệu xe</h3>
+
+                <!-- Emblem Summary -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-green-50 border-l-4 border-green-500 p-4">
+                        <h4 class="font-semibold text-green-800">Phù hiệu được cấp</h4>
+                        <p class="text-2xl font-bold text-green-600" id="emblemsIssued">0</p>
+                    </div>
+                    <div class="bg-red-50 border-l-4 border-red-500 p-4">
+                        <h4 class="font-semibold text-red-800">Bị thu hồi</h4>
+                        <p class="text-2xl font-bold text-red-600" id="emblemsRevoked">0</p>
+                    </div>
+                    <div class="bg-orange-50 border-l-4 border-orange-500 p-4">
+                        <h4 class="font-semibold text-orange-800">Quá hạn</h4>
+                        <p class="text-2xl font-bold text-orange-600" id="emblemsExpired">0</p>
+                    </div>
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
+                        <h4 class="font-semibold text-blue-800">Còn hiệu lực</h4>
+                        <p class="text-2xl font-bold text-blue-600" id="emblemsActive">0</p>
+                    </div>
+                </div>
+
+                <!-- Emblem Details Table -->
+                <div class="overflow-x-auto mt-6">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-2 text-left">Số phù hiệu</th>
+                                <th class="px-4 py-2 text-left">Biển số xe</th>
+                                <th class="px-4 py-2 text-left">Tên đơn vị</th>
+                                <th class="px-4 py-2 text-center">Ngày cấp</th>
+                                <th class="px-4 py-2 text-center">Ngày hết hạn</th>
+                                <th class="px-4 py-2 text-center">Trạng thái</th>
+                                <th class="px-4 py-2 text-center">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="emblemsTableBody">
+                            <!-- Dữ liệu sẽ được load từ API -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- International Licenses Tab -->
+        <div id="international" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold mb-4">Quản lý Giấy phép Liên vận Quốc tế</h3>
+
+                <!-- International License Summary -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-purple-50 border-l-4 border-purple-500 p-4">
+                        <h4 class="font-semibold text-purple-800">GP được cấp</h4>
+                        <p class="text-2xl font-bold text-purple-600" id="internationalIssued">0</p>
+                    </div>
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
+                        <h4 class="font-semibold text-blue-800">Đang hoạt động</h4>
+                        <p class="text-2xl font-bold text-blue-600" id="internationalActive">0</p>
+                    </div>
+                    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4">
+                        <h4 class="font-semibold text-yellow-800">Tạm ngừng</h4>
+                        <p class="text-2xl font-bold text-yellow-600" id="internationalSuspended">0</p>
+                    </div>
+                    <div class="bg-red-50 border-l-4 border-red-500 p-4">
+                        <h4 class="font-semibold text-red-800">Bị thu hồi</h4>
+                        <p class="text-2xl font-bold text-red-600" id="internationalRevoked">0</p>
+                    </div>
+                </div>
+
+                <!-- International License Details Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-2 text-left">Số giấy phép</th>
+                                <th class="px-4 py-2 text-left">Tên đơn vị</th>
+                                <th class="px-4 py-2 text-center">Ngày cấp</th>
+                                <th class="px-4 py-2 text-center">Loại cấp</th>
+                                <th class="px-4 py-2 text-center">Mô hình hoạt động</th>
+                                <th class="px-4 py-2 text-center">Trạng thái</th>
+                                <th class="px-4 py-2 text-center">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="internationalTableBody">
+                            <!-- Dữ liệu sẽ được load từ API -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- International Emblems Tab -->
+        <div id="international-emblems" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold mb-4">Quản lý Phù hiệu Liên vận</h3>
+
+                <!-- International Emblem Summary -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-cyan-50 border-l-4 border-cyan-500 p-4">
+                        <h4 class="font-semibold text-cyan-800">Phù hiệu được cấp</h4>
+                        <p class="text-2xl font-bold text-cyan-600" id="intEmblemsIssued">0</p>
+                    </div>
+                    <div class="bg-green-50 border-l-4 border-green-500 p-4">
+                        <h4 class="font-semibold text-green-800">Còn hiệu lực</h4>
+                        <p class="text-2xl font-bold text-green-600" id="intEmblemsActive">0</p>
+                    </div>
+                    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4">
+                        <h4 class="font-semibold text-yellow-800">Sắp đến hạn</h4>
+                        <p class="text-2xl font-bold text-yellow-600" id="intEmblemsExpiring">0</p>
+                    </div>
+                    <div class="bg-red-50 border-l-4 border-red-500 p-4">
+                        <h4 class="font-semibold text-red-800">Hết hạn/Thu hồi</h4>
+                        <p class="text-2xl font-bold text-red-600" id="intEmblemsExpired">0</p>
+                    </div>
+                </div>
+
+                <!-- Warning Banner for Expiring Items -->
+                <div id="intEmblemWarningBanner" class="bg-yellow-100 border-l-4 border-yellow-500 p-4 mb-6 hidden">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-yellow-700">
+                                <strong>Cảnh báo:</strong> Có <span id="intEmblemWarningCount">0</span> phù hiệu liên
+                                vận sắp đến hạn!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- International Emblem Details Table -->
+                <div class="overflow-x-auto mt-6">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-2 text-left">Số phù hiệu</th>
+                                <th class="px-4 py-2 text-left">Biển số</th>
+                                <th class="px-4 py-2 text-left">Doanh nghiệp</th>
+                                <th class="px-4 py-2 text-center">Ngày cấp</th>
+                                <th class="px-4 py-2 text-center">Ngày hết hạn</th>
+                                <th class="px-4 py-2 text-center">Loại hình LV</th>
+                                <th class="px-4 py-2 text-center">Trạng thái</th>
+                                <th class="px-4 py-2 text-center">Hiệu lực</th>
+                                <th class="px-4 py-2 text-center">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="intEmblemsTableBody">
+                            <!-- Dữ liệu sẽ được load từ API -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- International Books Tab -->
+        <div id="international-books" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold mb-4">Quản lý Sổ Liên vận</h3>
+
+                <!-- International Book Summary -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-indigo-50 border-l-4 border-indigo-500 p-4">
+                        <h4 class="font-semibold text-indigo-800">Sổ được cấp</h4>
+                        <p class="text-2xl font-bold text-indigo-600" id="intBooksIssued">0</p>
+                    </div>
+                    <div class="bg-green-50 border-l-4 border-green-500 p-4">
+                        <h4 class="font-semibold text-green-800">Còn hiệu lực</h4>
+                        <p class="text-2xl font-bold text-green-600" id="intBooksActive">0</p>
+                    </div>
+                    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4">
+                        <h4 class="font-semibold text-yellow-800">Sắp đến hạn</h4>
+                        <p class="text-2xl font-bold text-yellow-600" id="intBooksExpiring">0</p>
+                    </div>
+                    <div class="bg-red-50 border-l-4 border-red-500 p-4">
+                        <h4 class="font-semibold text-red-800">Hết hạn/Thu hồi</h4>
+                        <p class="text-2xl font-bold text-red-600" id="intBooksExpired">0</p>
+                    </div>
+                </div>
+
+                <!-- Warning Banner for Expiring Items -->
+                <div id="intBookWarningBanner" class="bg-yellow-100 border-l-4 border-yellow-500 p-4 mb-6 hidden">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-yellow-700">
+                                <strong>Cảnh báo:</strong> Có <span id="intBookWarningCount">0</span> sổ liên vận sắp
+                                đến hạn!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- International Book Details Table -->
+                <div class="overflow-x-auto mt-6">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-2 text-left">Số sổ LV</th>
+                                <th class="px-4 py-2 text-left">Biển số</th>
+                                <th class="px-4 py-2 text-left">Tên chính</th>
+                                <th class="px-4 py-2 text-center">Ngày cấp</th>
+                                <th class="px-4 py-2 text-center">Ngày hết hạn</th>
+                                <th class="px-4 py-2 text-center">Loại hình LV</th>
+                                <th class="px-4 py-2 text-center">Cửa khẩu</th>
+                                <th class="px-4 py-2 text-center">Trạng thái</th>
+                                <th class="px-4 py-2 text-center">Hiệu lực</th>
+                                <th class="px-4 py-2 text-center">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="intBooksTableBody">
+                            <!-- Dữ liệu sẽ được load từ API -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Tab -->
+        <div id="statistics" class="tab-content hidden">
+            <div class="space-y-6">
+                <!-- Statistics Cards -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-6">Thống kê tổng quan</h3>
+                    <div class="stats-grid mb-8">
+                        <div
+                            class="text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200">
+                            <div class="text-3xl font-bold text-blue-600 mb-2" id="statsTotalLicenses">0</div>
+                            <div class="text-sm font-medium text-blue-800">Tổng số GPKD</div>
+                        </div>
+                        <div
+                            class="text-center p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border border-green-200">
+                            <div class="text-3xl font-bold text-green-600 mb-2" id="statsTotalEmblems">0</div>
+                            <div class="text-sm font-medium text-green-800">Tổng số phù hiệu</div>
+                        </div>
+                        <div
+                            class="text-center p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border border-purple-200">
+                            <div class="text-3xl font-bold text-purple-600 mb-2" id="statsTotalInternational">0</div>
+                            <div class="text-sm font-medium text-purple-800">GP Liên vận QT</div>
+                        </div>
+                        <div
+                            class="text-center p-6 bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-lg border border-cyan-200">
+                            <div class="text-3xl font-bold text-cyan-600 mb-2" id="statsTotalIntEmblems">0</div>
+                            <div class="text-sm font-medium text-cyan-800">Phù hiệu LV</div>
+                        </div>
+                        <div
+                            class="text-center p-6 bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-lg border border-indigo-200">
+                            <div class="text-3xl font-bold text-indigo-600 mb-2" id="statsTotalIntBooks">0</div>
+                            <div class="text-sm font-medium text-indigo-800">Sổ liên vận</div>
+                        </div>
+                        <div
+                            class="text-center p-6 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg border border-orange-200">
+                            <div class="text-3xl font-bold text-orange-600 mb-2" id="statsActiveVehicles">0</div>
+                            <div class="text-sm font-medium text-orange-800">Xe đang hoạt động</div>
+                        </div>
+                        <div
+                            class="text-center p-6 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border border-gray-200">
+                            <div class="text-3xl font-bold text-gray-600 mb-2" id="statsCompanies">0</div>
+                            <div class="text-sm font-medium text-gray-800">Doanh nghiệp</div>
+                        </div>
+                    </div>
+
+                    <!-- Charts -->
+                    <div class="desktop-chart-grid">
+                        <div class="chart-wrapper bg-gray-50 p-4">
+                            <h4 class="text-center font-semibold mb-4 text-gray-700">Phân bố theo loại hình</h4>
+                            <div class="pie-chart-container">
+                                <canvas id="transportTypeChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-wrapper bg-gray-50 p-4">
+                            <h4 class="text-center font-semibold mb-4 text-gray-700">Thống kê trạng thái</h4>
+                            <div class="chart-container">
+                                <canvas id="statusChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Tab -->
+        <div id="reports" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold mb-4">Báo cáo và Phân tích</h3>
+
+                <!-- Reports content -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <div class="border rounded-lg p-4">
+                        <h4 class="font-semibold mb-3">Xu hướng cấp GPKD theo tháng</h4>
+                        <div class="chart-container">
+                            <canvas id="licenseTrendChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="border rounded-lg p-4">
+                        <h4 class="font-semibold mb-3">Xu hướng cấp phù hiệu theo tháng</h4>
+                        <div class="chart-container">
+                            <canvas id="emblemTrendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // AppSheet API Configuration
+        const appId = 'd22767b5-f711-42f8-bbbd-4cf04b26ef3d';
+        const accessKey = 'V2-Qcjpo-7Ybu9-g87XI-TFLes-kJGWn-btYR5-cLMmk-FjrRj';
+        const region = 'www';
+
+        // Global data variables
+        let originalLicensesData = [];
+        let originalEmblemsData = [];
+        let originalInternationalData = [];
+        let originalIntEmblemsData = [];
+        let originalIntBooksData = [];
+
+        // Filtered data variables (dữ liệu sau khi lọc)
+        let filteredLicensesData = [];
+        let filteredEmblemsData = [];
+        let filteredInternationalData = [];
+        let filteredIntEmblemsData = [];
+        let filteredIntBooksData = [];
+
+        // CHỨC NĂNG XUẤT EXCEL MỚI - SỬ DỤNG SHEETJS
+        function exportCurrentTabData() {
+            const activeTab = document.querySelector('.nav-btn.active').getAttribute('data-tab');
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            // Tạo tên file dựa trên tab hiện tại và khoảng thời gian
+            const tabNames = {
+                'dashboard': 'Tong_quan',
+                'licenses': 'Giay_phep_KDVT',
+                'emblems': 'Phu_hieu_xe',
+                'international': 'GP_Lien_van_QT',
+                'international-emblems': 'Phu_hieu_LV',
+                'international-books': 'So_lien_van',
+                'statistics': 'Thong_ke',
+                'reports': 'Bao_cao'
+            };
+
+            const today = new Date();
+            const dateStr = `${today.getDate().toString().padStart(2, '0')}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getFullYear()}`;
+            const fileName = `${tabNames[activeTab]}_${dateStr}.xlsx`;
+
+            showNotification('Đang chuẩn bị xuất dữ liệu Excel...', 'info');
+
+            try {
+                let workbook;
+
+                switch (activeTab) {
+                    case 'dashboard':
+                        workbook = exportDashboardData();
+                        break;
+                    case 'licenses':
+                        workbook = exportLicensesData();
+                        break;
+                    case 'emblems':
+                        workbook = exportEmblemsData();
+                        break;
+                    case 'international':
+                        workbook = exportInternationalData();
+                        break;
+                    case 'international-emblems':
+                        workbook = exportIntEmblemsData();
+                        break;
+                    case 'international-books':
+                        workbook = exportIntBooksData();
+                        break;
+                    case 'statistics':
+                        workbook = exportStatisticsData();
+                        break;
+                    case 'reports':
+                        workbook = exportReportsData();
+                        break;
+                    default:
+                        throw new Error('Tab không được hỗ trợ');
+                }
+
+                // Xuất file Excel
+                XLSX.writeFile(workbook, fileName);
+                showNotification(`Đã xuất thành công file: ${fileName}`, 'success');
+
+            } catch (error) {
+                console.error('Lỗi khi xuất Excel:', error);
+                showNotification('Có lỗi xảy ra khi xuất Excel', 'error');
+            }
+        }
+
+        // Xuất dữ liệu Dashboard (tổng hợp tất cả)
+        function exportDashboardData() {
+            const workbook = XLSX.utils.book_new();
+
+            // Sheet 1: Tổng quan thống kê
+            const summaryData = [
+                ['THỐNG KÊ TỔNG QUAN HỆ THỐNG QUẢN LÝ VẬN TẢI'],
+                ['Ngày xuất:', new Date().toLocaleString('vi-VN')],
+                ['Khoảng thời gian:', `${formatDate(document.getElementById('startDate').value)} - ${formatDate(document.getElementById('endDate').value)}`],
+                [],
+                ['Loại dữ liệu', 'Số lượng'],
+                ['GPKD được cấp', filteredLicensesData.length],
+                ['Phù hiệu có hiệu lực', filteredEmblemsData.filter(e => !isEmblemExpired(e.NgayHetHan) && e.TrangThai !== 'Đã thu hồi').length],
+                ['GP Liên vận QT', filteredInternationalData.length],
+                ['Phù hiệu LV', filteredIntEmblemsData.length],
+                ['Sổ liên vận', filteredIntBooksData.length]
+            ];
+
+            const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
+            XLSX.utils.book_append_sheet(workbook, summarySheet, 'Tổng quan');
+
+            // Sheet 2: Giấy phép
+            if (filteredLicensesData.length > 0) {
+                const licenseSheet = createLicenseSheet();
+                XLSX.utils.book_append_sheet(workbook, licenseSheet, 'Giấy phép KDVT');
+            }
+
+            // Sheet 3: Phù hiệu
+            if (filteredEmblemsData.length > 0) {
+                const emblemSheet = createEmblemSheet();
+                XLSX.utils.book_append_sheet(workbook, emblemSheet, 'Phù hiệu xe');
+            }
+
+            // Sheet 4: GP Liên vận QT
+            if (filteredInternationalData.length > 0) {
+                const intSheet = createInternationalSheet();
+                XLSX.utils.book_append_sheet(workbook, intSheet, 'GP Liên vận QT');
+            }
+
+            // Sheet 5: Phù hiệu Liên vận - THÊM MỚI
+            if (filteredIntEmblemsData.length > 0) {
+                const intEmblemSheet = createIntEmblemSheet();
+                XLSX.utils.book_append_sheet(workbook, intEmblemSheet, 'Phù hiệu LV');
+            }
+
+            // Sheet 6: Sổ liên vận - THÊM MỚI
+            if (filteredIntBooksData.length > 0) {
+                const intBookSheet = createIntBookSheet();
+                XLSX.utils.book_append_sheet(workbook, intBookSheet, 'Sổ liên vận');
+            }
+
+            return workbook;
+        }
+
+        // Xuất dữ liệu Giấy phép
+        function exportLicensesData() {
+            const workbook = XLSX.utils.book_new();
+            const sheet = createLicenseSheet();
+            XLSX.utils.book_append_sheet(workbook, sheet, 'Giấy phép KDVT');
+            return workbook;
+        }
+
+        // Tạo sheet Giấy phép
+        function createLicenseSheet() {
+            const headers = [
+                'STT',
+                'Số giấy phép',
+                'Mã hồ sơ',
+                'Tên đơn vị',
+                'Địa chỉ',
+                'Ngày cấp',
+                'Loại cấp',
+                'Loại hình vận tải',
+                'Trạng thái',
+                'Ngày thu hồi',
+                'Lý do thu hồi',
+                'Ghi chú'
+            ];
+
+            const data = [
+                ['DANH SÁCH GIẤY PHÉP KINH DOANH VẬN TẢI'],
+                [`Ngày xuất: ${new Date().toLocaleString('vi-VN')}`],
+                [`Tổng số: ${filteredLicensesData.length} giấy phép`],
+                [`Khoảng thời gian: ${formatDate(document.getElementById('startDate').value)} - ${formatDate(document.getElementById('endDate').value)}`],
+                [],
+                headers
+            ];
+
+            filteredLicensesData.forEach((license, index) => {
+                const transportTypes = Array.isArray(license.LoaiHinhVanTai)
+                    ? license.LoaiHinhVanTai.join(', ')
+                    : license.LoaiHinhVanTai || '';
+
+                data.push([
+                    index + 1,
+                    license.SoGiayPhep || '',
+                    license.MaHoSo || '',
+                    license.TenDonVi || '',
+                    license.DiaChi || '',
+                    formatDate(license.NgayCap),
+                    license.LoaiCap || '',
+                    transportTypes,
+                    license.TrangThai || '',
+                    formatDate(license.NgayThuHoi),
+                    license.LyDoThuHoi || '',
+                    license.GhiChu || ''
+                ]);
+            });
+
+            const worksheet = XLSX.utils.aoa_to_sheet(data);
+
+            // Thiết lập độ rộng cột
+            const colWidths = [
+                { wch: 5 },   // STT
+                { wch: 20 },  // Số giấy phép
+                { wch: 15 },  // Mã hồ sơ
+                { wch: 30 },  // Tên đơn vị
+                { wch: 40 },  // Địa chỉ
+                { wch: 12 },  // Ngày cấp
+                { wch: 15 },  // Loại cấp
+                { wch: 25 },  // Loại hình vận tải
+                { wch: 15 },  // Trạng thái
+                { wch: 12 },  // Ngày thu hồi
+                { wch: 25 },  // Lý do thu hồi
+                { wch: 20 }   // Ghi chú
+            ];
+            worksheet['!cols'] = colWidths;
+
+            return worksheet;
+        }
+
+        // Xuất dữ liệu Phù hiệu
+        function exportEmblemsData() {
+            const workbook = XLSX.utils.book_new();
+            const sheet = createEmblemSheet();
+            XLSX.utils.book_append_sheet(workbook, sheet, 'Phù hiệu xe');
+            return workbook;
+        }
+
+        // Tạo sheet Phù hiệu
+        function createEmblemSheet() {
+            const headers = [
+                'STT',
+                'Số phù hiệu',
+                'Biển số xe',
+                'Tên đơn vị',
+                'Địa chỉ',
+                'Ngày cấp',
+                'Ngày hết hạn',
+                'Loại phù hiệu',
+                'Màu phù hiệu',
+                'Loại cấp',
+                'Tuyến khai thác',
+                'Trạng thái',
+                'Ngày thu hồi',
+                'Ghi chú'
+            ];
+
+            const data = [
+                ['DANH SÁCH PHÙ HIỆU XE'],
+                [`Ngày xuất: ${new Date().toLocaleString('vi-VN')}`],
+                [`Tổng số: ${filteredEmblemsData.length} phù hiệu`],
+                [`Khoảng thời gian: ${formatDate(document.getElementById('startDate').value)} - ${formatDate(document.getElementById('endDate').value)}`],
+                [],
+                headers
+            ];
+
+            filteredEmblemsData.forEach((emblem, index) => {
+                const actualStatus = isEmblemExpired(emblem.NgayHetHan) ? 'Hết hạn' : (emblem.TrangThai || '');
+
+                data.push([
+                    index + 1,
+                    emblem.SoPhuHieu || '',
+                    emblem.BienSo || '',
+                    emblem.Ten_don_vi || '',
+                    emblem['Địa chỉ'] || '',
+                    formatDate(emblem.NgayCap),
+                    formatDate(emblem.NgayHetHan),
+                    emblem.LoaiPH || '',
+                    emblem.MauPhuHieu || '',
+                    emblem.LoaiCap || '',
+                    emblem['Tuyến khai thác'] || '',
+                    actualStatus,
+                    formatDate(emblem.NgayThuHoi),
+                    emblem.GhiChu || ''
+                ]);
+            });
+
+            const worksheet = XLSX.utils.aoa_to_sheet(data);
+
+            // Thiết lập độ rộng cột
+            const colWidths = [
+                { wch: 5 },   // STT
+                { wch: 20 },  // Số phù hiệu
+                { wch: 15 },  // Biển số xe
+                { wch: 30 },  // Tên đơn vị
+                { wch: 40 },  // Địa chỉ
+                { wch: 12 },  // Ngày cấp
+                { wch: 12 },  // Ngày hết hạn
+                { wch: 15 },  // Loại phù hiệu
+                { wch: 12 },  // Màu phù hiệu
+                { wch: 12 },  // Loại cấp
+                { wch: 30 },  // Tuyến khai thác
+                { wch: 15 },  // Trạng thái
+                { wch: 12 },  // Ngày thu hồi
+                { wch: 20 }   // Ghi chú
+            ];
+            worksheet['!cols'] = colWidths;
+
+            return worksheet;
+        }
+
+        // Xuất dữ liệu GP Liên vận QT
+        function exportInternationalData() {
+            const workbook = XLSX.utils.book_new();
+            const sheet = createInternationalSheet();
+            XLSX.utils.book_append_sheet(workbook, sheet, 'GP Liên vận QT');
+            return workbook;
+        }
+
+        // Tạo sheet GP Liên vận QT
+        function createInternationalSheet() {
+            const headers = [
+                'STT',
+                'Số GP Liên vận QT',
+                'Mã doanh nghiệp',
+                'Tên đơn vị',
+                'Ngày cấp',
+                'Loại cấp',
+                'Mô hình hoạt động',
+                'Trạng thái hoạt động',
+                'Lý do cấp lại'
+            ];
+
+            const data = [
+                ['DANH SÁCH GIẤY PHÉP LIÊN VẬN QUỐC TẾ'],
+                [`Ngày xuất: ${new Date().toLocaleString('vi-VN')}`],
+                [`Tổng số: ${filteredInternationalData.length} giấy phép`],
+                [`Khoảng thời gian: ${formatDate(document.getElementById('startDate').value)} - ${formatDate(document.getElementById('endDate').value)}`],
+                [],
+                headers
+            ];
+
+            filteredInternationalData.forEach((license, index) => {
+                const models = Array.isArray(license.MoHinhHoatDong)
+                    ? license.MoHinhHoatDong.join(', ')
+                    : license.MoHinhHoatDong || '';
+
+                data.push([
+                    index + 1,
+                    license.SoGPLienVanQT || '',
+                    license.IDDoanhNghiep || '',
+                    license.TenDonViHienThi || '',
+                    formatDate(license.NgayCap),
+                    license.LoaiCap || '',
+                    models,
+                    license.TrangThaiHoatDong || '',
+                    license.Lydocaplai || ''
+                ]);
+            });
+
+            const worksheet = XLSX.utils.aoa_to_sheet(data);
+
+            // Thiết lập độ rộng cột
+            const colWidths = [
+                { wch: 5 },   // STT
+                { wch: 20 },  // Số GP
+                { wch: 15 },  // Mã DN
+                { wch: 30 },  // Tên đơn vị
+                { wch: 12 },  // Ngày cấp
+                { wch: 15 },  // Loại cấp
+                { wch: 25 },  // Mô hình hoạt động
+                { wch: 18 },  // Trạng thái
+                { wch: 25 }   // Lý do cấp lại
+            ];
+            worksheet['!cols'] = colWidths;
+
+            return worksheet;
+        }
+
+        // Xuất dữ liệu Phù hiệu Liên vận
+        function exportIntEmblemsData() {
+            const workbook = XLSX.utils.book_new();
+            const sheet = createIntEmblemSheet();
+            XLSX.utils.book_append_sheet(workbook, sheet, 'Phù hiệu Liên vận');
+            return workbook;
+        }
+
+        // Tạo sheet Phù hiệu Liên vận
+        function createIntEmblemSheet() {
+            const headers = [
+                'STT',
+                'Số phù hiệu',
+                'Số thứ tự',
+                'Biển số',
+                'Tên doanh nghiệp',
+                'Ngày cấp',
+                'Ngày hết hạn',
+                'Loại hình liên vận',
+                'Trạng thái cấp',
+                'Trạng thái',
+                'Hiệu lực'
+            ];
+
+            const data = [
+                ['DANH SÁCH PHÙ HIỆU LIÊN VẬN'],
+                [`Ngày xuất: ${new Date().toLocaleString('vi-VN')}`],
+                [`Tổng số: ${filteredIntEmblemsData.length} phù hiệu`],
+                [`Khoảng thời gian: ${formatDate(document.getElementById('startDate').value)} - ${formatDate(document.getElementById('endDate').value)}`],
+                [],
+                headers
+            ];
+
+            filteredIntEmblemsData.forEach((emblem, index) => {
+                data.push([
+                    index + 1,
+                    emblem.SoPhuHieu || '',
+                    emblem.SoThuTu || '',
+                    emblem.Bienso || '',
+                    emblem.TenDoanhNghiep || '',
+                    formatDate(emblem.NgayCap),
+                    formatDate(emblem.NgayHetHan),
+                    emblem.LoaiHinhLienVan || '',
+                    emblem.TrangThaiCap || '',
+                    emblem.TrangThai || '',
+                    emblem.HieuLuc || ''
+                ]);
+            });
+
+            const worksheet = XLSX.utils.aoa_to_sheet(data);
+
+            // Thiết lập độ rộng cột
+            const colWidths = [
+                { wch: 5 },   // STT
+                { wch: 20 },  // Số phù hiệu
+                { wch: 10 },  // Số thứ tự
+                { wch: 15 },  // Biển số
+                { wch: 30 },  // Tên DN
+                { wch: 12 },  // Ngày cấp
+                { wch: 12 },  // Ngày hết hạn
+                { wch: 18 },  // Loại hình LV
+                { wch: 15 },  // Trạng thái cấp
+                { wch: 15 },  // Trạng thái
+                { wch: 15 }  // Hiệu lực
+            ];
+            worksheet['!cols'] = colWidths;
+
+            return worksheet;
+        }
+
+        // Xuất dữ liệu Sổ Liên vận
+        function exportIntBooksData() {
+            const workbook = XLSX.utils.book_new();
+            const sheet = createIntBookSheet();
+            XLSX.utils.book_append_sheet(workbook, sheet, 'Sổ Liên vận');
+            return workbook;
+        }
+
+        // Tạo sheet Sổ Liên vận
+        function createIntBookSheet() {
+            const headers = [
+                'STT',
+                'Số sổ liên vận',
+                'Số thứ tự',
+                'Biển số',
+                'Tên chính',
+                'Ngày cấp',
+                'Ngày hết hạn',
+                'Ngày cấp GP',
+                'Loại hình liên vận',
+                'Cửa khẩu',
+                'Vùng hoạt động',
+                'Nơi đến',
+                'Mô hình hoạt động',
+                'Trạng thái cấp',
+                'Trạng thái',
+                'Hiệu lực'
+            ];
+
+            const data = [
+                ['DANH SÁCH SỔ LIÊN VẬN'],
+                [`Ngày xuất: ${new Date().toLocaleString('vi-VN')}`],
+                [`Tổng số: ${filteredIntBooksData.length} sổ liên vận`],
+                [`Khoảng thời gian: ${formatDate(document.getElementById('startDate').value)} - ${formatDate(document.getElementById('endDate').value)}`],
+                [],
+                headers
+            ];
+
+            filteredIntBooksData.forEach((book, index) => {
+                const models = Array.isArray(book.MoHinhHoatDong)
+                    ? book.MoHinhHoatDong.join(', ')
+                    : book.MoHinhHoatDong || '';
+
+                data.push([
+                    index + 1,
+                    book.SoSoLienVan || '',
+                    book.SoThuTu || '',
+                    book.BienSo || '',
+                    book.TenChinh || '',
+                    formatDate(book.NgayCap),
+                    formatDate(book.NgayHetHan),
+                    formatDate(book.NgayCapGP),
+                    book.LoaiHinhLienVan || '',
+                    book.CuaKhau || '',
+                    book.VungHoatDong || '',
+                    book.NoiDen || '',
+                    models,
+                    book.TrangThaiCap || '',
+                    book.TrangThai || '',
+                    book.HieuLuc || ''
+                ]);
+            });
+
+            const worksheet = XLSX.utils.aoa_to_sheet(data);
+
+            // Thiết lập độ rộng cột
+            const colWidths = [
+                { wch: 5 },   // STT
+                { wch: 20 },  // Số sổ LV
+                { wch: 10 },  // Số thứ tự
+                { wch: 15 },  // Biển số
+                { wch: 25 },  // Tên chính
+                { wch: 12 },  // Ngày cấp
+                { wch: 12 },  // Ngày hết hạn
+                { wch: 12 },  // Ngày cấp GP
+                { wch: 18 },  // Loại hình LV
+                { wch: 15 },  // Cửa khẩu
+                { wch: 20 },  // Vùng hoạt động
+                { wch: 20 },  // Nơi đến
+                { wch: 25 },  // Mô hình hoạt động
+                { wch: 15 },  // Trạng thái cấp
+                { wch: 15 },  // Trạng thái
+                { wch: 15 }  // Hiệu lực
+            ];
+            worksheet['!cols'] = colWidths;
+
+            return worksheet;
+        }
+
+        // Xuất dữ liệu Thống kê
+        function exportStatisticsData() {
+            const workbook = XLSX.utils.book_new();
+
+            // Sheet 1: Thống kê tổng quan
+            const summaryData = [
+                ['THỐNG KÊ HỆ THỐNG QUẢN LÝ VẬN TẢI'],
+                [`Ngày xuất: ${new Date().toLocaleString('vi-VN')}`],
+                [`Khoảng thời gian: ${formatDate(document.getElementById('startDate').value)} - ${formatDate(document.getElementById('endDate').value)}`],
+                [],
+                ['CHỈ TIÊU', 'SỐ LƯỢNG'],
+                ['Tổng số GPKD', filteredLicensesData.length],
+                ['Tổng số phù hiệu', filteredEmblemsData.length],
+                ['GP Liên vận QT', filteredInternationalData.length],
+                ['Phù hiệu LV', filteredIntEmblemsData.length],
+                ['Sổ liên vận', filteredIntBooksData.length],
+                [],
+                ['THỐNG KÊ TRẠNG THÁI GPKD'],
+                ['Còn hiệu lực', filteredLicensesData.filter(l => l.TrangThai !== 'Đã thu hồi' && l.TrangThai !== 'Hết hiệu lực').length],
+                ['Hết hiệu lực', filteredLicensesData.filter(l => l.TrangThai === 'Hết hiệu lực').length],
+                ['Bị thu hồi', filteredLicensesData.filter(l => l.TrangThai === 'Đã thu hồi' || l.NgayThuHoi).length],
+                [],
+                ['THỐNG KÊ TRẠNG THÁI PHÙ HIỆU'],
+                ['Còn hiệu lực', filteredEmblemsData.filter(e => !isEmblemExpired(e.NgayHetHan) && e.TrangThai !== 'Đã thu hồi').length],
+                ['Hết hạn', filteredEmblemsData.filter(e => isEmblemExpired(e.NgayHetHan) && e.TrangThai !== 'Đã thu hồi').length],
+                ['Bị thu hồi', filteredEmblemsData.filter(e => e.TrangThai === 'Đã thu hồi' || e.NgayThuHoi).length]
+            ];
+
+            const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
+            XLSX.utils.book_append_sheet(workbook, summarySheet, 'Thống kê tổng quan');
+
+            // Sheet 2: Thống kê theo loại hình vận tải
+            const transportTypeData = getTransportTypeStatistics();
+            const transportSheet = XLSX.utils.aoa_to_sheet([
+                ['THỐNG KÊ THEO LOẠI HÌNH VẬN TẢI'],
+                [`Ngày xuất: ${new Date().toLocaleString('vi-VN')}`],
+                [],
+                ['Loại hình vận tải', 'Số lượng GPKD'],
+                ...transportTypeData.map(item => [item.type, item.count])
+            ]);
+            XLSX.utils.book_append_sheet(workbook, transportSheet, 'Theo loại hình VT');
+
+            return workbook;
+        }
+
+        // Xuất dữ liệu Báo cáo
+        function exportReportsData() {
+            const workbook = XLSX.utils.book_new();
+
+            // Sheet 1: Báo cáo tổng hợp
+            const reportData = [
+                ['BÁO CÁO HỆ THỐNG QUẢN LÝ VẬN TẢI'],
+                [`Ngày xuất: ${new Date().toLocaleString('vi-VN')}`],
+                [`Khoảng thời gian: ${formatDate(document.getElementById('startDate').value)} - ${formatDate(document.getElementById('endDate').value)}`],
+                [],
+                ['1. TỔNG QUAN'],
+                ['- Tổng số GPKD được cấp:', filteredLicensesData.length],
+                ['- Tổng số phù hiệu được cấp:', filteredEmblemsData.length],
+                ['- Tổng số GP Liên vận QT:', filteredInternationalData.length],
+                ['- Tổng số phù hiệu LV:', filteredIntEmblemsData.length],
+                ['- Tổng số sổ liên vận:', filteredIntBooksData.length],
+                [],
+                ['2. TÌNH HÌNH HOẠT ĐỘNG'],
+                ['- GPKD còn hiệu lực:', filteredLicensesData.filter(l => l.TrangThai !== 'Đã thu hồi' && l.TrangThai !== 'Hết hiệu lực').length],
+                ['- Phù hiệu còn hiệu lực:', filteredEmblemsData.filter(e => !isEmblemExpired(e.NgayHetHan) && e.TrangThai !== 'Đã thu hồi').length],
+                ['- GP Liên vận QT đang hoạt động:', filteredInternationalData.filter(i => i.TrangThaiHoatDong === 'Đang hoạt động').length],
+                [],
+                ['3. CẢNH BÁO'],
+                ['- Phù hiệu LV sắp đến hạn:', filteredIntEmblemsData.filter(e => e.HieuLuc === 'Sắp đến hạn').length],
+                ['- Sổ liên vận sắp đến hạn:', filteredIntBooksData.filter(b => b.HieuLuc === 'Sắp đến hạn').length],
+                [],
+                ['4. KẾT LUẬN VÀ KHUYẾN NGHỊ'],
+                ['- Hệ thống đang quản lý tổng cộng:',
+                    filteredLicensesData.length + filteredEmblemsData.length +
+                    filteredInternationalData.length + filteredIntEmblemsData.length +
+                    filteredIntBooksData.length + ' hồ sơ'],
+                ['- Cần theo dõi và gia hạn kịp thời các giấy tờ sắp hết hạn'],
+                ['- Đảm bảo tính chính xác và cập nhật thông tin định kỳ']
+            ];
+
+            const reportSheet = XLSX.utils.aoa_to_sheet(reportData);
+            XLSX.utils.book_append_sheet(workbook, reportSheet, 'Báo cáo tổng hợp');
+
+            // Sheet 2: Xu hướng theo tháng
+            const trendData = getLicenseTrendData(filteredLicensesData);
+            const trendSheet = XLSX.utils.aoa_to_sheet([
+                ['XU HƯỚNG CẤP GPKD THEO THÁNG'],
+                [`Ngày xuất: ${new Date().toLocaleString('vi-VN')}`],
+                [],
+                ['Tháng/Năm', 'Số GPKD được cấp'],
+                ...trendData.labels.map((label, index) => [label, trendData.values[index]])
+            ]);
+            XLSX.utils.book_append_sheet(workbook, trendSheet, 'Xu hướng theo tháng');
+
+            return workbook;
+        }
+
+        // Helper function để lấy thống kê theo loại hình vận tải
+        function getTransportTypeStatistics() {
+            const typeCounts = {};
+
+            filteredLicensesData.forEach(license => {
+                if (license.LoaiHinhVanTai) {
+                    if (Array.isArray(license.LoaiHinhVanTai)) {
+                        license.LoaiHinhVanTai.forEach(type => {
+                            const cleanType = type ? type.trim() : '';
+                            if (cleanType) {
+                                typeCounts[cleanType] = (typeCounts[cleanType] || 0) + 1;
+                            }
+                        });
+                    } else if (typeof license.LoaiHinhVanTai === 'string') {
+                        const transportArray = license.LoaiHinhVanTai.split(',');
+                        transportArray.forEach(type => {
+                            const cleanType = type ? type.trim() : '';
+                            if (cleanType) {
+                                typeCounts[cleanType] = (typeCounts[cleanType] || 0) + 1;
+                            }
+                        });
+                    }
+                }
+            });
+
+            return Object.entries(typeCounts)
+                .map(([type, count]) => ({ type, count }))
+                .sort((a, b) => b.count - a.count);
+        }
+
+        // API Request Function
+        async function apiRequest(tableName, action, data = {}) {
+            const apiUrl = `https://${region}.appsheet.com/api/v2/apps/${appId}/tables/${tableName}/Action`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'ApplicationAccessKey': accessKey,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        Action: action,
+                        Properties: {},
+                        ...data
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error(`Lỗi API cho bảng ${tableName}:`, error);
+                showNotification(`Lỗi khi lấy dữ liệu từ ${tableName}`, 'error');
+                return [];
+            }
+        }
+
+        // Fetch Licenses Data
+        async function fetchLicensesData() {
+            try {
+                const response = await apiRequest('GIAYPHEPKINHDOANHNOIDIA', 'Find', {
+                    Selector: "Filter(GIAYPHEPKINHDOANHNOIDIA, true)"
+                });
+
+                if (Array.isArray(response)) {
+                    originalLicensesData = response;
+                    filteredLicensesData = [...originalLicensesData];
+                    console.log('Dữ liệu GPKD:', originalLicensesData);
+                } else {
+                    throw new Error('Dữ liệu không hợp lệ');
+                }
+            } catch (error) {
+                console.error('Lỗi khi lấy dữ liệu GPKD:', error);
+                showNotification('Không thể tải dữ liệu giấy phép', 'error');
+            }
+        }
+
+        // Fetch Emblems Data
+        async function fetchEmblemsData() {
+            try {
+                const response = await apiRequest('PHUHIEUXE', 'Find', {
+                    Selector: "Filter(PHUHIEUXE, true)"
+                });
+
+                if (Array.isArray(response)) {
+                    originalEmblemsData = response;
+                    filteredEmblemsData = [...originalEmblemsData];
+                    console.log('Dữ liệu phù hiệu:', originalEmblemsData);
+                } else {
+                    throw new Error('Dữ liệu không hợp lệ');
+                }
+            } catch (error) {
+                console.error('Lỗi khi lấy dữ liệu phù hiệu:', error);
+                showNotification('Không thể tải dữ liệu phù hiệu', 'error');
+            }
+        }
+
+        // Fetch International Licenses Data
+        async function fetchInternationalData() {
+            try {
+                const response = await apiRequest('DoanhNghiep', 'Find', {
+                    Selector: "Filter(DoanhNghiep, [SoGPLienVanQT] <> \"\")"
+                });
+
+                if (Array.isArray(response)) {
+                    originalInternationalData = response;
+                    filteredInternationalData = [...originalInternationalData];
+                    console.log('Dữ liệu GP Liên vận QT:', originalInternationalData);
+                } else {
+                    throw new Error('Dữ liệu không hợp lệ');
+                }
+            } catch (error) {
+                console.error('Lỗi khi lấy dữ liệu GP Liên vận QT:', error);
+                showNotification('Không thể tải dữ liệu GP Liên vận QT', 'error');
+            }
+        }
+
+        // Fetch International Emblems Data
+        async function fetchIntEmblemsData() {
+            try {
+                const response = await apiRequest('PhuHieuLienVan', 'Find', {
+                    Selector: "Filter(PhuHieuLienVan, true)"
+                });
+
+                if (Array.isArray(response)) {
+                    originalIntEmblemsData = response;
+                    filteredIntEmblemsData = [...originalIntEmblemsData];
+                    console.log('Dữ liệu phù hiệu liên vận:', originalIntEmblemsData);
+                } else {
+                    throw new Error('Dữ liệu không hợp lệ');
+                }
+            } catch (error) {
+                console.error('Lỗi khi lấy dữ liệu phù hiệu liên vận:', error);
+                showNotification('Không thể tải dữ liệu phù hiệu liên vận', 'error');
+            }
+        }
+
+        // Fetch International Books Data
+        async function fetchIntBooksData() {
+            try {
+                const response = await apiRequest('SoLienVan', 'Find', {
+                    Selector: "Filter(SoLienVan, true)"
+                });
+
+                if (Array.isArray(response)) {
+                    originalIntBooksData = response;
+                    filteredIntBooksData = [...originalIntBooksData];
+                    console.log('Dữ liệu sổ liên vận:', originalIntBooksData);
+                } else {
+                    throw new Error('Dữ liệu không hợp lệ');
+                }
+            } catch (error) {
+                console.error('Lỗi khi lấy dữ liệu sổ liên vận:', error);
+                showNotification('Không thể tải dữ liệu sổ liên vận', 'error');
+            }
+        }
+
+        // Main Filter Function - Xử lý tất cả logic lọc
+        function applyFilters() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const applyToAll = document.getElementById('applyToAll').checked;
+
+            if (!startDate || !endDate) {
+                showNotification('Vui lòng chọn khoảng thời gian', 'warning');
+                return;
+            }
+
+            showNotification('Đang áp dụng bộ lọc...', 'info');
+
+            // Bước 1: Lọc theo thời gian trước
+            let tempLicenses = filterByDateRange(originalLicensesData, startDate, endDate, 'NgayCap');
+            let tempEmblems = filterByDateRange(originalEmblemsData, startDate, endDate, 'NgayCap');
+            let tempInternational = filterByDateRange(originalInternationalData, startDate, endDate, 'NgayCap');
+            let tempIntEmblems = filterByDateRange(originalIntEmblemsData, startDate, endDate, 'NgayCap');
+            let tempIntBooks = filterByDateRange(originalIntBooksData, startDate, endDate, 'NgayCap');
+
+            // Bước 2: Nếu không áp dụng cho tất cả, thêm bộ lọc chi tiết
+            if (!applyToAll) {
+                const activeTab = document.querySelector('.nav-btn.active').getAttribute('data-tab');
+
+                switch (activeTab) {
+                    case 'licenses':
+                        tempLicenses = applyLicenseSpecificFilters(tempLicenses);
+                        break;
+                    case 'emblems':
+                        tempEmblems = applyEmblemSpecificFilters(tempEmblems);
+                        break;
+                    case 'international':
+                        tempInternational = applyInternationalSpecificFilters(tempInternational);
+                        break;
+                    case 'international-emblems':
+                        tempIntEmblems = applyIntEmblemSpecificFilters(tempIntEmblems);
+                        break;
+                    case 'international-books':
+                        tempIntBooks = applyIntBookSpecificFilters(tempIntBooks);
+                        break;
+                }
+            }
+
+            // Bước 3: Cập nhật dữ liệu đã lọc
+            filteredLicensesData = tempLicenses;
+            filteredEmblemsData = tempEmblems;
+            filteredInternationalData = tempInternational;
+            filteredIntEmblemsData = tempIntEmblems;
+            filteredIntBooksData = tempIntBooks;
+
+            // Bước 4: Cập nhật toàn bộ UI
+            updateAllUI();
+
+            // Bước 5: Cập nhật biểu đồ
+            updateChartsWithFilteredData();
+
+            const totalFiltered = filteredLicensesData.length + filteredEmblemsData.length +
+                filteredInternationalData.length + filteredIntEmblemsData.length +
+                filteredIntBooksData.length;
+            showNotification(`Đã lọc được ${totalFiltered} bản ghi!`, 'success');
+        }
+
+        // Lọc theo khoảng thời gian
+        function filterByDateRange(data, startDate, endDate, dateField) {
+            if (!startDate || !endDate) return data;
+
+            const start = new Date(startDate + 'T00:00:00');
+            const end = new Date(endDate + 'T23:59:59');
+
+            return data.filter(item => {
+                if (item[dateField]) {
+                    const itemDate = parseAppSheetDate(item[dateField]);
+                    return itemDate >= start && itemDate <= end;
+                }
+                return false;
+            });
+        }
+
+        // Áp dụng bộ lọc chi tiết cho Licenses
+        function applyLicenseSpecificFilters(data) {
+            const companyFilter = document.getElementById('licenseCompanyFilter').value.toLowerCase();
+            const typeFilter = document.getElementById('licenseTypeFilter').value;
+            const transportFilter = document.getElementById('licenseTransportFilter').value;
+            const statusFilter = document.getElementById('licenseStatusFilter').value;
+
+            return data.filter(license => {
+                // Company name filter
+                if (companyFilter && !license.TenDonVi?.toLowerCase().includes(companyFilter)) {
+                    return false;
+                }
+
+                // Type filter
+                if (typeFilter && license.LoaiCap !== typeFilter) {
+                    return false;
+                }
+
+                // Transport type filter
+                if (transportFilter) {
+                    let hasTransportType = false;
+                    if (Array.isArray(license.LoaiHinhVanTai)) {
+                        hasTransportType = license.LoaiHinhVanTai.some(transport =>
+                            transport && transport.trim() === transportFilter
+                        );
+                    } else if (typeof license.LoaiHinhVanTai === 'string') {
+                        const transportArray = license.LoaiHinhVanTai.split(',');
+                        hasTransportType = transportArray.some(transport =>
+                            transport && transport.trim() === transportFilter
+                        );
+                    }
+                    if (!hasTransportType) return false;
+                }
+
+                // Status filter
+                if (statusFilter) {
+                    const licenseStatus = getLicenseFilterStatus(license);
+                    if (licenseStatus !== statusFilter) return false;
+                }
+
+                return true;
+            });
+        }
+
+        // Áp dụng bộ lọc chi tiết cho Emblems
+        function applyEmblemSpecificFilters(data) {
+            const companyFilter = document.getElementById('emblemCompanyFilter').value.toLowerCase();
+            const typeFilter = document.getElementById('emblemTypeFilter').value;
+            const capFilter = document.getElementById('emblemCapFilter').value;
+            const statusFilter = document.getElementById('emblemStatusFilter').value;
+
+            return data.filter(emblem => {
+                // Company name filter
+                if (companyFilter && !emblem.Ten_don_vi?.toLowerCase().includes(companyFilter)) {
+                    return false;
+                }
+
+                // Type filter
+                if (typeFilter && emblem.LoaiPH !== typeFilter) {
+                    return false;
+                }
+
+                // Cap filter
+                if (capFilter && emblem.LoaiCap !== capFilter) {
+                    return false;
+                }
+
+                // Status filter
+                if (statusFilter) {
+                    const emblemStatus = getEmblemFilterStatus(emblem);
+                    if (emblemStatus !== statusFilter) return false;
+                }
+
+                return true;
+            });
+        }
+
+        // Áp dụng bộ lọc chi tiết cho International
+        function applyInternationalSpecificFilters(data) {
+            const companyFilter = document.getElementById('internationalCompanyFilter').value.toLowerCase();
+            const typeFilter = document.getElementById('internationalTypeFilter').value;
+            const modelFilter = document.getElementById('internationalModelFilter').value;
+            const statusFilter = document.getElementById('internationalStatusFilter').value;
+            return data.filter(license => {
+                // Company name filter
+                if (companyFilter && !license.TenDonViHienThi?.toLowerCase().includes(companyFilter)) {
+                    return false;
+                }
+
+                // Type filter
+                if (typeFilter && license.LoaiCap !== typeFilter) {
+                    return false;
+                }
+
+                // Model filter
+                if (modelFilter) {
+                    if (Array.isArray(license.MoHinhHoatDong)) {
+                        if (!license.MoHinhHoatDong.includes(modelFilter)) return false;
+                    } else if (license.MoHinhHoatDong !== modelFilter) {
+                        return false;
+                    }
+                }
+
+                // Status filter
+                if (statusFilter) {
+                    const internationalStatus = getInternationalFilterStatus(license);
+                    if (internationalStatus !== statusFilter) return false;
+                }
+
+                return true;
+            });
+        }
+
+        // Áp dụng bộ lọc chi tiết cho International Emblems
+        function applyIntEmblemSpecificFilters(data) {
+            const companyFilter = document.getElementById('intEmblemCompanyFilter').value.toLowerCase();
+            const statusFilter = document.getElementById('intEmblemStatusFilter').value;
+            const typeFilter = document.getElementById('intEmblemTypeFilter').value;
+            const capStatusFilter = document.getElementById('intEmblemCapStatusFilter').value;
+
+            return data.filter(emblem => {
+                // Company name filter
+                if (companyFilter && !emblem.TenDoanhNghiep?.toLowerCase().includes(companyFilter)) {
+                    return false;
+                }
+
+                // Status filter
+                if (statusFilter && emblem.TrangThai !== statusFilter) {
+                    return false;
+                }
+
+                // Type filter
+                if (typeFilter && emblem.LoaiHinhLienVan !== typeFilter) {
+                    return false;
+                }
+
+                // Cap status filter
+                if (capStatusFilter && emblem.TrangThaiCap !== capStatusFilter) {
+                    return false;
+                }
+
+                return true;
+            });
+        }
+
+        // Áp dụng bộ lọc chi tiết cho International Books
+        function applyIntBookSpecificFilters(data) {
+            const companyFilter = document.getElementById('intBookCompanyFilter').value.toLowerCase();
+            const statusFilter = document.getElementById('intBookStatusFilter').value;
+            const typeFilter = document.getElementById('intBookTypeFilter').value;
+            const capStatusFilter = document.getElementById('intBookCapStatusFilter').value;
+
+            return data.filter(book => {
+                // Company name filter
+                if (companyFilter && !book.TenChinh?.toLowerCase().includes(companyFilter)) {
+                    return false;
+                }
+
+                // Status filter
+                if (statusFilter && book.TrangThai !== statusFilter) {
+                    return false;
+                }
+
+                // Type filter
+                if (typeFilter && book.LoaiHinhLienVan !== typeFilter) {
+                    return false;
+                }
+
+                // Cap status filter
+                if (capStatusFilter && book.TrangThaiCap !== capStatusFilter) {
+                    return false;
+                }
+
+                return true;
+            });
+        }
+
+        // Xóa tất cả bộ lọc
+        function clearAllFilters() {
+            // Reset date filters
+            const today = new Date();
+            const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+            document.getElementById('startDate').value = lastMonth.toISOString().split('T')[0];
+            document.getElementById('endDate').value = today.toISOString().split('T')[0];
+
+            // Reset specific filters
+            clearSpecificFilters();
+
+            // Reset to original data
+            filteredLicensesData = [...originalLicensesData];
+            filteredEmblemsData = [...originalEmblemsData];
+            filteredInternationalData = [...originalInternationalData];
+            filteredIntEmblemsData = [...originalIntEmblemsData];
+            filteredIntBooksData = [...originalIntBooksData];
+
+            // Update UI
+            updateAllUI();
+            updateChartsWithFilteredData();
+
+            showNotification('Đã xóa tất cả bộ lọc', 'info');
+        }
+
+        // Xóa bộ lọc chi tiết
+        function clearSpecificFilters() {
+            // Clear license filters
+            document.getElementById('licenseCompanyFilter').value = '';
+            document.getElementById('licenseTypeFilter').value = '';
+            document.getElementById('licenseTransportFilter').value = '';
+            document.getElementById('licenseStatusFilter').value = '';
+
+            // Clear emblem filters
+            document.getElementById('emblemCompanyFilter').value = '';
+            document.getElementById('emblemTypeFilter').value = '';
+            document.getElementById('emblemCapFilter').value = '';
+            document.getElementById('emblemStatusFilter').value = '';
+
+            // Clear international filters
+            document.getElementById('internationalCompanyFilter').value = '';
+            document.getElementById('internationalTypeFilter').value = '';
+            document.getElementById('internationalModelFilter').value = '';
+            document.getElementById('internationalStatusFilter').value = '';
+
+            // Clear international emblem filters
+            document.getElementById('intEmblemCompanyFilter').value = '';
+            document.getElementById('intEmblemStatusFilter').value = '';
+            document.getElementById('intEmblemTypeFilter').value = '';
+            document.getElementById('intEmblemCapStatusFilter').value = '';
+
+            // Clear international book filters
+            document.getElementById('intBookCompanyFilter').value = '';
+            document.getElementById('intBookStatusFilter').value = '';
+            document.getElementById('intBookTypeFilter').value = '';
+            document.getElementById('intBookCapStatusFilter').value = '';
+        }
+
+        // Cập nhật toàn bộ UI với dữ liệu đã lọc
+        function updateAllUI() {
+            updateLicensesUI();
+            updateEmblemsUI();
+            updateInternationalUI();
+            updateIntEmblemsUI();
+            updateIntBooksUI();
+            updateStatisticsData();
+        }
+
+        // Update UI functions với dữ liệu đã lọc
+        function updateLicensesUI() {
+            const activeLicenses = filteredLicensesData.filter(item =>
+                item.TrangThai !== 'Đã thu hồi' && item.TrangThai !== 'Hết hiệu lực'
+            );
+            const revokedLicenses = filteredLicensesData.filter(item =>
+                item.TrangThai === 'Đã thu hồi' || item.NgayThuHoi
+            );
+
+            // Update dashboard stats
+            document.getElementById('totalLicenses').textContent = filteredLicensesData.length;
+            document.getElementById('revokedLicenses').textContent = revokedLicenses.length;
+            document.getElementById('licensesIssued').textContent = filteredLicensesData.length;
+            document.getElementById('licensesRevoked').textContent = revokedLicenses.length;
+            document.getElementById('activeLicenses').textContent = activeLicenses.length;
+            document.getElementById('statsTotalLicenses').textContent = filteredLicensesData.length;
+
+            // Update table
+            updateLicensesTable();
+        }
+
+        function updateEmblemsUI() {
+            const today = new Date();
+
+            const activeEmblems = filteredEmblemsData.filter(item => {
+                if (item.TrangThai === 'Đã thu hồi' || item.NgayThuHoi) return false;
+                if (item.NgayHetHan) {
+                    const expireDate = parseAppSheetDate(item.NgayHetHan);
+                    return expireDate >= today;
+                }
+                return true;
+            });
+
+            const expiredEmblems = filteredEmblemsData.filter(item => {
+                if (item.NgayHetHan) {
+                    const expireDate = parseAppSheetDate(item.NgayHetHan);
+                    return expireDate < today && item.TrangThai !== 'Đã thu hồi';
+                }
+                return false;
+            });
+
+            const revokedEmblems = filteredEmblemsData.filter(item =>
+                item.TrangThai === 'Đã thu hồi' || item.NgayThuHoi
+            );
+
+            // Update dashboard stats
+            document.getElementById('activeEmblems').textContent = activeEmblems.length;
+            document.getElementById('expiredEmblems').textContent = expiredEmblems.length;
+            document.getElementById('emblemsIssued').textContent = filteredEmblemsData.length;
+            document.getElementById('emblemsRevoked').textContent = revokedEmblems.length;
+            document.getElementById('emblemsExpired').textContent = expiredEmblems.length;
+            document.getElementById('emblemsActive').textContent = activeEmblems.length;
+            document.getElementById('statsTotalEmblems').textContent = filteredEmblemsData.length;
+
+            // Update table
+            updateEmblemsTable();
+        }
+
+        function updateInternationalUI() {
+            const activeInternational = filteredInternationalData.filter(item =>
+                item.TrangThaiHoatDong === 'Đang hoạt động'
+            );
+            const suspendedInternational = filteredInternationalData.filter(item =>
+                item.TrangThaiHoatDong === 'Ngừng tạm thời'
+            );
+            const revokedInternational = filteredInternationalData.filter(item =>
+                item.TrangThaiHoatDong === 'Bị thu hồi GPKD'
+            );
+
+            // Update dashboard stats
+            document.getElementById('totalInternational').textContent = filteredInternationalData.length;
+            document.getElementById('internationalIssued').textContent = filteredInternationalData.length;
+            document.getElementById('internationalActive').textContent = activeInternational.length;
+            document.getElementById('internationalSuspended').textContent = suspendedInternational.length;
+            document.getElementById('internationalRevoked').textContent = revokedInternational.length;
+            document.getElementById('statsTotalInternational').textContent = filteredInternationalData.length;
+
+            // Update table
+            updateInternationalTable();
+        }
+
+        function updateIntEmblemsUI() {
+            const activeIntEmblems = filteredIntEmblemsData.filter(item => {
+                const today = new Date();
+                if (item.NgayHetHan) {
+                    const expireDate = parseAppSheetDate(item.NgayHetHan);
+                    return expireDate >= today && item.TrangThai !== 'Đã thu hồi';
+                }
+                return item.TrangThai !== 'Đã thu hồi';
+            });
+
+            const expiringIntEmblems = filteredIntEmblemsData.filter(item =>
+                item.HieuLuc === 'Sắp đến hạn'
+            );
+
+            const expiredIntEmblems = filteredIntEmblemsData.filter(item => {
+                const today = new Date();
+                if (item.NgayHetHan) {
+                    const expireDate = parseAppSheetDate(item.NgayHetHan);
+                    return expireDate < today || item.TrangThai === 'Đã thu hồi';
+                }
+                return item.TrangThai === 'Đã thu hồi';
+            });
+
+            // Update dashboard stats
+            document.getElementById('totalIntEmblems').textContent = filteredIntEmblemsData.length;
+            document.getElementById('intEmblemsIssued').textContent = filteredIntEmblemsData.length;
+            document.getElementById('intEmblemsActive').textContent = activeIntEmblems.length;
+            document.getElementById('intEmblemsExpiring').textContent = expiringIntEmblems.length;
+            document.getElementById('intEmblemsExpired').textContent = expiredIntEmblems.length;
+            document.getElementById('statsTotalIntEmblems').textContent = filteredIntEmblemsData.length;
+
+            // Show warning banner if there are expiring items
+            const warningBanner = document.getElementById('intEmblemWarningBanner');
+            const warningCount = document.getElementById('intEmblemWarningCount');
+            if (expiringIntEmblems.length > 0) {
+                warningBanner.classList.remove('hidden');
+                warningCount.textContent = expiringIntEmblems.length;
+            } else {
+                warningBanner.classList.add('hidden');
+            }
+
+            // Update table
+            updateIntEmblemsTable();
+        }
+
+        function updateIntBooksUI() {
+            const activeIntBooks = filteredIntBooksData.filter(item => {
+                const today = new Date();
+                if (item.NgayHetHan) {
+                    const expireDate = parseAppSheetDate(item.NgayHetHan);
+                    return expireDate >= today && item.TrangThai !== 'Đã thu hồi';
+                }
+                return item.TrangThai !== 'Đã thu hồi';
+            });
+
+            const expiringIntBooks = filteredIntBooksData.filter(item =>
+                item.HieuLuc === 'Sắp đến hạn'
+            );
+
+            const expiredIntBooks = filteredIntBooksData.filter(item => {
+                const today = new Date();
+                if (item.NgayHetHan) {
+                    const expireDate = parseAppSheetDate(item.NgayHetHan);
+                    return expireDate < today || item.TrangThai === 'Đã thu hồi';
+                }
+                return item.TrangThai === 'Đã thu hồi';
+            });
+
+            // Update dashboard stats
+            document.getElementById('totalIntBooks').textContent = filteredIntBooksData.length;
+            document.getElementById('intBooksIssued').textContent = filteredIntBooksData.length;
+            document.getElementById('intBooksActive').textContent = activeIntBooks.length;
+            document.getElementById('intBooksExpiring').textContent = expiringIntBooks.length;
+            document.getElementById('intBooksExpired').textContent = expiredIntBooks.length;
+            document.getElementById('statsTotalIntBooks').textContent = filteredIntBooksData.length;
+
+            // Show warning banner if there are expiring items
+            const warningBanner = document.getElementById('intBookWarningBanner');
+            const warningCount = document.getElementById('intBookWarningCount');
+            if (expiringIntBooks.length > 0) {
+                warningBanner.classList.remove('hidden');
+                warningCount.textContent = expiringIntBooks.length;
+            } else {
+                warningBanner.classList.add('hidden');
+            }
+
+            // Update table
+            updateIntBooksTable();
+        }
+
+        // Update Tables với dữ liệu đã lọc
+        function updateLicensesTable() {
+            const tableBody = document.getElementById('licensesTableBody');
+            if (!tableBody) return;
+
+            tableBody.innerHTML = '';
+
+            filteredLicensesData.slice(0, 50).forEach(license => {
+                const row = document.createElement('tr');
+                row.className = 'border-b hover:bg-gray-50';
+
+                const statusClass = getStatusClass(license.TrangThai);
+
+                let transportTypes = '';
+                if (license.LoaiHinhVanTai) {
+                    if (Array.isArray(license.LoaiHinhVanTai)) {
+                        transportTypes = license.LoaiHinhVanTai.join(', ');
+                    } else if (typeof license.LoaiHinhVanTai === 'string') {
+                        const transportArray = license.LoaiHinhVanTai.split(',');
+                        transportTypes = transportArray.map(t => t.trim()).filter(t => t).join(', ');
+                    }
+                }
+
+                row.innerHTML = `
+              <td class="px-4 py-2 font-medium">${license.SoGiayPhep || ''}</td>
+              <td class="px-4 py-2">${license.TenDonVi || ''}</td>
+              <td class="px-4 py-2 text-center">${formatDate(license.NgayCap)}</td>
+              <td class="px-4 py-2 text-center">${transportTypes}</td>
+              <td class="px-4 py-2 text-center">
+                  <span class="px-2 py-1 text-xs rounded-full ${statusClass}">
+                      ${license.TrangThai || ''}
+                  </span>
+              </td>
+              <td class="px-4 py-2 text-center">
+                  <button class="text-blue-600 hover:text-blue-800" onclick="viewLicenseDetail('${license.ID_GPKD}')">
+                      Chi tiết
+                  </button>
+              </td>
+          `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function updateEmblemsTable() {
+            const tableBody = document.getElementById('emblemsTableBody');
+            if (!tableBody) return;
+
+            tableBody.innerHTML = '';
+
+            filteredEmblemsData.slice(0, 50).forEach(emblem => {
+                const row = document.createElement('tr');
+                row.className = 'border-b hover:bg-gray-50';
+
+                const statusClass = getStatusClass(emblem.TrangThai);
+                const isExpired = isEmblemExpired(emblem.NgayHetHan);
+
+                row.innerHTML = `
+              <td class="px-4 py-2 font-medium">${emblem.SoPhuHieu || ''}</td>
+              <td class="px-4 py-2">${emblem.BienSo || ''}</td>
+              <td class="px-4 py-2">${emblem.Ten_don_vi || ''}</td>
+              <td class="px-4 py-2 text-center">${formatDate(emblem.NgayCap)}</td>
+              <td class="px-4 py-2 text-center">${formatDate(emblem.NgayHetHan)}</td>
+              <td class="px-4 py-2 text-center">
+                  <span class="px-2 py-1 text-xs rounded-full ${isExpired ? 'bg-red-100 text-red-800' : statusClass}">
+                      ${isExpired ? 'Hết hạn' : (emblem.TrangThai || '')}
+                  </span>
+              </td>
+              <td class="px-4 py-2 text-center">
+                  <button class="text-blue-600 hover:text-blue-800" onclick="viewEmblemDetail('${emblem.ID_PhuHieu}')">
+                      Chi tiết
+                  </button>
+              </td>
+          `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function updateInternationalTable() {
+            const tableBody = document.getElementById('internationalTableBody');
+            tableBody.innerHTML = '';
+
+            filteredInternationalData.slice(0, 50).forEach(license => {
+                const row = document.createElement('tr');
+                row.className = 'border-b hover:bg-gray-50';
+
+                const statusClass = getInternationalStatusClass(license.TrangThaiHoatDong);
+                const moHinhHoatDong = Array.isArray(license.MoHinhHoatDong)
+                    ? license.MoHinhHoatDong.join(', ')
+                    : license.MoHinhHoatDong || '';
+
+                row.innerHTML = `
+              <td class="px-4 py-2 font-medium">${license.SoGPLienVanQT || ''}</td>
+              <td class="px-4 py-2">${license.TenDonViHienThi || ''}</td>
+              <td class="px-4 py-2 text-center">${formatDate(license.NgayCap)}</td>
+              <td class="px-4 py-2 text-center">${license.LoaiCap || ''}</td>
+              <td class="px-4 py-2 text-center">${moHinhHoatDong}</td>
+              <td class="px-4 py-2 text-center">
+                  <span class="px-2 py-1 text-xs rounded-full ${statusClass}">
+                      ${license.TrangThaiHoatDong || ''}
+                  </span>
+              </td>
+              <td class="px-4 py-2 text-center">
+                  <button class="text-blue-600 hover:text-blue-800" onclick="viewInternationalDetail('${license.IDDoanhNghiep}')">
+                      Chi tiết
+                  </button>
+              </td>
+          `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function updateIntEmblemsTable() {
+            const tableBody = document.getElementById('intEmblemsTableBody');
+            if (!tableBody) return;
+
+            tableBody.innerHTML = '';
+
+            filteredIntEmblemsData.slice(0, 50).forEach(emblem => {
+                const row = document.createElement('tr');
+                const isExpiring = emblem.HieuLuc === 'Sắp đến hạn';
+                row.className = `border-b hover:bg-gray-50 ${isExpiring ? 'expiring-row' : ''}`;
+
+                const statusClass = getStatusClass(emblem.TrangThai);
+
+                row.innerHTML = `
+              <td class="px-4 py-2 font-medium">${emblem.SoPhuHieu || ''}</td>
+              <td class="px-4 py-2">${emblem.Bienso || ''}</td>
+              <td class="px-4 py-2">${emblem.TenDoanhNghiep || ''}</td>
+              <td class="px-4 py-2 text-center">${formatDate(emblem.NgayCap)}</td>
+              <td class="px-4 py-2 text-center">${formatDate(emblem.NgayHetHan)}</td>
+              <td class="px-4 py-2 text-center">${emblem.LoaiHinhLienVan || ''}</td>
+              <td class="px-4 py-2 text-center">
+                  <span class="px-2 py-1 text-xs rounded-full ${statusClass}">
+                      ${emblem.TrangThai || ''}
+                  </span>
+              </td>
+              <td class="px-4 py-2 text-center">
+                  <span class="px-2 py-1 text-xs rounded-full ${isExpiring ? 'warning-badge' : 'bg-green-100 text-green-800'}">
+                      ${emblem.HieuLuc || ''}
+                  </span>
+              </td>
+              <td class="px-4 py-2 text-center">
+                  <button class="text-blue-600 hover:text-blue-800" onclick="viewIntEmblemDetail('${emblem.IDPhuHieu}')">
+                      Chi tiết
+                  </button>
+              </td>
+          `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function updateIntBooksTable() {
+            const tableBody = document.getElementById('intBooksTableBody');
+            if (!tableBody) return;
+
+            tableBody.innerHTML = '';
+
+            filteredIntBooksData.slice(0, 50).forEach(book => {
+                const row = document.createElement('tr');
+                const isExpiring = book.HieuLuc === 'Sắp đến hạn';
+                row.className = `border-b hover:bg-gray-50 ${isExpiring ? 'expiring-row' : ''}`;
+
+                const statusClass = getStatusClass(book.TrangThai);
+
+                row.innerHTML = `
+              <td class="px-4 py-2 font-medium">${book.SoSoLienVan || ''}</td>
+              <td class="px-4 py-2">${book.BienSo || ''}</td>
+              <td class="px-4 py-2">${book.TenChinh || ''}</td>
+              <td class="px-4 py-2 text-center">${formatDate(book.NgayCap)}</td>
+              <td class="px-4 py-2 text-center">${formatDate(book.NgayHetHan)}</td>
+              <td class="px-4 py-2 text-center">${book.LoaiHinhLienVan || ''}</td>
+              <td class="px-4 py-2 text-center">${book.CuaKhau || ''}</td>
+              <td class="px-4 py-2 text-center">
+                  <span class="px-2 py-1 text-xs rounded-full ${statusClass}">
+                      ${book.TrangThai || ''}
+                  </span>
+              </td>
+              <td class="px-4 py-2 text-center">
+                  <span class="px-2 py-1 text-xs rounded-full ${isExpiring ? 'warning-badge' : 'bg-green-100 text-green-800'}">
+                      ${book.HieuLuc || ''}
+                  </span>
+              </td>
+              <td class="px-4 py-2 text-center">
+                  <button class="text-blue-600 hover:text-blue-800" onclick="viewIntBookDetail('${book.IDSo}')">
+                      Chi tiết
+                  </button>
+              </td>
+          `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Helper function to parse AppSheet date format correctly
+        function parseAppSheetDate(dateString) {
+            if (!dateString) return null;
+
+            try {
+                if (dateString.includes('T')) {
+                    return new Date(dateString);
+                }
+
+                if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                    return new Date(dateString + 'T00:00:00');
+                }
+
+                if (dateString.includes('/')) {
+                    const parts = dateString.split('/');
+                    if (parts.length === 3) {
+                        const month = parseInt(parts[0]);
+                        const day = parseInt(parts[1]);
+                        const year = parseInt(parts[2]);
+
+                        if (month > 12) {
+                            return new Date(year, parseInt(parts[1]) - 1, month);
+                        } else {
+                            return new Date(year, month - 1, day);
+                        }
+                    }
+                }
+
+                const date = new Date(dateString);
+                if (!isNaN(date.getTime())) {
+                    return date;
+                }
+
+                console.warn('Unable to parse date:', dateString);
+                return null;
+
+            } catch (error) {
+                console.error('Error parsing date:', dateString, error);
+                return null;
+            }
+        }
+
+        // Helper Functions
+        function formatDate(dateString) {
+            if (!dateString) return '';
+
+            try {
+                const date = parseAppSheetDate(dateString);
+                if (!date) return '';
+
+                return date.toLocaleDateString('vi-VN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit'
+                });
+            } catch (error) {
+                console.error('Error formatting date:', dateString, error);
+                return '';
+            }
+        }
+
+        function getStatusClass(status) {
+            switch (status) {
+                case 'Còn hiệu lực':
+                case 'Đang hoạt động':
+                    return 'bg-green-100 text-green-800';
+                case 'Đã thu hồi':
+                case 'Thu hồi':
+                    return 'bg-red-100 text-red-800';
+                case 'Hết hiệu lực':
+                case 'Hết hạn':
+                    return 'bg-orange-100 text-orange-800';
+                default:
+                    return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        function getInternationalStatusClass(status) {
+            switch (status) {
+                case 'Đang hoạt động':
+                    return 'bg-green-100 text-green-800';
+                case 'Ngừng tạm thời':
+                    return 'bg-yellow-100 text-yellow-800';
+                case 'Bị thu hồi GPKD':
+                    return 'bg-red-100 text-red-800';
+                case 'Giải thể':
+                    return 'bg-gray-100 text-gray-800';
+                default:
+                    return 'bg-blue-100 text-blue-800';
+            }
+        }
+
+        function isEmblemExpired(dateString) {
+            if (!dateString) return false;
+            try {
+                const expireDate = parseAppSheetDate(dateString);
+                return expireDate < new Date();
+            } catch {
+                return false;
+            }
+        }
+
+        // Tab functionality
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class from all buttons and content
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.add('hidden');
+                    content.classList.remove('active');
+                });
+
+                // Add active class to clicked button
+                btn.classList.add('active');
+
+                // Show corresponding content
+                const tabId = btn.getAttribute('data-tab');
+                const tabContent = document.getElementById(tabId);
+                tabContent.classList.remove('hidden');
+                tabContent.classList.add('active');
+
+                // Show appropriate filters if not applying to all
+                if (!document.getElementById('applyToAll').checked) {
+                    showCurrentTabFilters();
+                }
+
+                // Initialize charts when switching tabs
+                if (tabId === 'dashboard') {
+                    setTimeout(initDashboardCharts, 100);
+                } else if (tabId === 'statistics') {
+                    setTimeout(initStatisticsCharts, 100);
+                } else if (tabId === 'reports') {
+                    setTimeout(initReportCharts, 100);
+                }
+            });
+        });
+
+        // Filter handling with apply to all option
+        function handleFilterToggle() {
+            const applyToAll = document.getElementById('applyToAll').checked;
+            const specificFilters = document.getElementById('specificFilters');
+
+            if (applyToAll) {
+                specificFilters.classList.add('filter-disabled');
+                // Ẩn tất cả bộ lọc chi tiết
+                document.querySelectorAll('.filter-section').forEach(section => {
+                    section.classList.add('hidden');
+                });
+            } else {
+                specificFilters.classList.remove('filter-disabled');
+                showCurrentTabFilters();
+            }
+        }
+
+        // Function để hiển thị bộ lọc riêng cho tab hiện tại
+        function showCurrentTabFilters() {
+            const activeTab = document.querySelector('.nav-btn.active').getAttribute('data-tab');
+
+            // Ẩn tất cả bộ lọc
+            document.querySelectorAll('.filter-section').forEach(section => {
+                section.classList.add('hidden');
+            });
+
+            // Hiển thị bộ lọc tương ứng
+            switch (activeTab) {
+                case 'licenses':
+                    document.getElementById('licenseFilters').classList.remove('hidden');
+                    break;
+                case 'emblems':
+                    document.getElementById('emblemFilters').classList.remove('hidden');
+                    break;
+                case 'international':
+                    document.getElementById('internationalFilters').classList.remove('hidden');
+                    break;
+                case 'international-emblems':
+                    document.getElementById('internationalEmblemFilters').classList.remove('hidden');
+                    break;
+                case 'international-books':
+                    document.getElementById('internationalBookFilters').classList.remove('hidden');
+                    break;
+                default:
+                    // Ẩn tất cả nếu không phải tab có bộ lọc riêng
+                    break;
+            }
+        }
+
+        // Helper functions for filter status
+        function getLicenseFilterStatus(license) {
+            switch (license.TrangThai) {
+                case 'Còn hiệu lực':
+                    return 'active';
+                case 'Hết hiệu lực':
+                    return 'expired';
+                case 'Đã thu hồi':
+                    return 'revoked';
+                default:
+                    return 'active';
+            }
+        }
+
+        function getEmblemFilterStatus(emblem) {
+            if (emblem.TrangThai === 'Đã thu hồi') {
+                return 'revoked';
+            }
+
+            if (isEmblemExpired(emblem.NgayHetHan)) {
+                return 'expired';
+            }
+
+            return 'active';
+        }
+
+        function getInternationalFilterStatus(item) {
+            switch (item.TrangThaiHoatDong) {
+                case 'Đang hoạt động':
+                    return 'active';
+                case 'Ngừng tạm thời':
+                    return 'suspended';
+                case 'Bị thu hồi GPKD':
+                    return 'revoked';
+                default:
+                    return 'active';
+            }
+        }
+
+        // Modal Functions
+        function viewLicenseDetail(licenseId) {
+            const license = originalLicensesData.find(item => item.ID_GPKD === licenseId);
+            if (license) {
+                showLicenseModal(license);
+            }
+        }
+
+        function viewEmblemDetail(emblemId) {
+            const emblem = originalEmblemsData.find(item => item.ID_PhuHieu === emblemId);
+            if (emblem) {
+                showEmblemModal(emblem);
+            }
+        }
+
+        function viewInternationalDetail(licenseId) {
+            const license = originalInternationalData.find(item => item.IDDoanhNghiep === licenseId);
+            if (license) {
+                showInternationalModal(license);
+            }
+        }
+
+        function viewIntEmblemDetail(emblemId) {
+            const emblem = originalIntEmblemsData.find(item => item.IDPhuHieu === emblemId);
+            if (emblem) {
+                showIntEmblemModal(emblem);
+            }
+        }
+
+        function viewIntBookDetail(bookId) {
+            const book = originalIntBooksData.find(item => item.IDSo === bookId);
+            if (book) {
+                showIntBookModal(book);
+            }
+        }
+
+        function showLicenseModal(license) {
+            const modalContent = `
+      <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="licenseModal">
+          <div class="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
+              <div class="flex justify-between items-center mb-4">
+                  <h3 class="text-lg font-bold">Chi tiết Giấy phép</h3>
+                  <button onclick="closeModal('licenseModal')" class="text-gray-500 hover:text-gray-700">
+                      <i class="fas fa-times"></i>
+                  </button>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div><strong>Số giấy phép:</strong> ${license.SoGiayPhep || ''}</div>
+                  <div><strong>Mã hồ sơ:</strong> ${license.MaHoSo || ''}</div>
+                  <div><strong>Tên đơn vị:</strong> ${license.TenDonVi || ''}</div>
+                  <div><strong>Địa chỉ:</strong> ${license.DiaChi || ''}</div>
+                  <div><strong>Ngày cấp:</strong> ${formatDate(license.NgayCap)}</div>
+                  <div><strong>Loại cấp:</strong> ${license.LoaiCap || ''}</div>
+                  <div><strong>Trạng thái:</strong> 
+                      <span class="px-2 py-1 text-xs rounded-full ${getStatusClass(license.TrangThai)}">
+                          ${license.TrangThai || ''}
+                      </span>
+                  </div>
+                  <div><strong>Loại hình vận tải:</strong> ${Array.isArray(license.LoaiHinhVanTai) ? license.LoaiHinhVanTai.join(', ') : license.LoaiHinhVanTai || ''}</div>
+              </div>
+              ${license.NgayThuHoi ? `
+                  <div class="mt-4 p-4 bg-red-50 rounded">
+                      <h4 class="font-semibold text-red-800">Thông tin thu hồi:</h4>
+                      <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2">
+                          <div><strong>Ngày thu hồi:</strong> ${formatDate(license.NgayThuHoi)}</div>
+                          <div><strong>Số quyết định:</strong> ${license.SoQuyetDinhThuHoi || ''}</div>
+                          <div class="md:col-span-2"><strong>Lý do thu hồi:</strong> ${license.LyDoThuHoi || ''}</div>
+                      </div>
+                  </div>
+              ` : ''}
+              ${license.GhiChu ? `
+                  <div class="mt-4">
+                      <strong>Ghi chú:</strong> ${license.GhiChu}
+                  </div>
+              ` : ''}
+          </div>
+      </div>
+  `;
+            document.body.insertAdjacentHTML('beforeend', modalContent);
+        }
+
+        function showEmblemModal(emblem) {
+            const modalContent = `
+      <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="emblemModal">
+          <div class="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
+              <div class="flex justify-between items-center mb-4">
+                  <h3 class="text-lg font-bold">Chi tiết Phù hiệu</h3>
+                  <button onclick="closeModal('emblemModal')" class="text-gray-500 hover:text-gray-700">
+                      <i class="fas fa-times"></i>
+                  </button>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div><strong>Số phù hiệu:</strong> ${emblem.SoPhuHieu || ''}</div>
+                  <div><strong>Biển số xe:</strong> ${emblem.BienSo || ''}</div>
+                  <div><strong>Tên đơn vị:</strong> ${emblem.Ten_don_vi || ''}</div>
+                  <div><strong>Địa chỉ:</strong> ${emblem['Địa chỉ'] || ''}</div>
+                  <div><strong>Ngày cấp:</strong> ${formatDate(emblem.NgayCap)}</div>
+                  <div><strong>Ngày hết hạn:</strong> ${formatDate(emblem.NgayHetHan)}</div>
+                  <div><strong>Loại phù hiệu:</strong> ${emblem.LoaiPH || ''}</div>
+                  <div><strong>Màu phù hiệu:</strong> ${emblem.MauPhuHieu || ''}</div>
+                  <div><strong>Trạng thái:</strong> 
+                      <span class="px-2 py-1 text-xs rounded-full ${isEmblemExpired(emblem.NgayHetHan) ? 'bg-red-100 text-red-800' : getStatusClass(emblem.TrangThai)}">
+                          ${isEmblemExpired(emblem.NgayHetHan) ? 'Hết hạn' : (emblem.TrangThai || '')}
+                      </span>
+                  </div>
+                  <div><strong>Tuyến khai thác:</strong> ${emblem['Tuyến khai thác'] || ''}</div>
+              </div>
+              ${emblem.NgayThuHoi ? `
+                  <div class="mt-4 p-4 bg-red-50 rounded">
+                      <h4 class="font-semibold text-red-800">Thông tin thu hồi:</h4>
+                      <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2">
+                          <div><strong>Ngày thu hồi:</strong> ${formatDate(emblem.NgayThuHoi)}</div>
+                          <div><strong>Quyết định thu hồi:</strong> ${emblem.QDThuHoi || ''}</div>
+                          <div class="md:col-span-2"><strong>Lý do thu hồi:</strong> ${emblem.LyDoThuHoi || ''}</div>
+                      </div>
+                  </div>
+              ` : ''}
+              ${emblem.GhiChu ? `
+                  <div class="mt-4">
+                      <strong>Ghi chú:</strong> ${emblem.GhiChu}
+                  </div>
+              ` : ''}
+          </div>
+      </div>
+  `;
+            document.body.insertAdjacentHTML('beforeend', modalContent);
+        }
+
+        function showInternationalModal(license) {
+            const modalContent = `
+       <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="internationalModal">
+           <div class="bg-white rounded-lg p-6 max-w-3xl w-full mx-4 max-h-96 overflow-y-auto">
+               <div class="flex justify-between items-center mb-4">
+                   <h3 class="text-lg font-bold">Chi tiết Giấy phép Liên vận Quốc tế</h3>
+                   <button onclick="closeModal('internationalModal')" class="text-gray-500 hover:text-gray-700">
+                       <i class="fas fa-times"></i>
+                   </button>
+               </div>
+               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                   <div><strong>Số GP Liên vận QT:</strong> ${license.SoGPLienVanQT || ''}</div>
+                   <div><strong>Mã doanh nghiệp:</strong> ${license.IDDoanhNghiep || ''}</div>
+                   <div><strong>Tên đơn vị:</strong> ${license.TenDonViHienThi || ''}</div>
+                   <div><strong>Ngày cấp:</strong> ${formatDate(license.NgayCap)}</div>
+                   <div><strong>Loại cấp:</strong> ${license.LoaiCap || ''}</div>
+                   <div><strong>Trạng thái hoạt động:</strong> 
+                       <span class="px-2 py-1 text-xs rounded-full ${getInternationalStatusClass(license.TrangThaiHoatDong)}">
+                           ${license.TrangThaiHoatDong || ''}
+                       </span>
+                   </div>
+                   <div class="md:col-span-2"><strong>Mô hình hoạt động:</strong> ${Array.isArray(license.MoHinhHoatDong) ? license.MoHinhHoatDong.join(', ') : license.MoHinhHoatDong || ''}</div>
+               </div>
+               ${license.Lydocaplai ? `
+                   <div class="mt-4 p-4 bg-blue-50 rounded">
+                       <h4 class="font-semibold text-blue-800">Lý do cấp lại:</h4>
+                       <div class="mt-2">${license.Lydocaplai}</div>
+                   </div>
+               ` : ''}
+           </div>
+       </div>
+   `;
+            document.body.insertAdjacentHTML('beforeend', modalContent);
+        }
+
+        function showIntEmblemModal(emblem) {
+            const isExpiring = emblem.HieuLuc === 'Sắp đến hạn';
+            const modalContent = `
+       <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="intEmblemModal">
+           <div class="bg-white rounded-lg p-6 max-w-3xl w-full mx-4 max-h-96 overflow-y-auto">
+               <div class="flex justify-between items-center mb-4">
+                   <h3 class="text-lg font-bold">Chi tiết Phù hiệu Liên vận</h3>
+                   <button onclick="closeModal('intEmblemModal')" class="text-gray-500 hover:text-gray-700">
+                       <i class="fas fa-times"></i>
+                   </button>
+               </div>
+               ${isExpiring ? `
+                   <div class="bg-yellow-100 border-l-4 border-yellow-500 p-4 mb-4">
+                       <div class="flex">
+                           <div class="flex-shrink-0">
+                               <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+                           </div>
+                           <div class="ml-3">
+                               <p class="text-sm text-yellow-700">
+                                   <strong>Cảnh báo:</strong> Phù hiệu này sắp đến hạn!
+                               </p>
+                           </div>
+                       </div>
+                   </div>
+               ` : ''}
+               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                   <div><strong>Số phù hiệu:</strong> ${emblem.SoPhuHieu || ''}</div>
+                   <div><strong>Số thứ tự:</strong> ${emblem.SoThuTu || ''}</div>
+                   <div><strong>Biển số:</strong> ${emblem.Bienso || ''}</div>
+                   <div><strong>Tên doanh nghiệp:</strong> ${emblem.TenDoanhNghiep || ''}</div>
+                   <div><strong>Ngày cấp:</strong> ${formatDate(emblem.NgayCap)}</div>
+                   <div><strong>Ngày hết hạn:</strong> ${formatDate(emblem.NgayHetHan)}</div>
+                   <div><strong>Loại hình liên vận:</strong> ${emblem.LoaiHinhLienVan || ''}</div>
+                   <div><strong>Trạng thái cấp:</strong> ${emblem.TrangThaiCap || ''}</div>
+                   <div><strong>Trạng thái:</strong> 
+                       <span class="px-2 py-1 text-xs rounded-full ${getStatusClass(emblem.TrangThai)}">
+                           ${emblem.TrangThai || ''}
+                       </span>
+                   </div>
+                   <div><strong>Hiệu lực:</strong> 
+                       <span class="px-2 py-1 text-xs rounded-full ${isExpiring ? 'warning-badge' : 'bg-green-100 text-green-800'}">
+                           ${emblem.HieuLuc || ''}
+                       </span>
+                   </div>
+               </div>
+               ${emblem.QRLink ? `
+                   <div class="mt-4">
+                       <strong>QR Link:</strong> <a href="${emblem.QRLink}" target="_blank" class="text-blue-600 hover:underline">${emblem.QRLink}</a>
+                   </div>
+               ` : ''}
+           </div>
+       </div>
+   `;
+            document.body.insertAdjacentHTML('beforeend', modalContent);
+        }
+
+        function showIntBookModal(book) {
+            const isExpiring = book.HieuLuc === 'Sắp đến hạn';
+            const modalContent = `
+       <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="intBookModal">
+           <div class="bg-white rounded-lg p-6 max-w-4xl w-full mx-4 max-h-96 overflow-y-auto">
+               <div class="flex justify-between items-center mb-4">
+                   <h3 class="text-lg font-bold">Chi tiết Sổ Liên vận</h3>
+                   <button onclick="closeModal('intBookModal')" class="text-gray-500 hover:text-gray-700">
+                       <i class="fas fa-times"></i>
+                   </button>
+               </div>
+               ${isExpiring ? `
+                   <div class="bg-yellow-100 border-l-4 border-yellow-500 p-4 mb-4">
+                       <div class="flex">
+                           <div class="flex-shrink-0">
+                               <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+                           </div>
+                           <div class="ml-3">
+                               <p class="text-sm text-yellow-700">
+                                   <strong>Cảnh báo:</strong> Sổ liên vận này sắp đến hạn!
+                               </p>
+                           </div>
+                       </div>
+                   </div>
+               ` : ''}
+               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                   <div><strong>Số sổ liên vận:</strong> ${book.SoSoLienVan || ''}</div>
+                   <div><strong>Số thứ tự:</strong> ${book.SoThuTu || ''}</div>
+                   <div><strong>Biển số:</strong> ${book.BienSo || ''}</div>
+                   <div><strong>Tên chính:</strong> ${book.TenChinh || ''}</div>
+                   <div><strong>Ngày cấp:</strong> ${formatDate(book.NgayCap)}</div>
+                   <div><strong>Ngày hết hạn:</strong> ${formatDate(book.NgayHetHan)}</div>
+                   <div><strong>Ngày cấp GP:</strong> ${formatDate(book.NgayCapGP)}</div>
+                   <div><strong>Loại hình liên vận:</strong> ${book.LoaiHinhLienVan || ''}</div>
+                   <div><strong>Cửa khẩu:</strong> ${book.CuaKhau || ''}</div>
+                   <div><strong>Vùng hoạt động:</strong> ${book.VungHoatDong || ''}</div>
+                   <div><strong>Nơi đến:</strong> ${book.NoiDen || ''}</div>
+                   <div><strong>Trạng thái cấp:</strong> ${book.TrangThaiCap || ''}</div>
+                   <div><strong>Trạng thái:</strong> 
+                       <span class="px-2 py-1 text-xs rounded-full ${getStatusClass(book.TrangThai)}">
+                           ${book.TrangThai || ''}
+                       </span>
+                   </div>
+                   <div><strong>Hiệu lực:</strong> 
+                       <span class="px-2 py-1 text-xs rounded-full ${isExpiring ? 'warning-badge' : 'bg-green-100 text-green-800'}">
+                           ${book.HieuLuc || ''}
+                       </span>
+                   </div>
+                   <div><strong>Nguồn bảng:</strong> ${book.NguonBang || ''}</div>
+               </div>
+               <div class="mt-4">
+                   <div class="md:col-span-2"><strong>Mô hình hoạt động:</strong> ${Array.isArray(book.MoHinhHoatDong) ? book.MoHinhHoatDong.join(', ') : book.MoHinhHoatDong || ''}</div>
+               </div>
+               ${book.QRLink ? `
+                   <div class="mt-4">
+                       <strong>QR Link:</strong> <a href="${book.QRLink}" target="_blank" class="text-blue-600 hover:underline">${book.QRLink}</a>
+                   </div>
+               ` : ''}
+           </div>
+       </div>
+   `;
+            document.body.insertAdjacentHTML('beforeend', modalContent);
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        // Chart Functions - Updated to use filtered data
+        function updateChartsWithFilteredData() {
+            // Destroy existing charts
+            Chart.helpers.each(Chart.instances, function (instance) {
+                instance.destroy();
+            });
+
+            // Reinitialize charts with filtered data
+            const activeTab = document.querySelector('.nav-btn.active').getAttribute('data-tab');
+
+            if (activeTab === 'dashboard') {
+                setTimeout(initDashboardCharts, 100);
+            } else if (activeTab === 'statistics') {
+                setTimeout(initStatisticsCharts, 100);
+            } else if (activeTab === 'reports') {
+                setTimeout(initReportCharts, 100);
+            }
+        }
+
+        function initDashboardCharts() {
+            initLicenseChart();
+            initEmblemChart();
+        }
+
+        function initLicenseChart() {
+            const ctx = document.getElementById('licenseChart');
+            if (ctx && filteredLicensesData.length > 0) {
+                const monthlyData = groupLicensesByMonth(filteredLicensesData);
+
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: monthlyData.labels,
+                        datasets: [{
+                            label: 'GPKD được cấp',
+                            data: monthlyData.issued,
+                            borderColor: '#3B82F6',
+                            backgroundColor: '#3B82F620',
+                            tension: 0.4
+                        }, {
+                            label: 'GPKD bị thu hồi',
+                            data: monthlyData.revoked,
+                            borderColor: '#EF4444',
+                            backgroundColor: '#EF444420',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function initEmblemChart() {
+            const ctx = document.getElementById('emblemChart');
+            if (ctx && filteredEmblemsData.length > 0) {
+                const typeData = groupEmblemsByType(filteredEmblemsData);
+
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: typeData.labels,
+                        datasets: [{
+                            data: typeData.values,
+                            backgroundColor: [
+                                '#3B82F6',
+                                '#10B981',
+                                '#F59E0B',
+                                '#8B5CF6',
+                                '#EF4444',
+                                '#6366F1'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function initStatisticsCharts() {
+            initTransportTypeChart();
+            initStatusChart();
+        }
+
+        function initTransportTypeChart() {
+            const ctx = document.getElementById('transportTypeChart');
+            if (ctx && filteredLicensesData.length > 0) {
+                const transportData = groupLicensesByTransportType(filteredLicensesData);
+
+                new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: transportData.labels,
+                        datasets: [{
+                            data: transportData.values,
+                            backgroundColor: [
+                                '#10B981',
+                                '#F59E0B',
+                                '#8B5CF6',
+                                '#3B82F6',
+                                '#EF4444'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function initStatusChart() {
+            const ctx = document.getElementById('statusChart');
+            if (ctx && (filteredLicensesData.length > 0 || filteredEmblemsData.length > 0 || filteredIntEmblemsData.length > 0 || filteredIntBooksData.length > 0)) {
+                const statusData = getStatusStatistics(filteredLicensesData, filteredEmblemsData, filteredInternationalData, filteredIntEmblemsData, filteredIntBooksData);
+
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['GPKD', 'Phù hiệu', 'GP Liên vận QT', 'PH Liên vận', 'Sổ LV'],
+                        datasets: [{
+                            label: 'Còn hiệu lực',
+                            data: [
+                                statusData.licenses.active,
+                                statusData.emblems.active,
+                                statusData.international.active,
+                                statusData.intEmblems.active,
+                                statusData.intBooks.active
+                            ],
+                            backgroundColor: '#10B981'
+                        }, {
+                            label: 'Hết hạn/Tạm ngừng',
+                            data: [
+                                statusData.licenses.expired,
+                                statusData.emblems.expired,
+                                statusData.international.suspended,
+                                statusData.intEmblems.expired,
+                                statusData.intBooks.expired
+                            ],
+                            backgroundColor: '#F59E0B'
+                        }, {
+                            label: 'Bị thu hồi',
+                            data: [
+                                statusData.licenses.revoked,
+                                statusData.emblems.revoked,
+                                statusData.international.revoked,
+                                statusData.intEmblems.revoked,
+                                statusData.intBooks.revoked
+                            ],
+                            backgroundColor: '#EF4444'
+                        }, {
+                            label: 'Sắp đến hạn',
+                            data: [
+                                0,
+                                0,
+                                0,
+                                statusData.intEmblems.expiring,
+                                statusData.intBooks.expiring
+                            ],
+                            backgroundColor: '#F59E0B'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function initReportCharts() {
+            initLicenseTrendChart();
+            initEmblemTrendChart();
+        }
+
+        function initLicenseTrendChart() {
+            const ctx = document.getElementById('licenseTrendChart');
+            if (ctx && filteredLicensesData.length > 0) {
+                const trendData = getLicenseTrendData(filteredLicensesData);
+
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: trendData.labels,
+                        datasets: [{
+                            label: 'GPKD được cấp',
+                            data: trendData.values,
+                            borderColor: '#3B82F6',
+                            backgroundColor: '#3B82F620',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function initEmblemTrendChart() {
+            const ctx = document.getElementById('emblemTrendChart');
+            if (ctx && filteredEmblemsData.length > 0) {
+                const trendData = getEmblemTrendData(filteredEmblemsData);
+
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: trendData.labels,
+                        datasets: [{
+                            label: 'Phù hiệu được cấp',
+                            data: trendData.issued,
+                            backgroundColor: '#10B981'
+                        }, {
+                            label: 'Phù hiệu bị thu hồi',
+                            data: trendData.revoked,
+                            backgroundColor: '#EF4444'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function groupLicensesByMonth(dataToUse = filteredLicensesData) {
+            const monthData = [];
+            const revokedData = [];
+
+            dataToUse.forEach(license => {
+                if (license.NgayCap) {
+                    const date = parseAppSheetDate(license.NgayCap);
+                    if (date) {
+                        const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                        const displayMonth = date.toLocaleDateString('vi-VN', {
+                            year: 'numeric',
+                            month: 'short'
+                        });
+
+                        let existingMonth = monthData.find(item => item.key === yearMonth);
+                        if (!existingMonth) {
+                            monthData.push({ key: yearMonth, display: displayMonth, count: 0 });
+                            existingMonth = monthData[monthData.length - 1];
+                        }
+                        existingMonth.count++;
+                    }
+                }
+
+                if (license.NgayThuHoi) {
+                    const date = parseAppSheetDate(license.NgayThuHoi);
+                    if (date) {
+                        const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+
+                        let existingMonth = revokedData.find(item => item.key === yearMonth);
+                        if (!existingMonth) {
+                            revokedData.push({ key: yearMonth, count: 0 });
+                            existingMonth = revokedData[revokedData.length - 1];
+                        }
+                        existingMonth.count++;
+                    }
+                }
+            });
+
+            // Sắp xếp theo thứ tự thời gian (key YYYY-MM)
+            monthData.sort((a, b) => a.key.localeCompare(b.key));
+
+            // Tạo danh sách tháng đầy đủ
+            const allMonths = [...new Set([...monthData.map(m => m.key), ...revokedData.map(r => r.key)])].sort();
+
+            return {
+                labels: allMonths.map(key => {
+                    const found = monthData.find(m => m.key === key);
+                    return found ? found.display : new Date(key + '-01').toLocaleDateString('vi-VN', {
+                        year: 'numeric',
+                        month: 'short'
+                    });
+                }),
+                issued: allMonths.map(key => {
+                    const found = monthData.find(m => m.key === key);
+                    return found ? found.count : 0;
+                }),
+                revoked: allMonths.map(key => {
+                    const found = revokedData.find(r => r.key === key);
+                    return found ? found.count : 0;
+                })
+            };
+        }
+
+        function groupEmblemsByType(dataToUse = filteredEmblemsData) {
+            const typeCounts = {};
+
+            dataToUse.forEach(emblem => {
+                const type = emblem.LoaiPH || 'Khác';
+                typeCounts[type] = (typeCounts[type] || 0) + 1;
+            });
+
+            return {
+                labels: Object.keys(typeCounts),
+                values: Object.values(typeCounts)
+            };
+        }
+
+        function groupLicensesByTransportType(dataToUse = filteredLicensesData) {
+            const typeCounts = {};
+
+            dataToUse.forEach(license => {
+                if (license.LoaiHinhVanTai) {
+                    if (Array.isArray(license.LoaiHinhVanTai)) {
+                        license.LoaiHinhVanTai.forEach(type => {
+                            const cleanType = type ? type.trim() : '';
+                            if (cleanType) {
+                                typeCounts[cleanType] = (typeCounts[cleanType] || 0) + 1;
+                            }
+                        });
+                    } else if (typeof license.LoaiHinhVanTai === 'string') {
+                        const transportArray = license.LoaiHinhVanTai.split(',');
+                        transportArray.forEach(type => {
+                            const cleanType = type ? type.trim() : '';
+                            if (cleanType) {
+                                typeCounts[cleanType] = (typeCounts[cleanType] || 0) + 1;
+                            }
+                        });
+                    }
+                }
+            });
+
+            return {
+                labels: Object.keys(typeCounts),
+                values: Object.values(typeCounts)
+            };
+        }
+
+        function getStatusStatistics(
+            filteredLicenses = filteredLicensesData,
+            filteredEmblems = filteredEmblemsData,
+            filteredInternational = filteredInternationalData,
+            filteredIntEmblems = filteredIntEmblemsData,
+            filteredIntBooks = filteredIntBooksData
+        ) {
+            const today = new Date();
+
+            // License statistics
+            const activeLicenses = filteredLicenses.filter(item =>
+                item.TrangThai !== 'Đã thu hồi' && item.TrangThai !== 'Hết hiệu lực'
+            ).length;
+            const revokedLicenses = filteredLicenses.filter(item =>
+                item.TrangThai === 'Đã thu hồi' || item.NgayThuHoi
+            ).length;
+            const expiredLicenses = filteredLicenses.filter(item =>
+                item.TrangThai === 'Hết hiệu lực'
+            ).length;
+
+            // Emblem statistics
+            const activeEmblems = filteredEmblems.filter(item => {
+                if (item.TrangThai === 'Đã thu hồi' || item.NgayThuHoi) return false;
+                if (item.NgayHetHan) {
+                    const expireDate = parseAppSheetDate(item.NgayHetHan);
+                    return expireDate >= today;
+                }
+                return true;
+            }).length;
+
+            const expiredEmblems = filteredEmblems.filter(item => {
+                if (item.NgayHetHan) {
+                    const expireDate = parseAppSheetDate(item.NgayHetHan);
+                    return expireDate < today && item.TrangThai !== 'Đã thu hồi';
+                }
+                return false;
+            }).length;
+
+            const revokedEmblems = filteredEmblems.filter(item =>
+                item.TrangThai === 'Đã thu hồi' || item.NgayThuHoi
+            ).length;
+
+            // International statistics
+            const activeInternational = filteredInternational.filter(item =>
+                item.TrangThaiHoatDong === 'Đang hoạt động'
+            ).length;
+
+            const suspendedInternational = filteredInternational.filter(item =>
+                item.TrangThaiHoatDong === 'Ngừng tạm thời'
+            ).length;
+
+            const revokedInternational = filteredInternational.filter(item =>
+                item.TrangThaiHoatDong === 'Bị thu hồi GPKD'
+            ).length;
+
+            // International Emblems statistics
+            const activeIntEmblems = filteredIntEmblems.filter(item => {
+                if (item.TrangThai === 'Đã thu hồi') return false;
+                if (item.NgayHetHan) {
+                    const expireDate = parseAppSheetDate(item.NgayHetHan);
+                    return expireDate >= today;
+                }
+                return true;
+            }).length;
+
+            const expiredIntEmblems = filteredIntEmblems.filter(item => {
+                if (item.TrangThai === 'Đã thu hồi') return true;
+                if (item.NgayHetHan) {
+                    const expireDate = parseAppSheetDate(item.NgayHetHan);
+                    return expireDate < today;
+                }
+                return false;
+            }).length;
+
+            const revokedIntEmblems = filteredIntEmblems.filter(item =>
+                item.TrangThai === 'Đã thu hồi'
+            ).length;
+
+            const expiringIntEmblems = filteredIntEmblems.filter(item =>
+                item.HieuLuc === 'Sắp đến hạn'
+            ).length;
+
+            // International Books statistics
+            const activeIntBooks = filteredIntBooks.filter(item => {
+                if (item.TrangThai === 'Đã thu hồi') return false;
+                if (item.NgayHetHan) {
+                    const expireDate = parseAppSheetDate(item.NgayHetHan);
+                    return expireDate >= today;
+                }
+                return true;
+            }).length;
+
+            const expiredIntBooks = filteredIntBooks.filter(item => {
+                if (item.TrangThai === 'Đã thu hồi') return true;
+                if (item.NgayHetHan) {
+                    const expireDate = parseAppSheetDate(item.NgayHetHan);
+                    return expireDate < today;
+                }
+                return false;
+            }).length;
+
+            const revokedIntBooks = filteredIntBooks.filter(item =>
+                item.TrangThai === 'Đã thu hồi'
+            ).length;
+
+            const expiringIntBooks = filteredIntBooks.filter(item =>
+                item.HieuLuc === 'Sắp đến hạn'
+            ).length;
+
+            return {
+                licenses: {
+                    active: activeLicenses,
+                    expired: expiredLicenses,
+                    revoked: revokedLicenses
+                },
+                emblems: {
+                    active: activeEmblems,
+                    expired: expiredEmblems,
+                    revoked: revokedEmblems
+                },
+                international: {
+                    active: activeInternational,
+                    suspended: suspendedInternational,
+                    revoked: revokedInternational
+                },
+                intEmblems: {
+                    active: activeIntEmblems,
+                    expired: expiredIntEmblems,
+                    revoked: revokedIntEmblems,
+                    expiring: expiringIntEmblems
+                },
+                intBooks: {
+                    active: activeIntBooks,
+                    expired: expiredIntBooks,
+                    revoked: revokedIntBooks,
+                    expiring: expiringIntBooks
+                }
+            };
+        }
+
+        function getLicenseTrendData(dataToUse = filteredLicensesData) {
+            const last12Months = [];
+            const today = new Date();
+
+            for (let i = 11; i >= 0; i--) {
+                const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
+                last12Months.push(date.toLocaleDateString('vi-VN', { year: 'numeric', month: 'short' }));
+            }
+
+            const counts = last12Months.map(month => {
+                return dataToUse.filter(license => {
+                    if (license.NgayCap) {
+                        const issueDate = parseAppSheetDate(license.NgayCap);
+                        if (issueDate) {
+                            const licenseMonth = issueDate.toLocaleDateString('vi-VN', {
+                                year: 'numeric',
+                                month: 'short'
+                            });
+                            return licenseMonth === month;
+                        }
+                    }
+                    return false;
+                }).length;
+            });
+
+            return {
+                labels: last12Months,
+                values: counts
+            };
+        }
+
+        function getEmblemTrendData(dataToUse = filteredEmblemsData) {
+            const last12Months = [];
+            const today = new Date();
+
+            for (let i = 11; i >= 0; i--) {
+                const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
+                last12Months.push(date.toLocaleDateString('vi-VN', { year: 'numeric', month: 'short' }));
+            }
+
+            const issuedCounts = last12Months.map(month => {
+                return dataToUse.filter(emblem => {
+                    if (emblem.NgayCap) {
+                        const issueDate = parseAppSheetDate(emblem.NgayCap);
+                        if (issueDate) {
+                            const emblemMonth = issueDate.toLocaleDateString('vi-VN', {
+                                year: 'numeric',
+                                month: 'short'
+                            });
+                            return emblemMonth === month;
+                        }
+                    }
+                    return false;
+                }).length;
+            });
+
+            const revokedCounts = last12Months.map(month => {
+                return dataToUse.filter(emblem => {
+                    if (emblem.NgayThuHoi) {
+                        const revokeDate = parseAppSheetDate(emblem.NgayThuHoi);
+                        if (revokeDate) {
+                            const revokeMonth = revokeDate.toLocaleDateString('vi-VN', {
+                                year: 'numeric',
+                                month: 'short'
+                            });
+                            return revokeMonth === month;
+                        }
+                    }
+                    return false;
+                }).length;
+            });
+
+            return {
+                labels: last12Months,
+                issued: issuedCounts,
+                revoked: revokedCounts
+            };
+        }
+
+        // Populate filter options
+        function populateFilterOptions() {
+            populateLicenseFilters();
+            populateEmblemFilters();
+            populateInternationalFilters();
+            populateIntEmblemFilters();
+            populateIntBookFilters();
+        }
+
+        function populateLicenseFilters() {
+            if (!originalLicensesData.length) return;
+
+            const typeFilter = document.getElementById('licenseTypeFilter');
+            const transportFilter = document.getElementById('licenseTransportFilter');
+
+            const types = [...new Set(originalLicensesData.map(item => item.LoaiCap).filter(Boolean))];
+
+            const transports = new Set();
+            originalLicensesData.forEach(item => {
+                if (item.LoaiHinhVanTai) {
+                    if (Array.isArray(item.LoaiHinhVanTai)) {
+                        item.LoaiHinhVanTai.forEach(transport => {
+                            if (transport && transport.trim()) {
+                                transports.add(transport.trim());
+                            }
+                        });
+                    } else if (typeof item.LoaiHinhVanTai === 'string') {
+                        const transportArray = item.LoaiHinhVanTai.split(',');
+                        transportArray.forEach(transport => {
+                            const cleanTransport = transport.trim();
+                            if (cleanTransport) {
+                                transports.add(cleanTransport);
+                            }
+                        });
+                    }
+                }
+            });
+
+            // Clear existing options except first one
+            while (typeFilter.children.length > 1) {
+                typeFilter.removeChild(typeFilter.lastChild);
+            }
+            while (transportFilter.children.length > 1) {
+                transportFilter.removeChild(transportFilter.lastChild);
+            }
+
+            types.sort().forEach(type => {
+                const option = document.createElement('option');
+                option.value = type;
+                option.textContent = type;
+                typeFilter.appendChild(option);
+            });
+
+            const sortedTransports = Array.from(transports).sort();
+            sortedTransports.forEach(transport => {
+                const option = document.createElement('option');
+                option.value = transport;
+                option.textContent = transport;
+                transportFilter.appendChild(option);
+            });
+        }
+
+        function populateEmblemFilters() {
+            if (!originalEmblemsData.length) return;
+
+            const typeFilter = document.getElementById('emblemTypeFilter');
+            const capFilter = document.getElementById('emblemCapFilter');
+
+            const types = [...new Set(originalEmblemsData.map(item => item.LoaiPH).filter(Boolean))];
+            const caps = [...new Set(originalEmblemsData.map(item => item.LoaiCap).filter(Boolean))];
+
+            // Clear existing options except first one
+            while (typeFilter.children.length > 1) {
+                typeFilter.removeChild(typeFilter.lastChild);
+            }
+            while (capFilter.children.length > 1) {
+                capFilter.removeChild(capFilter.lastChild);
+            }
+
+            types.sort().forEach(type => {
+                const option = document.createElement('option');
+                option.value = type;
+                option.textContent = type;
+                typeFilter.appendChild(option);
+            });
+
+            caps.sort().forEach(cap => {
+                const option = document.createElement('option');
+                option.value = cap;
+                option.textContent = cap;
+                capFilter.appendChild(option);
+            });
+        }
+
+        function populateInternationalFilters() {
+            if (!originalInternationalData.length) return;
+
+            const typeFilter = document.getElementById('internationalTypeFilter');
+            const modelFilter = document.getElementById('internationalModelFilter');
+
+            const types = [...new Set(originalInternationalData.map(item => item.LoaiCap).filter(Boolean))];
+            const models = [...new Set(originalInternationalData.flatMap(item =>
+                Array.isArray(item.MoHinhHoatDong) ? item.MoHinhHoatDong : [item.MoHinhHoatDong]
+            ).filter(Boolean))];
+
+            // Clear existing options except first one
+            while (typeFilter.children.length > 1) {
+                typeFilter.removeChild(typeFilter.lastChild);
+            }
+            while (modelFilter.children.length > 1) {
+                modelFilter.removeChild(modelFilter.lastChild);
+            }
+
+            types.sort().forEach(type => {
+                const option = document.createElement('option');
+                option.value = type;
+                option.textContent = type;
+                typeFilter.appendChild(option);
+            });
+
+            models.sort().forEach(model => {
+                const option = document.createElement('option');
+                option.value = model;
+                option.textContent = model;
+                modelFilter.appendChild(option);
+            });
+        }
+
+        function populateIntEmblemFilters() {
+            if (!originalIntEmblemsData.length) return;
+
+            const statusFilter = document.getElementById('intEmblemStatusFilter');
+            const typeFilter = document.getElementById('intEmblemTypeFilter');
+            const capStatusFilter = document.getElementById('intEmblemCapStatusFilter');
+
+            const statuses = [...new Set(originalIntEmblemsData.map(item => item.TrangThai).filter(Boolean))];
+            const types = [...new Set(originalIntEmblemsData.map(item => item.LoaiHinhLienVan).filter(Boolean))];
+            const capStatuses = [...new Set(originalIntEmblemsData.map(item => item.TrangThaiCap).filter(Boolean))];
+
+            // Clear existing options except first one
+            while (statusFilter.children.length > 1) {
+                statusFilter.removeChild(statusFilter.lastChild);
+            }
+            while (typeFilter.children.length > 1) {
+                typeFilter.removeChild(typeFilter.lastChild);
+            }
+            while (capStatusFilter.children.length > 1) {
+                capStatusFilter.removeChild(capStatusFilter.lastChild);
+            }
+
+            statuses.sort().forEach(status => {
+                const option = document.createElement('option');
+                option.value = status;
+                option.textContent = status;
+                statusFilter.appendChild(option);
+            });
+
+            types.sort().forEach(type => {
+                const option = document.createElement('option');
+                option.value = type;
+                option.textContent = type;
+                typeFilter.appendChild(option);
+            });
+
+            capStatuses.sort().forEach(status => {
+                const option = document.createElement('option');
+                option.value = status;
+                option.textContent = status;
+                capStatusFilter.appendChild(option);
+            });
+        }
+
+        function populateIntBookFilters() {
+            if (!originalIntBooksData.length) return;
+
+            const statusFilter = document.getElementById('intBookStatusFilter');
+            const typeFilter = document.getElementById('intBookTypeFilter');
+            const capStatusFilter = document.getElementById('intBookCapStatusFilter');
+
+            const statuses = [...new Set(originalIntBooksData.map(item => item.TrangThai).filter(Boolean))];
+            const types = [...new Set(originalIntBooksData.map(item => item.LoaiHinhLienVan).filter(Boolean))];
+            const capStatuses = [...new Set(originalIntBooksData.map(item => item.TrangThaiCap).filter(Boolean))];
+
+            // Clear existing options except first one
+            while (statusFilter.children.length > 1) {
+                statusFilter.removeChild(statusFilter.lastChild);
+            }
+            while (typeFilter.children.length > 1) {
+                typeFilter.removeChild(typeFilter.lastChild);
+            }
+            while (capStatusFilter.children.length > 1) {
+                capStatusFilter.removeChild(capStatusFilter.lastChild);
+            }
+
+            statuses.sort().forEach(status => {
+                const option = document.createElement('option');
+                option.value = status;
+                option.textContent = status;
+                statusFilter.appendChild(option);
+            });
+
+            types.sort().forEach(type => {
+                const option = document.createElement('option');
+                option.value = type;
+                option.textContent = type;
+                typeFilter.appendChild(option);
+            });
+
+            capStatuses.sort().forEach(status => {
+                const option = document.createElement('option');
+                option.value = status;
+                option.textContent = status;
+                capStatusFilter.appendChild(option);
+            });
+        }
+
+        function updateStatisticsData() {
+            // Count unique companies from filtered data
+            const uniqueCompanies = new Set();
+            filteredLicensesData.forEach(license => {
+                if (license.TenDonVi) {
+                    uniqueCompanies.add(license.TenDonVi);
+                }
+            });
+            filteredEmblemsData.forEach(emblem => {
+                if (emblem.Ten_don_vi) {
+                    uniqueCompanies.add(emblem.Ten_don_vi);
+                }
+            });
+            filteredInternationalData.forEach(international => {
+                if (international.TenDonViHienThi) {
+                    uniqueCompanies.add(international.TenDonViHienThi);
+                }
+            });
+            filteredIntEmblemsData.forEach(emblem => {
+                if (emblem.TenDoanhNghiep) {
+                    uniqueCompanies.add(emblem.TenDoanhNghiep);
+                }
+            });
+            filteredIntBooksData.forEach(book => {
+                if (book.TenChinh) {
+                    uniqueCompanies.add(book.TenChinh);
+                }
+            });
+
+            // Count active vehicles from filtered data
+            const activeVehicles = filteredEmblemsData.filter(emblem =>
+                !isEmblemExpired(emblem.NgayHetHan) && emblem.TrangThai !== 'Đã thu hồi'
+            ).length + filteredIntEmblemsData.filter(emblem =>
+                emblem.HieuLuc !== 'Sắp đến hạn' && emblem.TrangThai !== 'Đã thu hồi'
+            ).length;
+
+            // Update statistics UI
+            document.getElementById('statsCompanies').textContent = uniqueCompanies.size;
+            document.getElementById('statsActiveVehicles').textContent = activeVehicles;
+        }
+
+        // Notification function
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white transform transition-transform duration-300 translate-x-full`;
+
+            switch (type) {
+                case 'success':
+                    notification.classList.add('bg-green-500');
+                    break;
+                case 'error':
+                    notification.classList.add('bg-red-500');
+                    break;
+                case 'warning':
+                    notification.classList.add('bg-yellow-500');
+                    break;
+                default:
+                    notification.classList.add('bg-blue-500');
+            }
+
+            notification.innerHTML = `
+      <div class="flex items-center">
+          <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'times' : type === 'warning' ? 'exclamation' : 'info'}-circle mr-2"></i>
+          <span>${message}</span>
+      </div>
+  `;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+            }, 100);
+
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+                setTimeout(() => {
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Initialize application
+        async function initializeApp() {
+            // Set default dates
+            const today = new Date();
+            const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+            document.getElementById('startDate').value = lastMonth.toISOString().split('T')[0];
+            document.getElementById('endDate').value = today.toISOString().split('T')[0];
+
+            // Add event listener for filter toggle
+            document.getElementById('applyToAll').addEventListener('change', handleFilterToggle);
+
+            // Show loading notification
+            showNotification('Đang khởi tạo hệ thống...', 'info');
+
+            try {
+                // Load data from all tables
+                await Promise.all([
+                    fetchLicensesData(),
+                    fetchEmblemsData(),
+                    fetchInternationalData(),
+                    fetchIntEmblemsData(),
+                    fetchIntBooksData()
+                ]);
+
+                // Populate filter options
+                populateFilterOptions();
+
+                // Update all UI with initial data
+                updateAllUI();
+
+                // Initialize dashboard charts
+                setTimeout(() => {
+                    initDashboardCharts();
+                    showNotification('Hệ thống đã sẵn sàng!', 'success');
+                }, 500);
+
+            } catch (error) {
+                console.error('Lỗi khởi tạo ứng dụng:', error);
+                showNotification('Có lỗi xảy ra khi khởi tạo hệ thống', 'error');
+            }
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', initializeApp);
+
+        // Auto-refresh data every 10 minutes
+        setInterval(async () => {
+            showNotification('Đang làm mới dữ liệu...', 'info');
+            try {
+                await Promise.all([
+                    fetchLicensesData(),
+                    fetchEmblemsData(),
+                    fetchInternationalData(),
+                    fetchIntEmblemsData(),
+                    fetchIntBooksData()
+                ]);
+                updateAllUI();
+                showNotification('Dữ liệu đã được làm mới!', 'success');
+            } catch (error) {
+                console.error('Lỗi khi làm mới dữ liệu:', error);
+                showNotification('Không thể làm mới dữ liệu', 'error');
+            }
+        }, 600000); // 10 minutes
+
+        // Close modals when clicking outside
+        document.addEventListener('click', function (e) {
+            if (e.target.classList.contains('fixed') && e.target.classList.contains('inset-0')) {
+                const modalId = e.target.id;
+                if (modalId) {
+                    closeModal(modalId);
+                }
+            }
+        });
+
+        document.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+        }, false);
+
+        document.onkeydown = function (e) {
+            if (e.keyCode == 123) {
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) {
+                return false;
+            }
+        };
+
+    </script>
+</body>
+
+</html>
