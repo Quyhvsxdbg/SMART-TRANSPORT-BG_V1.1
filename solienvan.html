@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giấy phép liên vận Việt Nam - Lào</title>
+
+    <!-- Thêm các thư viện cần thiết cho xuất Word -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.37.11/docxtemplater.js"></script>
+    <script src="https://unpkg.com/pizzip@3.1.4/dist/pizzip.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        body {
+            font-family: "Times New Roman", serif;
+            font-size: 11px;
+            line-height: 1.3;
+            background: white;
+            width: 210mm;
+            height: 297mm;
+            margin: 0 auto;
+            padding: 10mm;
+            min-height: 297mm;
+            position: relative;
+        }
+
+        .page-container {
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 5mm;
+        }
+
+        .permit-card {
+            border: 1px solid #000;
+            padding: 8mm;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: white;
+        }
+
+        /* Trang 1 và 3 (bên phải) */
+        .page-1,
+        .page-3 {
+            grid-column: 2;
+        }
+
+        .page-1 {
+            grid-row: 1;
+        }
+
+        .page-3 {
+            grid-row: 2;
+        }
+
+        /* Trang 2 và 4 (bên trái) */
+        .page-2,
+        .page-4 {
+            grid-column: 1;
+        }
+
+        .page-2 {
+            grid-row: 1;
+        }
+
+        .page-4 {
+            grid-row: 2;
+        }
+
+        /* Header cho trang 1 */
+        .header-vietnam {
+            text-align: center;
+            margin-bottom: 8mm;
+        }
+
+        .header-vietnam .country-name {
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 2mm;
+        }
+
+        .header-vietnam .motto {
+            font-size: 10px;
+            font-style: italic;
+            margin-bottom: 1mm;
+        }
+
+        .header-vietnam .separator {
+            font-size: 10px;
+            margin-bottom: 4mm;
+        }
+
+        .permit-title {
+            text-align: center;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 8mm;
+        }
+
+        .permit-number {
+            text-align: center;
+            font-size: 11px;
+            margin-bottom: 8mm;
+        }
+
+        /* Trang 2 - Thông tin xe */
+        .vehicle-info {
+            margin-top: 5mm;
+        }
+
+        .vehicle-info .section-title {
+            font-size: 11px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 5mm;
+        }
+
+        .info-row {
+            margin-bottom: 3mm;
+            font-size: 10px;
+        }
+
+        .info-label {
+            font-weight: bold;
+            margin-bottom: 1mm;
+        }
+
+        .info-value {
+            margin-left: 2mm;
+        }
+
+        /* Trang 3 - Thông tin doanh nghiệp */
+        .company-info {
+            margin-top: 5mm;
+        }
+
+        .company-info .section-title {
+            font-size: 11px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 5mm;
+        }
+
+        /* Trang 4 - Ghi chú */
+        .notices {
+            margin-top: 5mm;
+        }
+
+        .notices .section-title {
+            font-size: 11px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 5mm;
+        }
+
+        .validity-info {
+            margin-bottom: 5mm;
+        }
+
+        .authority-section {
+            position: absolute;
+            bottom: 8mm;
+            right: 8mm;
+            text-align: center;
+            font-size: 10px;
+            font-style: italic;
+        }
+
+        /* Button styles */
+        .button-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-family: "Times New Roman", serif;
+        }
+
+        .print-button {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .print-button:hover {
+            background-color: #45a049;
+        }
+
+        .export-button {
+            background-color: #2b579a;
+            color: white;
+        }
+
+        .export-button:hover {
+            background-color: #1e3f6f;
+        }
+
+        #loading-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            z-index: 2000;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media print {
+            body {
+                width: 210mm;
+                height: 297mm;
+                margin: 0;
+                padding: 10mm;
+            }
+
+            .button-container {
+                display: none;
+            }
+        }
+
+        @media screen {
+            body {
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                margin: 20px auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Button Container -->
+    <div class="button-container">
+        <button class="button print-button" onclick="window.print()">
+            <i class="fas fa-print"></i> In Tài Liệu
+        </button>
+        <button class="button export-button" onclick="exportToWordTemplate()">
+            <i class="fas fa-file-word"></i> Xuất Word
+        </button>
+    </div>
+
+    <!-- Loading Message -->
+    <div id="loading-message">Đang tải dữ liệu...</div>
+
+    <div class="page-container">
+        <!-- Trang 1 - Header và tiêu đề -->
+        <div class="permit-card page-1">
+            <div class="header-vietnam">
+                <div class="country-name">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+                <div class="country-name">SOCIALIST REPUBLIC OF VIETNAM</div>
+                <div class="motto">Độc lập - Tự do - Hạnh phúc</div>
+                <div class="motto">Independence - Freedom - Happiness</div>
+                <div class="separator">____________</div>
+            </div>
+
+            <div class="permit-title">
+                GIẤY PHÉP LIÊN VẬN<br>
+                GIỮA VIỆT NAM VÀ LÀO<br>
+                VIỆT NAM - LAOS<br>
+                VEHICLE CROSS - BORDER<br>
+                TRANSPORT PERMIT
+            </div>
+
+            <div class="permit-number">
+                Số Giấy phép (Permit Number): <span id="so-giay-phep">
+                </span>
+            </div>
+        </div>
+
+        <!-- Trang 2 - Thông tin xe -->
+        <div class="permit-card page-2">
+            <div class="vehicle-info">
+                <div class="section-title">
+                    Thông tin cơ bản về phương tiện<br>
+                    General data of the vehicle
+                </div>
+
+                <div class="info-row">
+                    <div class="info-label">1. Số đăng ký phương tiện (Registration number):</div>
+                    <div class="info-value" id="bien-so">
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-label">2. Thông số kỹ thuật (Specifications)</div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-label">- Năm sản xuất (Manufacture year):</div>
+                    <div class="info-value" id="nam-san-xuat">
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-label">- Nhãn hiệu (Brand/Trademark):</div>
+                    <div class="info-value" id="nhan-hieu">
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-label">- Loại xe (Model):</div>
+                    <div class="info-value" id="loai-xe">
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-label">- Màu sơn (Colour):</div>
+                    <div class="info-value" id="mau-son">
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-label">- Số máy (Engine No.):</div>
+                    <div class="info-value" id="so-may">
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-label">- Số khung (Chassis No.):</div>
+                    <div class="info-value" id="so-khung">
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-label">- Trọng tải (Gross weight):</div>
+                    <div class="info-value" id="tai-trong">
+                    </div>
+                    <div class="info-value" id="tai-trong-detail">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trang 3 - Thông tin doanh nghiệp -->
+        <div class="permit-card page-3">
+            <div class="company-info">
+                <div class="section-title">
+                    Chi tiết về cơ quan/đơn vị/cá nhân<br>
+                    được cấp giấy phép liên vận<br>
+                    Details of Organization/ individual<br>
+                    granted transport permit
+                </div>
+
+                <div class="info-row">
+                    <div class="info-label">Tên đơn vị (Organization/Individual/Name):</div>
+                    <div class="info-value" id="ten-doanh-nghiep">
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-label">Địa chỉ (Address):</div>
+                    <div class="info-value" id="dia-chi">
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-label">Điện thoại (Telephone number):</div>
+                    <div class="info-value" id="dien-thoai">
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-label">Số Fax (Fax number):</div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-label">Lĩnh vực hoạt động vận tải (Type of transport operation):</div>
+                    <div class="info-value" id="mo-hinh-hoat-dong">
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-label">Số giấy phép vận tải đường bộ quốc tế giữa Việt Nam và Lào (đối với đơn vị
+                        kinh doanh vận tải) (Viet Nam - Laos Cross-Border Transport Permit number for Transport
+                        Operator):</div>
+                    <div class="info-value" id="so-gp-lien-van">
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-label">Ngày phát hành (Issuing date):</div>
+                    <div class="info-value" id="ngay-cap">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trang 4 - Ghi chú -->
+        <div class="permit-card page-4">
+            <div class="notices">
+                <div class="section-title">
+                    GHI CHÚ<br>
+                    NOTICES
+                </div>
+
+                <div class="validity-info">
+                    <div class="info-label">Giấy phép này có giá trị</div>
+                    <div class="info-label">This permit is valid</div>
+                    <div class="info-row">
+                        <span>Từ ngày (From): </span><span id="ngay-tu">
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span>Đến ngày (Until): </span><span id="ngay-den">
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span>Cửa khẩu, Vùng/tuyến hoạt động, Nơi đến</span>
+                    </div>
+                    <div class="info-row">
+                        <span>(Border gate, Operation areas/routes, Destination)</span>
+                    </div>
+                    <div class="info-row">
+                        <span>Cửa khẩu (Border gate): </span><span id="cua-khau">
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span>Vùng/tuyến hoạt động (Operation areas/routes):</span>
+                    </div>
+                    <div class="info-row">
+                        <span id="vung-hoat-dong">
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span>Nơi đến (Destination): </span><span id="noi-den">
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span>Ngày cấp (Issued date): </span><span id="ngay-cap-gp">
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="authority-section">
+                <div>Cơ quan cấp phép</div>
+                <div>Issuing Authority</div>
+                <div>(Signature, stamp)</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Constants for AppSheet connection
+        const appId = 'd22767b5-f711-42f8-bbbd-4cf04b26ef3d';
+        const accessKey = 'V2-Qcjpo-7Ybu9-g87XI-TFLes-kJGWn-btYR5-cLMmk-FjrRj';
+        const region = 'www';
+
+        // Biến toàn cục để lưu dữ liệu
+        let globalSoLienVanData = null;
+
+        // Function to get ID from URL parameter
+        function getSoLienVanIDFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('IDSo');
+        }
+
+        // Generic function to make API calls
+        async function callAPI(tableName, selector) {
+            const response = await fetch(`https://${region}.appsheet.com/api/v2/apps/${appId}/tables/${tableName}/Action`, {
+                method: 'POST',
+                headers: {
+                    'ApplicationAccessKey': accessKey,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    Action: 'Find',
+                    Properties: {
+                        Selector: selector
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status} for table: ${tableName}`);
+            }
+
+            return await response.json();
+        }
+
+        // Format date function
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = date.getMonth() + 1;
+            const formattedMonth = month <= 2 ?
+                month.toString().padStart(2, '0') :
+                month.toString();
+            return `${day}/${formattedMonth}/${date.getFullYear()}`;
+        }
+
+        // Main function to fetch all data simultaneously
+        async function fetchData() {
+            const idSo = getSoLienVanIDFromURL();
+            console.log("ID from URL:", idSo);
+
+            if (!idSo) {
+                hideLoadingMessage();
+                alert('Không tìm thấy IDSo trong URL.');
+                return;
+            }
+
+            try {
+                // Get SoLienVan data
+                console.log("Bắt đầu gọi API SoLienVan...");
+                const soLienVanResult = await callAPI('SoLienVan', `Filter(SoLienVan, [IDSo] = "${idSo}")`);
+
+                console.log("Số liên vận data:", soLienVanResult);
+
+                // Validate so lien van data
+                if (!soLienVanResult || soLienVanResult.length === 0) {
+                    hideLoadingMessage();
+                    alert('Không tìm thấy dữ liệu số liên vận với ID: ' + idSo);
+                    return;
+                }
+
+                // Get related data
+                const refDoanhNghiep = soLienVanResult[0].IDDoanhNghiep;
+                const refXe = soLienVanResult[0].IDXe;
+
+                // Fetch related data
+                let doanhNghiepResult = null;
+                let xeResult = null;
+
+                if (refDoanhNghiep) {
+                    console.log("Gọi API doanh nghiệp với ID:", refDoanhNghiep);
+                    doanhNghiepResult = await callAPI('THONGTINDONVIVANTAI', `Filter(THONGTINDONVIVANTAI, [IDDoanhNghiep] = "${refDoanhNghiep}")`);
+                    console.log("Doanh nghiệp data:", doanhNghiepResult);
+                }
+
+                if (refXe) {
+                    console.log("Gọi API xe với ID:", refXe);
+                    xeResult = await callAPI('Xe', `Filter(Xe, [IDXe] = "${refXe}")`);
+                    console.log("Xe data:", xeResult);
+                }
+
+                // Lưu dữ liệu vào biến toàn cục
+                globalSoLienVanData = {
+                    soLienVan: soLienVanResult[0],
+                    doanhNghiep: doanhNghiepResult ? doanhNghiepResult[0] : null,
+                    xe: xeResult ? xeResult[0] : null
+                };
+
+                // Process and populate all data
+                populateData(soLienVanResult[0], doanhNghiepResult ? doanhNghiepResult[0] : null, xeResult ? xeResult[0] : null);
+
+                // Hide loading message
+                hideLoadingMessage();
+                console.log("Hoàn thành tải dữ liệu!");
+
+            } catch (error) {
+                console.error('Lỗi:', error);
+                hideLoadingMessage();
+                alert('Đã xảy ra lỗi khi lấy dữ liệu: ' + error.message);
+            }
+        }
+
+        // Populate all data into HTML elements
+        function populateData(soLienVanData, doanhNghiepData, xeData) {
+            // Populate số giấy phép
+            if (soLienVanData.SoSoLienVan) {
+                document.getElementById('so-giay-phep').textContent = soLienVanData.SoSoLienVan;
+            }
+
+            // Populate biển số
+            if (soLienVanData.BienSo) {
+                document.getElementById('bien-so').textContent = soLienVanData.BienSo;
+            }
+
+            // Populate loại hình
+            if (soLienVanData.MoHinhHoatDong) {
+                document.getElementById('mo-hinh-hoat-dong').textContent = soLienVanData.MoHinhHoatDong;
+            }
+
+            // Populate số giấy phép liên vận
+            if (soLienVanData.SoGPLienVanQT) {
+                document.getElementById('so-gp-lien-van').textContent = soLienVanData.SoGPLienVanQT;
+            }
+
+            // Populate ngày cấp
+            if (soLienVanData.NgayCap_SoGPLienVanQT) {
+                document.getElementById('ngay-cap').textContent = formatDate(soLienVanData.NgayCap_SoGPLienVanQT);
+            }
+
+            // Populate vehicle data
+            if (xeData) {
+                if (xeData.NamSanXuat) {
+                    document.getElementById('nam-san-xuat').textContent = xeData.NamSanXuat;
+                }
+                if (xeData.NhanHieu) {
+                    document.getElementById('nhan-hieu').textContent = xeData.NhanHieu;
+                }
+                if (xeData.LoaiXe) {
+                    document.getElementById('loai-xe').textContent = xeData.LoaiXe;
+                }
+                if (xeData.MauSon) {
+                    document.getElementById('mau-son').textContent = xeData.MauSon;
+                }
+                if (xeData.SoMay) {
+                    document.getElementById('so-may').textContent = xeData.SoMay;
+                }
+                if (xeData.SoKhung) {
+                    document.getElementById('so-khung').textContent = xeData.SoKhung;
+                }
+                if (xeData.SoCho) {
+                    document.getElementById('tai-trong').textContent = xeData.SoCho;
+                }
+                if (xeData.TaiTrong) {
+                    document.getElementById('tai-trong-detail').textContent = xeData.TaiTrong;
+                }
+            }
+
+            // Populate company data
+            if (doanhNghiepData) {
+                if (doanhNghiepData.TenDoanhNghiep) {
+                    document.getElementById('ten-doanh-nghiep').textContent = doanhNghiepData.TenDoanhNghiep;
+                }
+                if (doanhNghiepData.DiachiDayDu) {
+                    document.getElementById('dia-chi').textContent = doanhNghiepData.DiachiDayDu;
+                }
+                if (doanhNghiepData.SoDienThoai) {
+                    document.getElementById('dien-thoai').textContent = doanhNghiepData.SoDienThoai;
+                }
+            }
+
+            // Populate SoLienVan specific data
+            if (soLienVanData.NgayTu_DinhDang) {
+                document.getElementById('ngay-tu').textContent = soLienVanData.NgayTu_DinhDang;
+                document.getElementById('ngay-cap-gp').textContent = soLienVanData.NgayTu_DinhDang;
+            }
+
+            if (soLienVanData.NgayDen_DinhDang) {
+                document.getElementById('ngay-den').textContent = soLienVanData.NgayDen_DinhDang;
+            }
+
+            if (soLienVanData.CuaKhau) {
+                document.getElementById('cua-khau').textContent = soLienVanData.CuaKhau;
+            }
+
+            if (soLienVanData.VungHoatDong) {
+                document.getElementById('vung-hoat-dong').textContent = soLienVanData.VungHoatDong;
+            }
+
+            if (soLienVanData.NoiDen) {
+                document.getElementById('noi-den').textContent = soLienVanData.NoiDen;
+            }
+        }
+
+        // Hàm xuất Word template
+        async function exportToWordTemplate() {
+            try {
+                if (!globalSoLienVanData) {
+                    alert('Dữ liệu chưa được tải. Vui lòng đợi dữ liệu tải xong.');
+                    return;
+                }
+
+                document.getElementById('loading-message').style.display = 'block';
+                document.getElementById('loading-message').textContent = 'Đang xuất file Word...';
+
+                const { soLienVan, doanhNghiep, xe } = globalSoLienVanData;
+
+                // Lấy template từ server
+                const response = await fetch('https://hoangmv.github.io/templates/so_lien_van_template.docx');
+                if (!response.ok) {
+                    throw new Error('Không thể tải template Word');
+                }
+                const templateContent = await response.arrayBuffer();
+
+                // Tạo instance mới của PizZip và docxtemplater
+                const zip = new PizZip(templateContent);
+                const doc = new window.docxtemplater(zip, {
+                    paragraphLoop: true,
+                    linebreaks: true
+                });
+
+                // Đặt dữ liệu vào template - theo đúng định dạng hiển thị trên trang
+                const data = {
+                    // Trang 1 - Header và số giấy phép
+                    so_giay_phep: soLienVan.SoSoLienVan || '',
+
+                    // Trang 2 - Thông tin xe
+                    bien_so: soLienVan.BienSo || '',
+                    nam_san_xuat: xe ? (xe.NamSanXuat || '') : '',
+                    nhan_hieu: xe ? (xe.NhanHieu || '') : '',
+                    loai_xe: xe ? (xe.LoaiXe || '') : '',
+                    mau_son: xe ? (xe.MauSon || '') : '',
+                    so_may: xe ? (xe.SoMay || '') : '',
+                    so_khung: xe ? (xe.SoKhung || '') : '',
+                    so_cho: xe ? (xe.SoCho || '') : '',
+                    tai_trong: xe ? (xe.TaiTrong || '') : '',
+
+                    // Trang 3 - Thông tin doanh nghiệp
+                    ten_doanh_nghiep: doanhNghiep ? (doanhNghiep.TenDoanhNghiep || '') : '',
+                    dia_chi: doanhNghiep ? (doanhNghiep.DiachiDayDu || '') : '',
+                    dien_thoai: doanhNghiep ? (doanhNghiep.SoDienThoai || '') : '',
+                    mo_hinh_hoat_dong: soLienVan.MoHinhHoatDong || '',
+                    so_gp_lien_van_qt: soLienVan.SoGPLienVanQT || '',
+                    ngay_cap_gp: soLienVan.NgayCap_SoGPLienVanQT ? formatDate(soLienVan.NgayCap_SoGPLienVanQT) : '',
+
+                    // Trang 4 - Ghi chú và thông tin hiệu lực
+                    ngay_tu: soLienVan.NgayTu_DinhDang || '',
+                    ngay_den: soLienVan.NgayDen_DinhDang || '',
+                    cua_khau: soLienVan.CuaKhau || '',
+                    vung_hoat_dong: soLienVan.VungHoatDong || '',
+                    noi_den: soLienVan.NoiDen || '',
+
+                    // Ngày cấp giấy phép (lấy từ NgayTu_DinhDang)
+                    ngay_cap_issued: soLienVan.NgayTu_DinhDang || ''
+                };
+
+                // Render template với dữ liệu
+                doc.setData(data);
+                doc.render();
+
+                // Tạo và tải file
+                const blob = doc.getZip().generate({
+                    type: "blob",
+                    mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                });
+
+                const fileName = `So_lien_van_${soLienVan.SoSoLienVan || 'unknown'}.docx`;
+                saveAs(blob, fileName);
+
+                document.getElementById('loading-message').textContent = 'Đang tải dữ liệu...';
+                hideLoadingMessage();
+
+            } catch (error) {
+                console.error('Error exporting to Word template:', error);
+                if (error.properties && error.properties.errors) {
+                    console.log('Template Error details:', error.properties.errors);
+                }
+                alert('Có lỗi khi xuất file Word: ' + error.message);
+                hideLoadingMessage();
+            }
+        }
+
+        // Hide loading message
+        function hideLoadingMessage() {
+            document.getElementById('loading-message').classList.add('hidden');
+        }
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', fetchData);
+    </script>
+</body>
+
+</html>
