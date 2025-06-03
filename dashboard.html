@@ -12,7 +12,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <!-- Giữ nguyên toàn bộ CSS cũ -->
     <style>
-        /* CSS cũ không thay đổi */
+        /* CSS cũ được giữ nguyên */
         .chart-container {
             position: relative;
             height: 300px;
@@ -67,63 +67,6 @@
             border-radius: 0.5rem;
         }
 
-        /* Filter styles */
-        .filter-disabled {
-            opacity: 0.5;
-            pointer-events: none;
-        }
-
-        /* Specific filter styles */
-        .specific-filters {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 0.5rem;
-            padding: 1rem;
-            margin-top: 1rem;
-        }
-
-        .filter-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            align-items: end;
-        }
-
-        .filter-section {
-            transition: all 0.3s ease;
-        }
-
-        .filter-section.hidden {
-            display: none;
-        }
-
-        .filter-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.25rem;
-        }
-
-        .filter-group label {
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: #374151;
-        }
-
-        .filter-group select,
-        .filter-group input {
-            padding: 0.5rem;
-            border: 1px solid #d1d5db;
-            border-radius: 0.375rem;
-            font-size: 0.875rem;
-        }
-
-        .filter-group select:focus,
-        .filter-group input:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-        }
-
         /* Navigation styles */
         .nav-btn.active {
             background-color: #1e40af !important;
@@ -143,55 +86,6 @@
             to {
                 opacity: 1;
                 transform: translateY(0);
-            }
-        }
-
-        /* Notification styles */
-        .notification {
-            animation: slideIn 0.3s ease-out;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-            }
-
-            to {
-                transform: translateX(0);
-            }
-        }
-
-        /* Modal styles */
-        .fixed.inset-0 {
-            animation: modalFadeIn 0.3s ease-out;
-            backdrop-filter: blur(4px);
-        }
-
-        @keyframes modalFadeIn {
-            from {
-                opacity: 0;
-                backdrop-filter: blur(0px);
-            }
-
-            to {
-                opacity: 1;
-                backdrop-filter: blur(4px);
-            }
-        }
-
-        .fixed.inset-0>div {
-            animation: modalSlideIn 0.3s ease-out;
-        }
-
-        @keyframes modalSlideIn {
-            from {
-                transform: scale(0.9) translateY(-20px);
-                opacity: 0;
-            }
-
-            to {
-                transform: scale(1) translateY(0);
-                opacity: 1;
             }
         }
 
@@ -216,6 +110,715 @@
 
         .expiring-row {
             background-color: #FEF3C7 !important;
+        }
+
+        /* Location filter styles - Cập nhật */
+        .location-filters {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 2px solid #0ea5e9;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        /* ==================== ENHANCED FILTER STYLES ==================== */
+
+        /* Filter disabled state - Cải tiến */
+        .filter-disabled {
+            opacity: 0.6;
+            pointer-events: none;
+            transition: all 0.3s ease;
+            filter: grayscale(0.3);
+        }
+
+        /* Specific filter styles - Cải tiến hoàn toàn */
+        .specific-filters {
+            background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 1.5rem;
+            box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .specific-filters::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.7s ease;
+        }
+
+        .specific-filters:hover::before {
+            left: 100%;
+        }
+
+        /* Filter sections */
+        .filter-section {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-origin: top;
+        }
+
+        .filter-section.hidden {
+            display: none;
+            opacity: 0;
+            transform: scaleY(0);
+        }
+
+        .filter-section:not(.hidden) {
+            opacity: 1;
+            transform: scaleY(1);
+        }
+
+        /* Filter groups - Hoàn toàn mới */
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            position: relative;
+        }
+
+        .filter-group label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            transition: color 0.2s ease;
+        }
+
+        .filter-group label i {
+            margin-right: 0.5rem;
+            font-size: 1rem;
+        }
+
+        /* Enhanced input and select styles */
+        .filter-group select,
+        .filter-group input {
+            padding: 0.875rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            background: white;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+
+        .filter-group select:hover,
+        .filter-group input:hover {
+            border-color: #93c5fd;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1), 0 4px 12px rgba(59, 130, 246, 0.15);
+            transform: translateY(-2px);
+        }
+
+        /* Custom select arrow */
+        .filter-group select {
+            padding: 0.875rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            background: white;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            position: relative;
+            /* XÓA HẾT CÁC DÒNG appearance và background-image */
+        }
+
+        /* ==================== TOGGLE SWITCH STYLES ==================== */
+
+        .toggle-bg {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .toggle-bg.active {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border-color: #1d4ed8;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .toggle-bg.inactive {
+            background: linear-gradient(135deg, #d1d5db, #9ca3af);
+            border-color: #9ca3af;
+        }
+
+        .toggle-dot {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .toggle-dot::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        /* ==================== BUTTON ENHANCEMENTS ==================== */
+
+        /* Enhanced button hover effects */
+        button {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        button:active {
+            transform: translateY(0);
+            transition: transform 0.1s ease;
+        }
+
+        /* Button loading state */
+        .btn-loading {
+            position: relative;
+            pointer-events: none;
+        }
+
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
+        }
+
+        /* Quick date button styles */
+        .quick-date-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            font-weight: 500;
+        }
+
+        .quick-date-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .quick-date-btn:hover::before {
+            left: 100%;
+        }
+
+        .quick-date-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* ==================== MODAL ENHANCEMENTS ==================== */
+
+        /* Modal styles - Enhanced */
+        .fixed.inset-0 {
+            animation: modalFadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(8px);
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                backdrop-filter: blur(0px);
+            }
+
+            to {
+                opacity: 1;
+                backdrop-filter: blur(8px);
+            }
+        }
+
+        .fixed.inset-0>div {
+            animation: modalSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: scale(0.95) translateY(-30px);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* ==================== NOTIFICATION ENHANCEMENTS ==================== */
+
+        /* Notification styles - Enhanced */
+        .notification {
+            animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%) scale(0.95);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .notification-exit {
+            animation: slideOutRight 0.3s ease-in-out forwards;
+        }
+
+        @keyframes slideOutRight {
+            to {
+                transform: translateX(100%) scale(0.95);
+                opacity: 0;
+            }
+        }
+
+        /* ==================== LOADING ANIMATIONS ==================== */
+
+        /* Loading animation for filters */
+        .filter-loading {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .filter-loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.3), transparent);
+            animation: loadingSweep 2s infinite;
+        }
+
+        @keyframes loadingSweep {
+            0% {
+                left: -100%;
+            }
+
+            50% {
+                left: 100%;
+            }
+
+            100% {
+                left: 100%;
+            }
+        }
+
+        /* Skeleton loading for data */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: skeletonLoading 1.5s infinite;
+        }
+
+        @keyframes skeletonLoading {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        /* ==================== RESPONSIVE ENHANCEMENTS ==================== */
+
+        /* Enhanced responsive design */
+        @media (max-width: 1024px) {
+            .specific-filters {
+                padding: 1.5rem;
+                border-radius: 12px;
+            }
+
+            .filter-group select,
+            .filter-group input {
+                padding: 0.75rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .specific-filters {
+                padding: 1rem;
+                margin-top: 1rem;
+            }
+
+            .toggle-bg {
+                width: 48px;
+                height: 24px;
+            }
+
+            .toggle-dot {
+                width: 20px;
+                height: 20px;
+            }
+
+            .quick-date-btn {
+                font-size: 0.75rem;
+                padding: 0.5rem 0.75rem;
+            }
+
+            .filter-group label {
+                font-size: 0.8rem;
+            }
+
+            .filter-group select,
+            .filter-group input {
+                font-size: 0.8rem;
+                padding: 0.75rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .specific-filters {
+                padding: 0.75rem;
+                border-radius: 8px;
+            }
+
+            .filter-group {
+                gap: 0.25rem;
+            }
+
+            .quick-date-btn {
+                font-size: 0.7rem;
+                padding: 0.4rem 0.6rem;
+            }
+        }
+
+        /* ==================== ACCESSIBILITY ENHANCEMENTS ==================== */
+
+        /* Focus states for accessibility */
+        button:focus-visible,
+        select:focus-visible,
+        input:focus-visible {
+            outline: 2px solid #3b82f6;
+            outline-offset: 2px;
+        }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+
+            .filter-group select,
+            .filter-group input {
+                border-width: 2px;
+                border-color: #000;
+            }
+
+            .toggle-bg {
+                border-width: 2px;
+            }
+        }
+
+        /* ==================== PRINT STYLES ==================== */
+
+        @media print {
+
+            .specific-filters,
+            .toggle-bg,
+            .quick-date-btn {
+                display: none !important;
+            }
+        }
+
+        /* ==================== DARK MODE SUPPORT ==================== */
+
+        @media (prefers-color-scheme: dark) {
+            .specific-filters {
+                background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+                border-color: #4b5563;
+                color: #f9fafb;
+            }
+
+            .filter-group label {
+                color: #e5e7eb;
+            }
+
+            .filter-group select,
+            .filter-group input {
+                background: #374151;
+                border-color: #4b5563;
+                color: #f9fafb;
+            }
+
+            .filter-group select:focus,
+            .filter-group input:focus {
+                border-color: #60a5fa;
+            }
+        }
+
+        /* ==================== MOBILE NAVIGATION FIX ==================== */
+        /* Đảm bảo navigation hiển thị đầy đủ trên mobile */
+        @media (max-width: 768px) {
+
+            /* Navigation container */
+            nav.bg-blue-700 {
+                position: relative;
+                overflow-x: auto;
+                overflow-y: visible;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            /* Container navigation */
+            nav .container {
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+            }
+
+            /* Flex container cho các tab */
+            nav .flex {
+                min-width: max-content;
+                padding-bottom: 0.25rem;
+                gap: 0.25rem;
+            }
+
+            /* Style cho từng tab button */
+            .nav-btn {
+                flex-shrink: 0;
+                min-width: max-content;
+                padding: 0.75rem 0.875rem !important;
+                font-size: 0.875rem;
+                margin-right: 0.25rem;
+            }
+
+            /* Active tab trên mobile */
+            .nav-btn.active {
+                background-color: #1e40af !important;
+                border-bottom: 3px solid #fbbf24 !important;
+            }
+
+            /* Scrollbar styling cho mobile */
+            nav .flex::-webkit-scrollbar {
+                height: 3px;
+            }
+
+            nav .flex::-webkit-scrollbar-track {
+                background: rgba(255, 255, 255, 0.1);
+            }
+
+            nav .flex::-webkit-scrollbar-thumb {
+                background: rgba(255, 255, 255, 0.3);
+                border-radius: 2px;
+            }
+        }
+
+        /* Cho màn hình rất nhỏ */
+        @media (max-width: 480px) {
+            .nav-btn {
+                padding: 0.625rem 0.75rem !important;
+                font-size: 0.8rem !important;
+            }
+
+            /* Ẩn icon trên màn hình rất nhỏ */
+            .nav-btn i {
+                display: none;
+            }
+
+            nav .container {
+                padding-left: 0.25rem;
+                padding-right: 0.25rem;
+            }
+        }
+
+        /* Đảm bảo navigation luôn hiển thị */
+        nav {
+            display: block !important;
+            visibility: visible !important;
+            position: relative !important;
+        }
+
+        /* Fix cho overflow trên body */
+        @media (max-width: 768px) {
+            body {
+                overflow-x: hidden;
+            }
+        }
+
+        /* Thêm vào phần <style> hiện có */
+
+        /* ==================== DATE INPUT MOBILE FIX ==================== */
+        /* Fix date input display trên mobile */
+        @media (max-width: 768px) {
+
+            /* Custom date input styling for mobile */
+            input[type="date"] {
+                position: relative;
+                padding: 0.875rem 1rem;
+                border: 2px solid #e5e7eb;
+                border-radius: 12px;
+                font-size: 0.875rem;
+                background: white;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+                min-height: 44px;
+                /* iOS minimum touch target */
+            }
+
+            input[type="date"]::-webkit-calendar-picker-indicator {
+                background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>') no-repeat;
+                background-size: 16px 16px;
+                background-position: center;
+                cursor: pointer;
+                position: absolute;
+                right: 12px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 16px;
+                height: 16px;
+                color: transparent;
+            }
+
+            input[type="date"]::-webkit-inner-spin-button,
+            input[type="date"]::-webkit-clear-button {
+                display: none;
+            }
+
+            input[type="date"]::-webkit-datetime-edit {
+                padding: 0;
+                margin: 0;
+            }
+
+            input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+                padding: 0;
+            }
+
+            input[type="date"]::-webkit-datetime-edit-text {
+                color: #6b7280;
+                padding: 0 2px;
+            }
+
+            input[type="date"]::-webkit-datetime-edit-month-field,
+            input[type="date"]::-webkit-datetime-edit-day-field,
+            input[type="date"]::-webkit-datetime-edit-year-field {
+                padding: 0 2px;
+                color: #374151;
+                font-weight: 500;
+            }
+
+            input[type="date"]:focus {
+                outline: none;
+                border-color: #3b82f6;
+                box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1), 0 4px 12px rgba(59, 130, 246, 0.15);
+            }
+
+            /* Custom date display format hint */
+            input[type="date"]:invalid::-webkit-datetime-edit {
+                color: #9ca3af;
+            }
+
+            input[type="date"]:invalid::before {
+                content: "dd/mm/yyyy";
+                color: #9ca3af;
+                font-size: 0.875rem;
+            }
+
+            input[type="date"]:focus:invalid::before,
+            input[type="date"]:valid::before {
+                display: none;
+            }
+        }
+
+        /* Additional mobile improvements */
+        @media (max-width: 480px) {
+            input[type="date"] {
+                font-size: 16px;
+                /* Prevents zoom on iOS */
+                min-height: 48px;
+            }
+        }
+
+        /* Thêm vào phần CSS nếu chưa có */
+        /* ==================== MOBILE DATE INPUT CONTAINER ==================== */
+        @media (max-width: 768px) {
+            .grid.grid-cols-1.lg\\:grid-cols-6.gap-4.mb-4 {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .grid.grid-cols-2.gap-3 {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+
+            .lg\\:col-span-2 {
+                grid-column: span 1;
+            }
+
+            /* Date input labels trên mobile */
+            .relative label {
+                font-size: 0.875rem;
+                margin-bottom: 0.5rem;
+                display: block;
+            }
+
+            /* Date input containers */
+            .relative {
+                position: relative;
+            }
         }
     </style>
 </head>
@@ -264,189 +867,453 @@
     </nav>
 
     <!-- Main Content -->
+    <!-- Main Content -->
     <main class="container mx-auto px-4 py-6">
-        <!-- Date Range Selector -->
-        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-            <!-- Filter Mode Toggle -->
-            <div class="flex flex-wrap items-center gap-4 mb-4">
-                <div class="flex items-center space-x-2">
-                    <input type="checkbox" id="applyToAll" class="rounded" checked>
-                    <label for="applyToAll" class="font-medium text-blue-600">Lọc toàn bộ</label>
+        <!-- Enhanced Date Range Selector -->
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-lg border border-blue-100 p-6 mb-6">
+            <!-- Header with Icon -->
+            <div class="flex items-center mb-6">
+                <div class="bg-blue-500 rounded-lg p-2 mr-3">
+                    <i class="fas fa-filter text-white text-lg"></i>
+                </div>
+                <h2 class="text-xl font-bold text-gray-800">Bộ lọc và Tìm kiếm</h2>
+            </div>
+
+            <!-- Filter Mode Toggle with enhanced design -->
+            <div class="bg-white rounded-lg p-4 mb-6 shadow-sm border border-gray-100">
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center">
+                        <div class="relative">
+                            <input type="checkbox" id="applyToAll" class="sr-only" checked>
+                            <div class="toggle-bg bg-blue-500 border-2 border-blue-500 rounded-full w-11 h-6 flex items-center cursor-pointer transition-colors duration-300"
+                                onclick="toggleApplyToAll()">
+                                <div
+                                    class="toggle-dot absolute bg-white w-4 h-4 rounded-full shadow-md transform translate-x-6 transition-transform duration-300">
+                                </div>
+                            </div>
+                        </div>
+                        <label for="applyToAll" class="ml-3 text-sm font-semibold text-gray-700 cursor-pointer">
+                            <span class="text-blue-600">Lọc toàn bộ dữ liệu</span>
+                            <span class="block text-xs text-gray-500 mt-1">Áp dụng bộ lọc cho tất cả các tab</span>
+                        </label>
+                    </div>
                 </div>
             </div>
 
-            <!-- Date Range and Main Filter Controls -->
-            <div class="flex flex-wrap items-center gap-4 mb-4">
-                <div class="flex items-center space-x-2">
-                    <label class="font-medium">Từ ngày:</label>
-                    <input type="date" id="startDate" class="border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500">
+            <!-- Main Filter Controls with enhanced design -->
+            <div class="bg-white rounded-lg p-5 shadow-sm border border-gray-100 mb-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-calendar-alt text-blue-500 mr-2"></i>
+                    Khoảng thời gian và Địa điểm
+                </h3>
+
+                <div class="grid grid-cols-1 lg:grid-cols-6 gap-4 mb-4">
+                    <!-- Date Range -->
+                    <div class="lg:col-span-2">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="relative">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-calendar-week text-green-500 mr-1"></i>
+                                    Từ ngày
+                                </label>
+                                <input type="date" id="startDate"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md">
+                            </div>
+                            <div class="relative">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-calendar-check text-red-500 mr-1"></i>
+                                    Đến ngày
+                                </label>
+                                <input type="date" id="endDate"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Location Filters -->
+                    <div class="lg:col-span-2">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="relative">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-map-marker-alt text-purple-500 mr-1"></i>
+                                    Quận/Huyện
+                                </label>
+                                <select id="quanHuyenFilter"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md appearance-none"
+                                    onchange="updateXaPhuongFilter()">
+                                    <option value="">Tất cả</option>
+                                </select>
+                                <i
+                                    class="fas fa-chevron-down absolute right-3 top-11 text-gray-400 pointer-events-none"></i>
+                            </div>
+                            <div class="relative">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-building text-orange-500 mr-1"></i>
+                                    Xã/Phường
+                                </label>
+                                <select id="xaPhuongFilter"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md appearance-none">
+                                    <option value="">Tất cả</option>
+                                </select>
+                                <i
+                                    class="fas fa-chevron-down absolute right-3 top-11 text-gray-400 pointer-events-none"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="lg:col-span-2 flex flex-col justify-end">
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="applyFilters()"
+                                class="group bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 py-3 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                                <i class="fas fa-search mr-1 group-hover:scale-110 transition-transform"></i>
+                                Lọc
+                            </button>
+                            <button onclick="clearAllFilters()"
+                                class="group bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white px-4 py-3 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                                <i class="fas fa-eraser mr-1 group-hover:scale-110 transition-transform"></i>
+                                Xóa
+                            </button>
+                            <button onclick="exportCurrentTabData()"
+                                class="group bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-4 py-3 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                                <i class="fas fa-download mr-1 group-hover:scale-110 transition-transform"></i>
+                                Excel
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="flex items-center space-x-2">
-                    <label class="font-medium">Đến ngày:</label>
-                    <input type="date" id="endDate" class="border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500">
+
+                <!-- Quick Date Presets -->
+                <div class="border-t border-gray-200 pt-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-3">
+                        <i class="fas fa-clock text-indigo-500 mr-1"></i>
+                        Khoảng thời gian nhanh
+                    </label>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="setQuickDate('today')"
+                            class="px-3 py-2 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 transition-colors duration-200">
+                            Hôm nay
+                        </button>
+                        <button onclick="setQuickDate('thisWeek')"
+                            class="px-3 py-2 text-xs font-medium text-green-600 bg-green-50 hover:bg-green-100 rounded-lg border border-green-200 transition-colors duration-200">
+                            Tuần này
+                        </button>
+                        <button onclick="setQuickDate('thisMonth')"
+                            class="px-3 py-2 text-xs font-medium text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-lg border border-purple-200 transition-colors duration-200">
+                            Tháng này
+                        </button>
+                        <button onclick="setQuickDate('lastMonth')"
+                            class="px-3 py-2 text-xs font-medium text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-lg border border-orange-200 transition-colors duration-200">
+                            Tháng trước
+                        </button>
+                        <button onclick="setQuickDate('thisYear')"
+                            class="px-3 py-2 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg border border-red-200 transition-colors duration-200">
+                            Năm này
+                        </button>
+                    </div>
                 </div>
-                <button onclick="applyFilters()" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
-                    <i class="fas fa-search mr-2"></i>Lọc dữ liệu
-                </button>
-                <button onclick="clearAllFilters()" class="bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700">
-                    <i class="fas fa-times mr-2"></i>Xóa bộ lọc
-                </button>
-                <button onclick="exportCurrentTabData()"
-                    class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">
-                    <i class="fas fa-download mr-2"></i>Xuất Excel
-                </button>
             </div>
 
-            <!-- Bộ lọc riêng cho từng tab -->
+            <!-- Enhanced Specific Filters -->
             <div id="specificFilters" class="specific-filters filter-disabled">
-                <!-- Bộ lọc cho Giấy phép -->
-                <div id="licenseFilters" class="filter-section hidden">
-                    <div class="filter-row">
-                        <div class="filter-group">
-                            <label>TÊN ĐƠN VỊ</label>
-                            <input type="text" id="licenseCompanyFilter" placeholder="Nhập tên đơn vị..."
-                                class="w-full">
+                <div
+                    class="bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-lg p-5 shadow-sm">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-amber-500 rounded-lg p-2 mr-3">
+                            <i class="fas fa-sliders-h text-white"></i>
                         </div>
-                        <div class="filter-group">
-                            <label>LOẠI CẤP</label>
-                            <select id="licenseTypeFilter" class="w-full">
-                                <option value="">Tất cả</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label>LOẠI HÌNH VẬN TẢI</label>
-                            <select id="licenseTransportFilter" class="w-full">
-                                <option value="">Tất cả</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label>TRẠNG THÁI</label>
-                            <select id="licenseStatusFilter" class="w-full">
-                                <option value="">Tất cả</option>
-                                <option value="active">Còn hiệu lực</option>
-                                <option value="expired">Hết hiệu lực</option>
-                                <option value="revoked">Đã thu hồi</option>
-                            </select>
+                        <h3 class="text-lg font-semibold text-gray-800">Bộ lọc chi tiết</h3>
+                        <span class="ml-auto text-sm text-amber-600 bg-amber-100 px-3 py-1 rounded-full">
+                            Theo tab hiện tại
+                        </span>
+                    </div>
+
+                    <!-- Bộ lọc cho Giấy phép -->
+                    <div id="licenseFilters" class="filter-section hidden">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="filter-group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-building text-blue-500 mr-1"></i>
+                                    TÊN ĐƠN VỊ
+                                </label>
+                                <input type="text" id="licenseCompanyFilter" placeholder="Nhập tên đơn vị..."
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200">
+                            </div>
+                            <div class="filter-group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-tag text-green-500 mr-1"></i>
+                                    LOẠI CẤP
+                                </label>
+                                <div class="relative">
+                                    <select id="licenseTypeFilter"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
+                                        <option value="">Tất cả</option>
+                                    </select>
+                                    <i
+                                        class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
+                                </div>
+                            </div>
+                            <div class="filter-group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-truck text-purple-500 mr-1"></i>
+                                    LOẠI HÌNH VẬN TẢI
+                                </label>
+                                <div class="relative">
+                                    <select id="licenseTransportFilter"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
+                                        <option value="">Tất cả</option>
+                                    </select>
+                                    <i
+                                        class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
+                                </div>
+                            </div>
+                            <div class="filter-group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-info-circle text-red-500 mr-1"></i>
+                                    TRẠNG THÁI
+                                </label>
+                                <div class="relative">
+                                    <select id="licenseStatusFilter"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
+                                        <option value="">Tất cả</option>
+                                        <option value="active">Còn hiệu lực</option>
+                                        <option value="expired">Hết hiệu lực</option>
+                                        <option value="revoked">Đã thu hồi</option>
+                                    </select>
+                                    <i
+                                        class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Bộ lọc cho Phù hiệu -->
-                <div id="emblemFilters" class="filter-section hidden">
-                    <div class="filter-row">
-                        <div class="filter-group">
-                            <label>TÊN ĐƠN VỊ</label>
-                            <input type="text" id="emblemCompanyFilter" placeholder="Nhập tên đơn vị..." class="w-full">
-                        </div>
-                        <div class="filter-group">
-                            <label>LOẠI PHÙ HIỆU</label>
-                            <select id="emblemTypeFilter" class="w-full">
-                                <option value="">Tất cả</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label>LOẠI CẤP</label>
-                            <select id="emblemCapFilter" class="w-full">
-                                <option value="">Tất cả</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label>TRẠNG THÁI</label>
-                            <select id="emblemStatusFilter" class="w-full">
-                                <option value="">Tất cả</option>
-                                <option value="active">Còn hiệu lực</option>
-                                <option value="expired">Hết hạn</option>
-                                <option value="revoked">Đã thu hồi</option>
-                            </select>
+                    <!-- Bộ lọc cho Phù hiệu -->
+                    <div id="emblemFilters" class="filter-section hidden">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="filter-group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-building text-blue-500 mr-1"></i>
+                                    TÊN ĐƠN VỊ
+                                </label>
+                                <input type="text" id="emblemCompanyFilter" placeholder="Nhập tên đơn vị..."
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200">
+                            </div>
+                            <div class="filter-group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-certificate text-green-500 mr-1"></i>
+                                    LOẠI PHÙ HIỆU
+                                </label>
+                                <div class="relative">
+                                    <select id="emblemTypeFilter"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
+                                        <option value="">Tất cả</option>
+                                    </select>
+                                    <i
+                                        class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
+                                </div>
+                            </div>
+                            <div class="filter-group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-tag text-purple-500 mr-1"></i>
+                                    LOẠI CẤP
+                                </label>
+                                <div class="relative">
+                                    <select id="emblemCapFilter"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
+                                        <option value="">Tất cả</option>
+                                    </select>
+                                    <i
+                                        class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
+                                </div>
+                            </div>
+                            <div class="filter-group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-info-circle text-red-500 mr-1"></i>
+                                    TRẠNG THÁI
+                                </label>
+                                <div class="relative">
+                                    <select id="emblemStatusFilter"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
+                                        <option value="">Tất cả</option>
+                                        <option value="active">Còn hiệu lực</option>
+                                        <option value="expired">Hết hạn</option>
+                                        <option value="revoked">Đã thu hồi</option>
+                                    </select>
+                                    <i
+                                        class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Bộ lọc cho GP Liên vận QT -->
-                <div id="internationalFilters" class="filter-section hidden">
-                    <div class="filter-row">
-                        <div class="filter-group">
-                            <label>TÊN ĐƠN VỊ</label>
-                            <input type="text" id="internationalCompanyFilter" placeholder="Nhập tên đơn vị..."
-                                class="w-full">
-                        </div>
-                        <div class="filter-group">
-                            <label>LOẠI CẤP</label>
-                            <select id="internationalTypeFilter" class="w-full">
-                                <option value="">Tất cả</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label>MÔ HÌNH HOẠT ĐỘNG</label>
-                            <select id="internationalModelFilter" class="w-full">
-                                <option value="">Tất cả</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label>TRẠNG THÁI</label>
-                            <select id="internationalStatusFilter" class="w-full">
-                                <option value="">Tất cả</option>
-                                <option value="active">Đang hoạt động</option>
-                                <option value="suspended">Ngừng tạm thời</option>
-                                <option value="revoked">Bị thu hồi</option>
-                            </select>
+                    <!-- Bộ lọc cho GP Liên vận QT -->
+                    <div id="internationalFilters" class="filter-section hidden">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="filter-group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-building text-blue-500 mr-1"></i>
+                                    TÊN ĐƠN VỊ
+                                </label>
+                                <input type="text" id="internationalCompanyFilter" placeholder="Nhập tên đơn vị..."
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200">
+                            </div>
+                            <div class="filter-group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-tag text-green-500 mr-1"></i>
+                                    LOẠI CẤP
+                                </label>
+                                <div class="relative">
+                                    <select id="internationalTypeFilter"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
+                                        <option value="">Tất cả</option>
+                                    </select>
+                                    <i
+                                        class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
+                                </div>
+                            </div>
+                            <div class="filter-group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-cogs text-purple-500 mr-1"></i>
+                                    MÔ HÌNH HOẠT ĐỘNG
+                                </label>
+                                <div class="relative">
+                                    <select id="internationalModelFilter"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
+                                        <option value="">Tất cả</option>
+                                    </select>
+                                    <i
+                                        class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
+                                </div>
+                            </div>
+                            <div class="filter-group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-info-circle text-red-500 mr-1"></i>
+                                    TRẠNG THÁI
+                                </label>
+                                <div class="relative">
+                                    <select id="internationalStatusFilter"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
+                                        <option value="">Tất cả</option>
+                                        <option value="active">Đang hoạt động</option>
+                                        <option value="suspended">Ngừng tạm thời</option>
+                                        <option value="revoked">Bị thu hồi</option>
+                                    </select>
+                                    <i
+                                        class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Bộ lọc cho Phù hiệu Liên vận -->
-                <div id="internationalEmblemFilters" class="filter-section hidden">
-                    <div class="filter-row">
-                        <div class="filter-group">
-                            <label>TÊN DOANH NGHIỆP</label>
-                            <input type="text" id="intEmblemCompanyFilter" placeholder="Nhập tên doanh nghiệp..."
-                                class="w-full">
-                        </div>
-                        <div class="filter-group">
-                            <label>TRẠNG THÁI</label>
-                            <select id="intEmblemStatusFilter" class="w-full">
-                                <option value="">Tất cả</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label>LOẠI HÌNH LIÊN VẬN</label>
-                            <select id="intEmblemTypeFilter" class="w-full">
-                                <option value="">Tất cả</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label>TRẠNG THÁI CẤP</label>
-                            <select id="intEmblemCapStatusFilter" class="w-full">
-                                <option value="">Tất cả</option>
-                            </select>
+                    <!-- Bộ lọc cho Phù hiệu Liên vận -->
+                    <div id="internationalEmblemFilters" class="filter-section hidden">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="filter-group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-building text-blue-500 mr-1"></i>
+                                    TÊN DOANH NGHIỆP
+                                </label>
+                                <input type="text" id="intEmblemCompanyFilter" placeholder="Nhập tên doanh nghiệp..."
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200">
+                            </div>
+                            <div class="filter-group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-info-circle text-green-500 mr-1"></i>
+                                    TRẠNG THÁI
+                                </label>
+                                <div class="relative">
+                                    <select id="intEmblemStatusFilter"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
+                                        <option value="">Tất cả</option>
+                                    </select>
+                                    <i
+                                        class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
+                                </div>
+                            </div>
+                            <div class="filter-group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-globe text-purple-500 mr-1"></i>
+                                    LOẠI HÌNH LIÊN VẬN
+                                </label>
+                                <div class="relative">
+                                    <select id="intEmblemTypeFilter"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
+                                        <option value="">Tất cả</option>
+                                    </select>
+                                    <i
+                                        class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
+                                </div>
+                            </div>
+                            <div class="filter-group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-check-circle text-red-500 mr-1"></i>
+                                    TRẠNG THÁI CẤP
+                                </label>
+                                <div class="relative">
+                                    <select id="intEmblemCapStatusFilter"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
+                                        <option value="">Tất cả</option>
+                                    </select>
+                                    <i
+                                        class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Bộ lọc cho Sổ Liên vận -->
-                <div id="internationalBookFilters" class="filter-section hidden">
-                    <div class="filter-row">
-                        <div class="filter-group">
-                            <label>TÊN CHÍNH</label>
-                            <input type="text" id="intBookCompanyFilter" placeholder="Nhập tên..." class="w-full">
-                        </div>
-                        <div class="filter-group">
-                            <label>TRẠNG THÁI</label>
-                            <select id="intBookStatusFilter" class="w-full">
-                                <option value="">Tất cả</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label>LOẠI HÌNH LIÊN VẬN</label>
-                            <select id="intBookTypeFilter" class="w-full">
-                                <option value="">Tất cả</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label>TRẠNG THÁI CẤP</label>
-                            <select id="intBookCapStatusFilter" class="w-full">
-                                <option value="">Tất cả</option>
-                            </select>
+                    <!-- Bộ lọc cho Sổ Liên vận -->
+                    <div id="internationalBookFilters" class="filter-section hidden">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="filter-group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-user text-blue-500 mr-1"></i>
+                                    TÊN CHÍNH
+                                </label>
+                                <input type="text" id="intBookCompanyFilter" placeholder="Nhập tên..."
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200">
+                            </div>
+                            <div class="filter-group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-info-circle text-green-500 mr-1"></i>
+                                    TRẠNG THÁI
+                                </label>
+                                <div class="relative">
+                                    <select id="intBookStatusFilter"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
+                                        <option value="">Tất cả</option>
+                                    </select>
+                                    <i
+                                        class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
+                                </div>
+                            </div>
+                            <div class="filter-group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-globe text-purple-500 mr-1"></i>
+                                    LOẠI HÌNH LIÊN VẬN
+                                </label>
+                                <div class="relative">
+                                    <select id="intBookTypeFilter"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
+                                        <option value="">Tất cả</option>
+                                    </select>
+                                    <i
+                                        class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
+                                </div>
+                            </div>
+                            <div class="filter-group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-check-circle text-red-500 mr-1"></i>
+                                    TRẠNG THÁI CẤP
+                                </label>
+                                <div class="relative">
+                                    <select id="intBookCapStatusFilter"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
+                                        <option value="">Tất cả</option>
+                                    </select>
+                                    <i
+                                        class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -903,6 +1770,7 @@
         let originalInternationalData = [];
         let originalIntEmblemsData = [];
         let originalIntBooksData = [];
+        let originalCompanyData = []; // Thêm biến cho dữ liệu công ty
 
         // Filtered data variables (dữ liệu sau khi lọc)
         let filteredLicensesData = [];
@@ -1047,6 +1915,8 @@
                 'Mã hồ sơ',
                 'Tên đơn vị',
                 'Địa chỉ',
+                'Quận/Huyện',
+                'Xã/Phường/Thị trấn',
                 'Ngày cấp',
                 'Loại cấp',
                 'Loại hình vận tải',
@@ -1070,12 +1940,17 @@
                     ? license.LoaiHinhVanTai.join(', ')
                     : license.LoaiHinhVanTai || '';
 
+                // Lấy thông tin công ty với đúng reference
+                const companyInfo = getCompanyInfo(license.Ref_DoanhNghiep, 'GIAYPHEPKINHDOANHNOIDIA');
+
                 data.push([
                     index + 1,
                     license.SoGiayPhep || '',
                     license.MaHoSo || '',
                     license.TenDonVi || '',
                     license.DiaChi || '',
+                    companyInfo.QuanHuyen || '',
+                    companyInfo.XaPhuongThiTran || '',
                     formatDate(license.NgayCap),
                     license.LoaiCap || '',
                     transportTypes,
@@ -1095,6 +1970,8 @@
                 { wch: 15 },  // Mã hồ sơ
                 { wch: 30 },  // Tên đơn vị
                 { wch: 40 },  // Địa chỉ
+                { wch: 20 },  // Quận/Huyện
+                { wch: 25 },  // Xã/Phường/Thị trấn
                 { wch: 12 },  // Ngày cấp
                 { wch: 15 },  // Loại cấp
                 { wch: 25 },  // Loại hình vận tải
@@ -1124,6 +2001,8 @@
                 'Biển số xe',
                 'Tên đơn vị',
                 'Địa chỉ',
+                'Quận/Huyện',
+                'Xã/Phường/Thị trấn',
                 'Ngày cấp',
                 'Ngày hết hạn',
                 'Loại phù hiệu',
@@ -1147,12 +2026,17 @@
             filteredEmblemsData.forEach((emblem, index) => {
                 const actualStatus = isEmblemExpired(emblem.NgayHetHan) ? 'Hết hạn' : (emblem.TrangThai || '');
 
+                // Lấy thông tin công ty với đúng reference
+                const companyInfo = getCompanyInfo(emblem.Ref_DonViCapPhuHieu, 'PHUHIEUXE');
+
                 data.push([
                     index + 1,
                     emblem.SoPhuHieu || '',
                     emblem.BienSo || '',
                     emblem.Ten_don_vi || '',
                     emblem['Địa chỉ'] || '',
+                    companyInfo.QuanHuyen || '',
+                    companyInfo.XaPhuongThiTran || '',
                     formatDate(emblem.NgayCap),
                     formatDate(emblem.NgayHetHan),
                     emblem.LoaiPH || '',
@@ -1167,13 +2051,15 @@
 
             const worksheet = XLSX.utils.aoa_to_sheet(data);
 
-            // Thiết lập độ rộng cột
+            // Thiết lập độ rộng cột tương tự...
             const colWidths = [
                 { wch: 5 },   // STT
                 { wch: 20 },  // Số phù hiệu
                 { wch: 15 },  // Biển số xe
                 { wch: 30 },  // Tên đơn vị
                 { wch: 40 },  // Địa chỉ
+                { wch: 20 },  // Quận/Huyện
+                { wch: 25 },  // Xã/Phường/Thị trấn
                 { wch: 12 },  // Ngày cấp
                 { wch: 12 },  // Ngày hết hạn
                 { wch: 15 },  // Loại phù hiệu
@@ -1204,6 +2090,8 @@
                 'Số GP Liên vận QT',
                 'Mã doanh nghiệp',
                 'Tên đơn vị',
+                'Quận/Huyện',
+                'Xã/Phường/Thị trấn',
                 'Ngày cấp',
                 'Loại cấp',
                 'Mô hình hoạt động',
@@ -1225,11 +2113,16 @@
                     ? license.MoHinhHoatDong.join(', ')
                     : license.MoHinhHoatDong || '';
 
+                // Lấy thông tin công ty
+                const companyInfo = getCompanyInfo(license.IDDoanhNghiep);
+
                 data.push([
                     index + 1,
                     license.SoGPLienVanQT || '',
                     license.IDDoanhNghiep || '',
                     license.TenDonViHienThi || '',
+                    companyInfo.QuanHuyen || '',
+                    companyInfo.XaPhuongThiTran || '',
                     formatDate(license.NgayCap),
                     license.LoaiCap || '',
                     models,
@@ -1246,6 +2139,8 @@
                 { wch: 20 },  // Số GP
                 { wch: 15 },  // Mã DN
                 { wch: 30 },  // Tên đơn vị
+                { wch: 20 },  // Quận/Huyện
+                { wch: 25 },  // Xã/Phường/Thị trấn
                 { wch: 12 },  // Ngày cấp
                 { wch: 15 },  // Loại cấp
                 { wch: 25 },  // Mô hình hoạt động
@@ -1273,6 +2168,8 @@
                 'Số thứ tự',
                 'Biển số',
                 'Tên doanh nghiệp',
+                'Quận/Huyện',
+                'Xã/Phường/Thị trấn',
                 'Ngày cấp',
                 'Ngày hết hạn',
                 'Loại hình liên vận',
@@ -1291,12 +2188,17 @@
             ];
 
             filteredIntEmblemsData.forEach((emblem, index) => {
+                // Lấy thông tin công ty
+                const companyInfo = getCompanyInfo(emblem.IDDoanhNghiep);
+
                 data.push([
                     index + 1,
                     emblem.SoPhuHieu || '',
                     emblem.SoThuTu || '',
                     emblem.Bienso || '',
                     emblem.TenDoanhNghiep || '',
+                    companyInfo.QuanHuyen || '',
+                    companyInfo.XaPhuongThiTran || '',
                     formatDate(emblem.NgayCap),
                     formatDate(emblem.NgayHetHan),
                     emblem.LoaiHinhLienVan || '',
@@ -1315,6 +2217,8 @@
                 { wch: 10 },  // Số thứ tự
                 { wch: 15 },  // Biển số
                 { wch: 30 },  // Tên DN
+                { wch: 20 },  // Quận/Huyện
+                { wch: 25 },  // Xã/Phường/Thị trấn
                 { wch: 12 },  // Ngày cấp
                 { wch: 12 },  // Ngày hết hạn
                 { wch: 18 },  // Loại hình LV
@@ -1343,6 +2247,8 @@
                 'Số thứ tự',
                 'Biển số',
                 'Tên chính',
+                'Quận/Huyện',
+                'Xã/Phường/Thị trấn',
                 'Ngày cấp',
                 'Ngày hết hạn',
                 'Ngày cấp GP',
@@ -1370,12 +2276,17 @@
                     ? book.MoHinhHoatDong.join(', ')
                     : book.MoHinhHoatDong || '';
 
+                // Lấy thông tin công ty
+                const companyInfo = getCompanyInfo(book.IDDoanhNghiep);
+
                 data.push([
                     index + 1,
                     book.SoSoLienVan || '',
                     book.SoThuTu || '',
                     book.BienSo || '',
                     book.TenChinh || '',
+                    companyInfo.QuanHuyen || '',
+                    companyInfo.XaPhuongThiTran || '',
                     formatDate(book.NgayCap),
                     formatDate(book.NgayHetHan),
                     formatDate(book.NgayCapGP),
@@ -1399,6 +2310,8 @@
                 { wch: 10 },  // Số thứ tự
                 { wch: 15 },  // Biển số
                 { wch: 25 },  // Tên chính
+                { wch: 20 },  // Quận/Huyện
+                { wch: 25 },  // Xã/Phường/Thị trấn
                 { wch: 12 },  // Ngày cấp
                 { wch: 12 },  // Ngày hết hạn
                 { wch: 12 },  // Ngày cấp GP
@@ -1513,6 +2426,42 @@
             return workbook;
         }
 
+        // Helper function để lấy thông tin công ty theo IDDoanhNghiep
+        function getCompanyInfo(referenceValue, tableName) {
+            if (!referenceValue || !originalCompanyData.length) {
+                return { QuanHuyen: '', XaPhuongThiTran: '' };
+            }
+
+            // Xác định cột reference dựa trên bảng
+            let referenceField;
+            switch (tableName) {
+                case 'GIAYPHEPKINHDOANHNOIDIA':
+                    referenceField = 'IDDoanhNghiep'; // Tìm theo IDDoanhNghiep trong THONGTINDONVIVANTAI
+                    break;
+                case 'PHUHIEUXE':
+                    referenceField = 'IDDoanhNghiep'; // Ref_DonViCapPhuHieu -> IDDoanhNghiep
+                    break;
+                case 'DoanhNghiep':
+                    referenceField = 'IDDoanhNghiep'; // Ref_DoanhNghiep -> IDDoanhNghiep
+                    break;
+                case 'PhuHieuLienVan':
+                    referenceField = 'IDDoanhNghiep'; // IDDoanhNghiep -> IDDoanhNghiep
+                    break;
+                case 'SoLienVan':
+                    referenceField = 'IDDoanhNghiep'; // IDDoanhNghiep -> IDDoanhNghiep
+                    break;
+                default:
+                    referenceField = 'IDDoanhNghiep';
+            }
+
+            const company = originalCompanyData.find(c => c[referenceField] === referenceValue);
+            return company ? {
+                QuanHuyen: company.QuanHuyen || '',
+                XaPhuongThiTran: company.XaPhuongThiTran || ''
+            } : { QuanHuyen: '', XaPhuongThiTran: '' };
+        }
+
+
         // Helper function để lấy thống kê theo loại hình vận tải
         function getTransportTypeStatistics() {
             const typeCounts = {};
@@ -1571,6 +2520,130 @@
                 showNotification(`Lỗi khi lấy dữ liệu từ ${tableName}`, 'error');
                 return [];
             }
+        }
+
+        // Fetch Company Data - THÊM MỚI
+        async function fetchCompanyData() {
+            try {
+                const response = await apiRequest('THONGTINDONVIVANTAI', 'Find', {
+                    Selector: "Filter(THONGTINDONVIVANTAI, true)"
+                });
+
+                if (Array.isArray(response)) {
+                    originalCompanyData = response;
+                    console.log('Dữ liệu công ty:', originalCompanyData);
+
+                    // Populate location filters after loading company data
+                    populateLocationFilters();
+                } else {
+                    throw new Error('Dữ liệu không hợp lệ');
+                }
+            } catch (error) {
+                console.error('Lỗi khi lấy dữ liệu công ty:', error);
+                showNotification('Không thể tải dữ liệu công ty', 'error');
+            }
+        }
+
+        // Populate Location Filters - THÊM MỚI
+        function populateLocationFilters() {
+            if (!originalCompanyData.length) return;
+
+            const quanHuyenFilter = document.getElementById('quanHuyenFilter');
+            const xaPhuongFilter = document.getElementById('xaPhuongFilter');
+
+            // Lấy danh sách quận/huyện duy nhất
+            const quanHuyenSet = new Set();
+            originalCompanyData.forEach(company => {
+                if (company.QuanHuyen && company.QuanHuyen.trim()) {
+                    quanHuyenSet.add(company.QuanHuyen.trim());
+                }
+            });
+
+            // Clear existing options except first one
+            while (quanHuyenFilter.children.length > 1) {
+                quanHuyenFilter.removeChild(quanHuyenFilter.lastChild);
+            }
+
+            // Populate quận/huyện filter
+            const sortedQuanHuyen = Array.from(quanHuyenSet).sort();
+            sortedQuanHuyen.forEach(quanHuyen => {
+                const option = document.createElement('option');
+                option.value = quanHuyen;
+                option.textContent = quanHuyen;
+                quanHuyenFilter.appendChild(option);
+            });
+
+            // Khởi tạo xã/phường ban đầu với TẤT CẢ xã/phường
+            populateAllXaPhuong();
+
+            console.log('Đã tải xong bộ lọc địa điểm:', sortedQuanHuyen.length, 'quận/huyện');
+        }
+
+        // Hàm mới: Populate tất cả xã/phường - THÊM MỚI
+        function populateAllXaPhuong() {
+            const xaPhuongFilter = document.getElementById('xaPhuongFilter');
+
+            // Clear existing options except first one
+            while (xaPhuongFilter.children.length > 1) {
+                xaPhuongFilter.removeChild(xaPhuongFilter.lastChild);
+            }
+
+            // Lấy TẤT CẢ xã/phường từ toàn bộ dữ liệu
+            const allXaPhuongSet = new Set();
+            originalCompanyData.forEach(company => {
+                if (company.XaPhuongThiTran && company.XaPhuongThiTran.trim()) {
+                    allXaPhuongSet.add(company.XaPhuongThiTran.trim());
+                }
+            });
+
+            // Populate tất cả xã/phường
+            const sortedAllXaPhuong = Array.from(allXaPhuongSet).sort();
+            sortedAllXaPhuong.forEach(xaPhuong => {
+                const option = document.createElement('option');
+                option.value = xaPhuong;
+                option.textContent = xaPhuong;
+                xaPhuongFilter.appendChild(option);
+            });
+
+            console.log('Đã tải tất cả xã/phường:', sortedAllXaPhuong.length);
+        }
+
+        // Update Xa/Phuong Filter based on selected Quan/Huyen - SỬA LẠI
+        function updateXaPhuongFilter() {
+            const selectedQuanHuyen = document.getElementById('quanHuyenFilter').value;
+            const xaPhuongFilter = document.getElementById('xaPhuongFilter');
+
+            // Clear existing options except first one
+            while (xaPhuongFilter.children.length > 1) {
+                xaPhuongFilter.removeChild(xaPhuongFilter.lastChild);
+            }
+
+            if (!selectedQuanHuyen) {
+                // Nếu không chọn quận/huyện → hiển thị TẤT CẢ xã/phường
+                populateAllXaPhuong();
+                return;
+            }
+
+            // Nếu có chọn quận/huyện → chỉ hiển thị xã/phường thuộc quận/huyện đó
+            const xaPhuongSet = new Set();
+            originalCompanyData.forEach(company => {
+                if (company.QuanHuyen === selectedQuanHuyen &&
+                    company.XaPhuongThiTran &&
+                    company.XaPhuongThiTran.trim()) {
+                    xaPhuongSet.add(company.XaPhuongThiTran.trim());
+                }
+            });
+
+            // Populate xã/phường của quận/huyện đã chọn
+            const sortedXaPhuong = Array.from(xaPhuongSet).sort();
+            sortedXaPhuong.forEach(xaPhuong => {
+                const option = document.createElement('option');
+                option.value = xaPhuong;
+                option.textContent = xaPhuong;
+                xaPhuongFilter.appendChild(option);
+            });
+
+            console.log(`Đã tải xã/phường của ${selectedQuanHuyen}:`, sortedXaPhuong.length);
         }
 
         // Fetch Licenses Data
@@ -1673,11 +2746,13 @@
             }
         }
 
-        // Main Filter Function - Xử lý tất cả logic lọc
+        // Main Filter Function - Xử lý tất cả logic lọc (CẬP NHẬT)
         function applyFilters() {
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value;
             const applyToAll = document.getElementById('applyToAll').checked;
+            const selectedQuanHuyen = document.getElementById('quanHuyenFilter').value;
+            const selectedXaPhuong = document.getElementById('xaPhuongFilter').value;
 
             if (!startDate || !endDate) {
                 showNotification('Vui lòng chọn khoảng thời gian', 'warning');
@@ -1693,7 +2768,16 @@
             let tempIntEmblems = filterByDateRange(originalIntEmblemsData, startDate, endDate, 'NgayCap');
             let tempIntBooks = filterByDateRange(originalIntBooksData, startDate, endDate, 'NgayCap');
 
-            // Bước 2: Nếu không áp dụng cho tất cả, thêm bộ lọc chi tiết
+            // Bước 2: Lọc theo khu vực với đúng table name
+            if (selectedQuanHuyen || selectedXaPhuong) {
+                tempLicenses = filterByLocation(tempLicenses, selectedQuanHuyen, selectedXaPhuong, 'GIAYPHEPKINHDOANHNOIDIA');
+                tempEmblems = filterByLocation(tempEmblems, selectedQuanHuyen, selectedXaPhuong, 'PHUHIEUXE');
+                tempInternational = filterByLocation(tempInternational, selectedQuanHuyen, selectedXaPhuong, 'DoanhNghiep');
+                tempIntEmblems = filterByLocation(tempIntEmblems, selectedQuanHuyen, selectedXaPhuong, 'PhuHieuLienVan');
+                tempIntBooks = filterByLocation(tempIntBooks, selectedQuanHuyen, selectedXaPhuong, 'SoLienVan');
+            }
+
+            // Bước 3: Nếu không áp dụng cho tất cả, thêm bộ lọc chi tiết
             if (!applyToAll) {
                 const activeTab = document.querySelector('.nav-btn.active').getAttribute('data-tab');
 
@@ -1716,23 +2800,78 @@
                 }
             }
 
-            // Bước 3: Cập nhật dữ liệu đã lọc
+            // Bước 4: Cập nhật dữ liệu đã lọc
             filteredLicensesData = tempLicenses;
             filteredEmblemsData = tempEmblems;
             filteredInternationalData = tempInternational;
             filteredIntEmblemsData = tempIntEmblems;
             filteredIntBooksData = tempIntBooks;
 
-            // Bước 4: Cập nhật toàn bộ UI
+            // Bước 5: Cập nhật toàn bộ UI
             updateAllUI();
 
-            // Bước 5: Cập nhật biểu đồ
+            // Bước 6: Cập nhật biểu đồ
             updateChartsWithFilteredData();
 
             const totalFiltered = filteredLicensesData.length + filteredEmblemsData.length +
                 filteredInternationalData.length + filteredIntEmblemsData.length +
                 filteredIntBooksData.length;
             showNotification(`Đã lọc được ${totalFiltered} bản ghi!`, 'success');
+        }
+
+        // Filter by Location - THÊM MỚI
+        function filterByLocation(data, selectedQuanHuyen, selectedXaPhuong, tableName) {
+            if (!selectedQuanHuyen && !selectedXaPhuong) return data;
+
+            return data.filter(item => {
+                // Xác định cột reference để lấy thông tin công ty
+                let referenceValue;
+                switch (tableName) {
+                    case 'GIAYPHEPKINHDOANHNOIDIA':
+                        referenceValue = item.Ref_DoanhNghiep;
+                        break;
+                    case 'PHUHIEUXE':
+                        referenceValue = item.Ref_DonViCapPhuHieu;
+                        break;
+                    case 'DoanhNghiep':
+                        referenceValue = item.Ref_DoanhNghiep;
+                        break;
+                    case 'PhuHieuLienVan':
+                        referenceValue = item.IDDoanhNghiep;
+                        break;
+                    case 'SoLienVan':
+                        referenceValue = item.IDDoanhNghiep;
+                        break;
+                    default:
+                        return false;
+                }
+
+                // Tìm thông tin công ty trong THONGTINDONVIVANTAI
+                const companyInfo = getCompanyInfo(referenceValue, tableName);
+
+                // Nếu không tìm thấy thông tin công ty, bỏ qua item này
+                if (!companyInfo.QuanHuyen && !companyInfo.XaPhuongThiTran) {
+                    return false;
+                }
+
+                // Case 1: Chỉ chọn quận/huyện (không chọn xã/phường)
+                if (selectedQuanHuyen && !selectedXaPhuong) {
+                    return companyInfo.QuanHuyen === selectedQuanHuyen;
+                }
+
+                // Case 2: Chỉ chọn xã/phường (không chọn quận/huyện)
+                if (!selectedQuanHuyen && selectedXaPhuong) {
+                    return companyInfo.XaPhuongThiTran === selectedXaPhuong;
+                }
+
+                // Case 3: Chọn cả quận/huyện và xã/phường
+                if (selectedQuanHuyen && selectedXaPhuong) {
+                    return companyInfo.QuanHuyen === selectedQuanHuyen &&
+                        companyInfo.XaPhuongThiTran === selectedXaPhuong;
+                }
+
+                return true;
+            });
         }
 
         // Lọc theo khoảng thời gian
@@ -1928,13 +3067,20 @@
             });
         }
 
-        // Xóa tất cả bộ lọc
+        // Xóa tất cả bộ lọc (CẬP NHẬT)
         function clearAllFilters() {
             // Reset date filters
             const today = new Date();
             const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
             document.getElementById('startDate').value = lastMonth.toISOString().split('T')[0];
             document.getElementById('endDate').value = today.toISOString().split('T')[0];
+
+            // Reset location filters
+            document.getElementById('quanHuyenFilter').value = '';
+            document.getElementById('xaPhuongFilter').value = '';
+
+            // Populate lại tất cả xã/phường khi clear filter
+            populateAllXaPhuong();
 
             // Reset specific filters
             clearSpecificFilters();
@@ -2191,21 +3337,21 @@
                 }
 
                 row.innerHTML = `
-              <td class="px-4 py-2 font-medium">${license.SoGiayPhep || ''}</td>
-              <td class="px-4 py-2">${license.TenDonVi || ''}</td>
-              <td class="px-4 py-2 text-center">${formatDate(license.NgayCap)}</td>
-              <td class="px-4 py-2 text-center">${transportTypes}</td>
-              <td class="px-4 py-2 text-center">
-                  <span class="px-2 py-1 text-xs rounded-full ${statusClass}">
-                      ${license.TrangThai || ''}
-                  </span>
-              </td>
-              <td class="px-4 py-2 text-center">
-                  <button class="text-blue-600 hover:text-blue-800" onclick="viewLicenseDetail('${license.ID_GPKD}')">
-                      Chi tiết
-                  </button>
-              </td>
-          `;
+             <td class="px-4 py-2 font-medium">${license.SoGiayPhep || ''}</td>
+             <td class="px-4 py-2">${license.TenDonVi || ''}</td>
+             <td class="px-4 py-2 text-center">${formatDate(license.NgayCap)}</td>
+             <td class="px-4 py-2 text-center">${transportTypes}</td>
+             <td class="px-4 py-2 text-center">
+                 <span class="px-2 py-1 text-xs rounded-full ${statusClass}">
+                     ${license.TrangThai || ''}
+                 </span>
+             </td>
+             <td class="px-4 py-2 text-center">
+                 <button class="text-blue-600 hover:text-blue-800" onclick="viewLicenseDetail('${license.ID_GPKD}')">
+                     Chi tiết
+                 </button>
+             </td>
+         `;
                 tableBody.appendChild(row);
             });
         }
@@ -2224,22 +3370,22 @@
                 const isExpired = isEmblemExpired(emblem.NgayHetHan);
 
                 row.innerHTML = `
-              <td class="px-4 py-2 font-medium">${emblem.SoPhuHieu || ''}</td>
-              <td class="px-4 py-2">${emblem.BienSo || ''}</td>
-              <td class="px-4 py-2">${emblem.Ten_don_vi || ''}</td>
-              <td class="px-4 py-2 text-center">${formatDate(emblem.NgayCap)}</td>
-              <td class="px-4 py-2 text-center">${formatDate(emblem.NgayHetHan)}</td>
-              <td class="px-4 py-2 text-center">
-                  <span class="px-2 py-1 text-xs rounded-full ${isExpired ? 'bg-red-100 text-red-800' : statusClass}">
-                      ${isExpired ? 'Hết hạn' : (emblem.TrangThai || '')}
-                  </span>
-              </td>
-              <td class="px-4 py-2 text-center">
-                  <button class="text-blue-600 hover:text-blue-800" onclick="viewEmblemDetail('${emblem.ID_PhuHieu}')">
-                      Chi tiết
-                  </button>
-              </td>
-          `;
+             <td class="px-4 py-2 font-medium">${emblem.SoPhuHieu || ''}</td>
+             <td class="px-4 py-2">${emblem.BienSo || ''}</td>
+             <td class="px-4 py-2">${emblem.Ten_don_vi || ''}</td>
+             <td class="px-4 py-2 text-center">${formatDate(emblem.NgayCap)}</td>
+             <td class="px-4 py-2 text-center">${formatDate(emblem.NgayHetHan)}</td>
+             <td class="px-4 py-2 text-center">
+                 <span class="px-2 py-1 text-xs rounded-full ${isExpired ? 'bg-red-100 text-red-800' : statusClass}">
+                     ${isExpired ? 'Hết hạn' : (emblem.TrangThai || '')}
+                 </span>
+             </td>
+             <td class="px-4 py-2 text-center">
+                 <button class="text-blue-600 hover:text-blue-800" onclick="viewEmblemDetail('${emblem.ID_PhuHieu}')">
+                     Chi tiết
+                 </button>
+             </td>
+         `;
                 tableBody.appendChild(row);
             });
         }
@@ -2258,22 +3404,22 @@
                     : license.MoHinhHoatDong || '';
 
                 row.innerHTML = `
-              <td class="px-4 py-2 font-medium">${license.SoGPLienVanQT || ''}</td>
-              <td class="px-4 py-2">${license.TenDonViHienThi || ''}</td>
-              <td class="px-4 py-2 text-center">${formatDate(license.NgayCap)}</td>
-              <td class="px-4 py-2 text-center">${license.LoaiCap || ''}</td>
-              <td class="px-4 py-2 text-center">${moHinhHoatDong}</td>
-              <td class="px-4 py-2 text-center">
-                  <span class="px-2 py-1 text-xs rounded-full ${statusClass}">
-                      ${license.TrangThaiHoatDong || ''}
-                  </span>
-              </td>
-              <td class="px-4 py-2 text-center">
-                  <button class="text-blue-600 hover:text-blue-800" onclick="viewInternationalDetail('${license.IDDoanhNghiep}')">
-                      Chi tiết
-                  </button>
-              </td>
-          `;
+             <td class="px-4 py-2 font-medium">${license.SoGPLienVanQT || ''}</td>
+             <td class="px-4 py-2">${license.TenDonViHienThi || ''}</td>
+             <td class="px-4 py-2 text-center">${formatDate(license.NgayCap)}</td>
+             <td class="px-4 py-2 text-center">${license.LoaiCap || ''}</td>
+             <td class="px-4 py-2 text-center">${moHinhHoatDong}</td>
+             <td class="px-4 py-2 text-center">
+                 <span class="px-2 py-1 text-xs rounded-full ${statusClass}">
+                     ${license.TrangThaiHoatDong || ''}
+                 </span>
+             </td>
+             <td class="px-4 py-2 text-center">
+                 <button class="text-blue-600 hover:text-blue-800" onclick="viewInternationalDetail('${license.IDDoanhNghiep}')">
+                     Chi tiết
+                 </button>
+             </td>
+         `;
                 tableBody.appendChild(row);
             });
         }
@@ -2292,28 +3438,28 @@
                 const statusClass = getStatusClass(emblem.TrangThai);
 
                 row.innerHTML = `
-              <td class="px-4 py-2 font-medium">${emblem.SoPhuHieu || ''}</td>
-              <td class="px-4 py-2">${emblem.Bienso || ''}</td>
-              <td class="px-4 py-2">${emblem.TenDoanhNghiep || ''}</td>
-              <td class="px-4 py-2 text-center">${formatDate(emblem.NgayCap)}</td>
-              <td class="px-4 py-2 text-center">${formatDate(emblem.NgayHetHan)}</td>
-              <td class="px-4 py-2 text-center">${emblem.LoaiHinhLienVan || ''}</td>
-              <td class="px-4 py-2 text-center">
-                  <span class="px-2 py-1 text-xs rounded-full ${statusClass}">
-                      ${emblem.TrangThai || ''}
-                  </span>
-              </td>
-              <td class="px-4 py-2 text-center">
-                  <span class="px-2 py-1 text-xs rounded-full ${isExpiring ? 'warning-badge' : 'bg-green-100 text-green-800'}">
-                      ${emblem.HieuLuc || ''}
-                  </span>
-              </td>
-              <td class="px-4 py-2 text-center">
-                  <button class="text-blue-600 hover:text-blue-800" onclick="viewIntEmblemDetail('${emblem.IDPhuHieu}')">
-                      Chi tiết
-                  </button>
-              </td>
-          `;
+             <td class="px-4 py-2 font-medium">${emblem.SoPhuHieu || ''}</td>
+             <td class="px-4 py-2">${emblem.Bienso || ''}</td>
+             <td class="px-4 py-2">${emblem.TenDoanhNghiep || ''}</td>
+             <td class="px-4 py-2 text-center">${formatDate(emblem.NgayCap)}</td>
+             <td class="px-4 py-2 text-center">${formatDate(emblem.NgayHetHan)}</td>
+             <td class="px-4 py-2 text-center">${emblem.LoaiHinhLienVan || ''}</td>
+             <td class="px-4 py-2 text-center">
+                 <span class="px-2 py-1 text-xs rounded-full ${statusClass}">
+                     ${emblem.TrangThai || ''}
+                 </span>
+             </td>
+             <td class="px-4 py-2 text-center">
+                 <span class="px-2 py-1 text-xs rounded-full ${isExpiring ? 'warning-badge' : 'bg-green-100 text-green-800'}">
+                     ${emblem.HieuLuc || ''}
+                 </span>
+             </td>
+             <td class="px-4 py-2 text-center">
+                 <button class="text-blue-600 hover:text-blue-800" onclick="viewIntEmblemDetail('${emblem.IDPhuHieu}')">
+                     Chi tiết
+                 </button>
+             </td>
+         `;
                 tableBody.appendChild(row);
             });
         }
@@ -2332,29 +3478,29 @@
                 const statusClass = getStatusClass(book.TrangThai);
 
                 row.innerHTML = `
-              <td class="px-4 py-2 font-medium">${book.SoSoLienVan || ''}</td>
-              <td class="px-4 py-2">${book.BienSo || ''}</td>
-              <td class="px-4 py-2">${book.TenChinh || ''}</td>
-              <td class="px-4 py-2 text-center">${formatDate(book.NgayCap)}</td>
-              <td class="px-4 py-2 text-center">${formatDate(book.NgayHetHan)}</td>
-              <td class="px-4 py-2 text-center">${book.LoaiHinhLienVan || ''}</td>
-              <td class="px-4 py-2 text-center">${book.CuaKhau || ''}</td>
-              <td class="px-4 py-2 text-center">
-                  <span class="px-2 py-1 text-xs rounded-full ${statusClass}">
-                      ${book.TrangThai || ''}
-                  </span>
-              </td>
-              <td class="px-4 py-2 text-center">
-                  <span class="px-2 py-1 text-xs rounded-full ${isExpiring ? 'warning-badge' : 'bg-green-100 text-green-800'}">
-                      ${book.HieuLuc || ''}
-                  </span>
-              </td>
-              <td class="px-4 py-2 text-center">
-                  <button class="text-blue-600 hover:text-blue-800" onclick="viewIntBookDetail('${book.IDSo}')">
-                      Chi tiết
-                  </button>
-              </td>
-          `;
+             <td class="px-4 py-2 font-medium">${book.SoSoLienVan || ''}</td>
+             <td class="px-4 py-2">${book.BienSo || ''}</td>
+             <td class="px-4 py-2">${book.TenChinh || ''}</td>
+             <td class="px-4 py-2 text-center">${formatDate(book.NgayCap)}</td>
+             <td class="px-4 py-2 text-center">${formatDate(book.NgayHetHan)}</td>
+             <td class="px-4 py-2 text-center">${book.LoaiHinhLienVan || ''}</td>
+             <td class="px-4 py-2 text-center">${book.CuaKhau || ''}</td>
+             <td class="px-4 py-2 text-center">
+                 <span class="px-2 py-1 text-xs rounded-full ${statusClass}">
+                     ${book.TrangThai || ''}
+                 </span>
+             </td>
+             <td class="px-4 py-2 text-center">
+                 <span class="px-2 py-1 text-xs rounded-full ${isExpiring ? 'warning-badge' : 'bg-green-100 text-green-800'}">
+                     ${book.HieuLuc || ''}
+                 </span>
+             </td>
+             <td class="px-4 py-2 text-center">
+                 <button class="text-blue-600 hover:text-blue-800" onclick="viewIntBookDetail('${book.IDSo}')">
+                     Chi tiết
+                 </button>
+             </td>
+         `;
                 tableBody.appendChild(row);
             });
         }
@@ -2401,22 +3547,164 @@
             }
         }
 
-        // Helper Functions
-        function formatDate(dateString) {
+        // Thêm vào cuối phần <script> hiện có, trước dòng cuối cùng
+
+        // ==================== DATE FORMAT MOBILE FIX ==================== 
+        function initializeDateInputs() {
+            const dateInputs = document.querySelectorAll('input[type="date"]');
+
+            dateInputs.forEach(input => {
+                // Set placeholder attribute
+                input.setAttribute('placeholder', 'dd/mm/yyyy');
+
+                // Add change event to ensure proper formatting
+                input.addEventListener('change', function () {
+                    if (this.value) {
+                        // Validate date format
+                        const dateValue = new Date(this.value);
+                        if (isNaN(dateValue.getTime())) {
+                            showNotification('Định dạng ngày không hợp lệ', 'error');
+                            this.value = '';
+                        }
+                    }
+                });
+
+                // Add input event for real-time validation
+                input.addEventListener('input', function () {
+                    // Remove any non-numeric characters except dash
+                    let value = this.value.replace(/[^\d-]/g, '');
+
+                    // Ensure yyyy-mm-dd format for input[type="date"]
+                    if (value.length === 10 && !value.includes('-')) {
+                        // If user types ddmmyyyy, convert to yyyy-mm-dd
+                        if (value.match(/^\d{8}$/)) {
+                            const day = value.substr(0, 2);
+                            const month = value.substr(2, 2);
+                            const year = value.substr(4, 4);
+                            value = `${year}-${month}-${day}`;
+                        }
+                    }
+
+                    this.value = value;
+                });
+
+                // Add focus event to show format hint
+                input.addEventListener('focus', function () {
+                    if (!this.value && window.innerWidth <= 768) {
+                        // Show format hint on mobile
+                        setTimeout(() => {
+                            if (!this.value) {
+                                showDateFormatHint(this);
+                            }
+                        }, 100);
+                    }
+                });
+            });
+        }
+
+        // Function to show date format hint
+        function showDateFormatHint(inputElement) {
+            const hint = document.createElement('div');
+            hint.className = 'date-format-hint';
+            hint.innerHTML = `
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-2 text-xs text-blue-700 mt-1">
+            <i class="fas fa-info-circle mr-1"></i>
+            Định dạng: ngày/tháng/năm (VD: 03/06/2025)
+        </div>
+    `;
+
+            // Remove existing hint
+            const existingHint = inputElement.parentNode.querySelector('.date-format-hint');
+            if (existingHint) {
+                existingHint.remove();
+            }
+
+            // Add new hint
+            inputElement.parentNode.appendChild(hint);
+
+            // Remove hint after 3 seconds
+            setTimeout(() => {
+                if (hint.parentNode) {
+                    hint.remove();
+                }
+            }, 3000);
+
+            // Remove hint on blur
+            inputElement.addEventListener('blur', function () {
+                setTimeout(() => {
+                    if (hint.parentNode) {
+                        hint.remove();
+                    }
+                }, 200);
+            }, { once: true });
+        }
+
+        // Enhanced date formatting for display
+        function formatDateForDisplay(dateString) {
             if (!dateString) return '';
 
             try {
                 const date = parseAppSheetDate(dateString);
                 if (!date) return '';
 
-                return date.toLocaleDateString('vi-VN', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit'
-                });
+                // Always return dd/mm/yyyy format
+                const day = date.getDate().toString().padStart(2, '0');
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                const year = date.getFullYear();
+
+                return `${day}/${month}/${year}`;
             } catch (error) {
-                console.error('Error formatting date:', dateString, error);
+                console.error('Error formatting date for display:', dateString, error);
                 return '';
+            }
+        }
+
+        // Update existing formatDate function
+        function formatDate(dateString) {
+            return formatDateForDisplay(dateString);
+        }
+
+        // Add mobile-specific date input improvements
+        function addMobileDateInputSupport() {
+            // Check if mobile device
+            const isMobile = window.innerWidth <= 768;
+
+            if (isMobile) {
+                // Add meta tag for better mobile experience
+                const viewport = document.querySelector('meta[name="viewport"]');
+                if (viewport) {
+                    viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, user-scalable=no');
+                }
+
+                // Add touch-friendly styles
+                const style = document.createElement('style');
+                style.textContent = `
+            /* Mobile-specific date input improvements */
+            @media (max-width: 768px) {
+                input[type="date"] {
+                    font-size: 16px !important; /* Prevent zoom on iOS */
+                    -webkit-appearance: none;
+                    -moz-appearance: none;
+                    appearance: none;
+                }
+                
+                /* Custom date picker icon for mobile */
+                input[type="date"]::-webkit-calendar-picker-indicator {
+                    opacity: 1;
+                    background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='currentColor'%3e%3cpath fill-rule='evenodd' d='M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z' clip-rule='evenodd'/%3e%3c/svg%3e") no-repeat center;
+                    background-size: 20px 20px;
+                    cursor: pointer;
+                    position: absolute;
+                    right: 8px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    width: 20px;
+                    height: 20px;
+                    color: transparent;
+                }
+            }
+        `;
+                document.head.appendChild(style);
             }
         }
 
@@ -2495,23 +3783,6 @@
                 }
             });
         });
-
-        // Filter handling with apply to all option
-        function handleFilterToggle() {
-            const applyToAll = document.getElementById('applyToAll').checked;
-            const specificFilters = document.getElementById('specificFilters');
-
-            if (applyToAll) {
-                specificFilters.classList.add('filter-disabled');
-                // Ẩn tất cả bộ lọc chi tiết
-                document.querySelectorAll('.filter-section').forEach(section => {
-                    section.classList.add('hidden');
-                });
-            } else {
-                specificFilters.classList.remove('filter-disabled');
-                showCurrentTabFilters();
-            }
-        }
 
         // Function để hiển thị bộ lọc riêng cho tab hiện tại
         function showCurrentTabFilters() {
@@ -2620,250 +3891,266 @@
             }
         }
 
+        // Modal functions (giữ nguyên code modal cũ)
         function showLicenseModal(license) {
+            const companyInfo = getCompanyInfo(license.Ref_DoanhNghiep, 'GIAYPHEPKINHDOANHNOIDIA');
             const modalContent = `
-      <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="licenseModal">
-          <div class="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
-              <div class="flex justify-between items-center mb-4">
-                  <h3 class="text-lg font-bold">Chi tiết Giấy phép</h3>
-                  <button onclick="closeModal('licenseModal')" class="text-gray-500 hover:text-gray-700">
-                      <i class="fas fa-times"></i>
-                  </button>
-              </div>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div><strong>Số giấy phép:</strong> ${license.SoGiayPhep || ''}</div>
-                  <div><strong>Mã hồ sơ:</strong> ${license.MaHoSo || ''}</div>
-                  <div><strong>Tên đơn vị:</strong> ${license.TenDonVi || ''}</div>
-                  <div><strong>Địa chỉ:</strong> ${license.DiaChi || ''}</div>
-                  <div><strong>Ngày cấp:</strong> ${formatDate(license.NgayCap)}</div>
-                  <div><strong>Loại cấp:</strong> ${license.LoaiCap || ''}</div>
-                  <div><strong>Trạng thái:</strong> 
-                      <span class="px-2 py-1 text-xs rounded-full ${getStatusClass(license.TrangThai)}">
-                          ${license.TrangThai || ''}
-                      </span>
-                  </div>
-                  <div><strong>Loại hình vận tải:</strong> ${Array.isArray(license.LoaiHinhVanTai) ? license.LoaiHinhVanTai.join(', ') : license.LoaiHinhVanTai || ''}</div>
-              </div>
-              ${license.NgayThuHoi ? `
-                  <div class="mt-4 p-4 bg-red-50 rounded">
-                      <h4 class="font-semibold text-red-800">Thông tin thu hồi:</h4>
-                      <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2">
-                          <div><strong>Ngày thu hồi:</strong> ${formatDate(license.NgayThuHoi)}</div>
-                          <div><strong>Số quyết định:</strong> ${license.SoQuyetDinhThuHoi || ''}</div>
-                          <div class="md:col-span-2"><strong>Lý do thu hồi:</strong> ${license.LyDoThuHoi || ''}</div>
-                      </div>
-                  </div>
-              ` : ''}
-              ${license.GhiChu ? `
-                  <div class="mt-4">
-                      <strong>Ghi chú:</strong> ${license.GhiChu}
-                  </div>
-              ` : ''}
-          </div>
-      </div>
-  `;
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="licenseModal">
+            <div class="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold">Chi tiết Giấy phép</h3>
+                    <button onclick="closeModal('licenseModal')" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div><strong>Số giấy phép:</strong> ${license.SoGiayPhep || ''}</div>
+                    <div><strong>Mã hồ sơ:</strong> ${license.MaHoSo || ''}</div>
+                    <div><strong>Tên đơn vị:</strong> ${license.TenDonVi || ''}</div>
+                    <div><strong>Địa chỉ:</strong> ${license.DiaChi || ''}</div>
+                    <div><strong>Quận/Huyện:</strong> ${companyInfo.QuanHuyen || ''}</div>
+                    <div><strong>Xã/Phường:</strong> ${companyInfo.XaPhuongThiTran || ''}</div>
+                    <div><strong>Ngày cấp:</strong> ${formatDate(license.NgayCap)}</div>
+                    <div><strong>Loại cấp:</strong> ${license.LoaiCap || ''}</div>
+                    <div><strong>Trạng thái:</strong> 
+                        <span class="px-2 py-1 text-xs rounded-full ${getStatusClass(license.TrangThai)}">
+                            ${license.TrangThai || ''}
+                        </span>
+                    </div>
+                    <div><strong>Loại hình vận tải:</strong> ${Array.isArray(license.LoaiHinhVanTai) ? license.LoaiHinhVanTai.join(', ') : license.LoaiHinhVanTai || ''}</div>
+                </div>
+                ${license.NgayThuHoi ? `
+                    <div class="mt-4 p-4 bg-red-50 rounded">
+                        <h4 class="font-semibold text-red-800">Thông tin thu hồi:</h4>
+                        <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <div><strong>Ngày thu hồi:</strong> ${formatDate(license.NgayThuHoi)}</div>
+                            <div><strong>Số quyết định:</strong> ${license.SoQuyetDinhThuHoi || ''}</div>
+                            <div class="md:col-span-2"><strong>Lý do thu hồi:</strong> ${license.LyDoThuHoi || ''}</div>
+                        </div>
+                    </div>
+                ` : ''}
+                ${license.GhiChu ? `
+                    <div class="mt-4">
+                        <strong>Ghi chú:</strong> ${license.GhiChu}
+                    </div>
+                ` : ''}
+            </div>
+        </div>
+    `;
             document.body.insertAdjacentHTML('beforeend', modalContent);
         }
 
         function showEmblemModal(emblem) {
+            const companyInfo = getCompanyInfo(emblem.IDDoanhNghiep);
             const modalContent = `
-      <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="emblemModal">
-          <div class="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
+     <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="emblemModal">
+         <div class="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
+             <div class="flex justify-between items-center mb-4">
+                 <h3 class="text-lg font-bold">Chi tiết Phù hiệu</h3>
+                 <button onclick="closeModal('emblemModal')" class="text-gray-500 hover:text-gray-700">
+                     <i class="fas fa-times"></i>
+                 </button>
+             </div>
+             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 <div><strong>Số phù hiệu:</strong> ${emblem.SoPhuHieu || ''}</div>
+                 <div><strong>Biển số xe:</strong> ${emblem.BienSo || ''}</div>
+                 <div><strong>Tên đơn vị:</strong> ${emblem.Ten_don_vi || ''}</div>
+                 <div><strong>Địa chỉ:</strong> ${emblem['Địa chỉ'] || ''}</div>
+                 <div><strong>Quận/Huyện:</strong> ${companyInfo.QuanHuyen || ''}</div>
+                 <div><strong>Xã/Phường:</strong> ${companyInfo.XaPhuongThiTran || ''}</div>
+                 <div><strong>Ngày cấp:</strong> ${formatDate(emblem.NgayCap)}</div>
+                 <div><strong>Ngày hết hạn:</strong> ${formatDate(emblem.NgayHetHan)}</div>
+                 <div><strong>Loại phù hiệu:</strong> ${emblem.LoaiPH || ''}</div>
+                 <div><strong>Màu phù hiệu:</strong> ${emblem.MauPhuHieu || ''}</div>
+                 <div><strong>Trạng thái:</strong> 
+                     <span class="px-2 py-1 text-xs rounded-full ${isEmblemExpired(emblem.NgayHetHan) ? 'bg-red-100 text-red-800' : getStatusClass(emblem.TrangThai)}">
+                         ${isEmblemExpired(emblem.NgayHetHan) ? 'Hết hạn' : (emblem.TrangThai || '')}
+                     </span>
+                 </div>
+                 <div><strong>Tuyến khai thác:</strong> ${emblem['Tuyến khai thác'] || ''}</div>
+             </div>
+             ${emblem.NgayThuHoi ? `
+                 <div class="mt-4 p-4 bg-red-50 rounded">
+                     <h4 class="font-semibold text-red-800">Thông tin thu hồi:</h4>
+                     <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2">
+                         <div><strong>Ngày thu hồi:</strong> ${formatDate(emblem.NgayThuHoi)}</div>
+                         <div><strong>Quyết định thu hồi:</strong> ${emblem.QDThuHoi || ''}</div>
+                         <div class="md:col-span-2"><strong>Lý do thu hồi:</strong> ${emblem.LyDoThuHoi || ''}</div>
+                     </div>
+                 </div>
+             ` : ''}
+             ${emblem.GhiChu ? `
+                 <div class="mt-4">
+                     <strong>Ghi chú:</strong> ${emblem.GhiChu}
+                 </div>
+             ` : ''}
+         </div>
+     </div>
+ `;
+            document.body.insertAdjacentHTML('beforeend', modalContent);
+        }
+
+        function showInternationalModal(license) {
+            const companyInfo = getCompanyInfo(license.IDDoanhNghiep);
+            const modalContent = `
+      <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="internationalModal">
+          <div class="bg-white rounded-lg p-6 max-w-3xl w-full mx-4 max-h-96 overflow-y-auto">
               <div class="flex justify-between items-center mb-4">
-                  <h3 class="text-lg font-bold">Chi tiết Phù hiệu</h3>
-                  <button onclick="closeModal('emblemModal')" class="text-gray-500 hover:text-gray-700">
+                  <h3 class="text-lg font-bold">Chi tiết Giấy phép Liên vận Quốc tế</h3>
+                  <button onclick="closeModal('internationalModal')" class="text-gray-500 hover:text-gray-700">
                       <i class="fas fa-times"></i>
                   </button>
               </div>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div><strong>Số phù hiệu:</strong> ${emblem.SoPhuHieu || ''}</div>
-                  <div><strong>Biển số xe:</strong> ${emblem.BienSo || ''}</div>
-                  <div><strong>Tên đơn vị:</strong> ${emblem.Ten_don_vi || ''}</div>
-                  <div><strong>Địa chỉ:</strong> ${emblem['Địa chỉ'] || ''}</div>
-                  <div><strong>Ngày cấp:</strong> ${formatDate(emblem.NgayCap)}</div>
-                  <div><strong>Ngày hết hạn:</strong> ${formatDate(emblem.NgayHetHan)}</div>
-                  <div><strong>Loại phù hiệu:</strong> ${emblem.LoaiPH || ''}</div>
-                  <div><strong>Màu phù hiệu:</strong> ${emblem.MauPhuHieu || ''}</div>
-                  <div><strong>Trạng thái:</strong> 
-                      <span class="px-2 py-1 text-xs rounded-full ${isEmblemExpired(emblem.NgayHetHan) ? 'bg-red-100 text-red-800' : getStatusClass(emblem.TrangThai)}">
-                          ${isEmblemExpired(emblem.NgayHetHan) ? 'Hết hạn' : (emblem.TrangThai || '')}
+                  <div><strong>Số GP Liên vận QT:</strong> ${license.SoGPLienVanQT || ''}</div>
+                  <div><strong>Mã doanh nghiệp:</strong> ${license.IDDoanhNghiep || ''}</div>
+                  <div><strong>Tên đơn vị:</strong> ${license.TenDonViHienThi || ''}</div>
+                  <div><strong>Quận/Huyện:</strong> ${companyInfo.QuanHuyen || ''}</div>
+                  <div><strong>Xã/Phường:</strong> ${companyInfo.XaPhuongThiTran || ''}</div>
+                  <div><strong>Ngày cấp:</strong> ${formatDate(license.NgayCap)}</div>
+                  <div><strong>Loại cấp:</strong> ${license.LoaiCap || ''}</div>
+                  <div><strong>Trạng thái hoạt động:</strong> 
+                      <span class="px-2 py-1 text-xs rounded-full ${getInternationalStatusClass(license.TrangThaiHoatDong)}">
+                          ${license.TrangThaiHoatDong || ''}
                       </span>
                   </div>
-                  <div><strong>Tuyến khai thác:</strong> ${emblem['Tuyến khai thác'] || ''}</div>
+                  <div class="md:col-span-2"><strong>Mô hình hoạt động:</strong> ${Array.isArray(license.MoHinhHoatDong) ? license.MoHinhHoatDong.join(', ') : license.MoHinhHoatDong || ''}</div>
               </div>
-              ${emblem.NgayThuHoi ? `
-                  <div class="mt-4 p-4 bg-red-50 rounded">
-                      <h4 class="font-semibold text-red-800">Thông tin thu hồi:</h4>
-                      <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2">
-                          <div><strong>Ngày thu hồi:</strong> ${formatDate(emblem.NgayThuHoi)}</div>
-                          <div><strong>Quyết định thu hồi:</strong> ${emblem.QDThuHoi || ''}</div>
-                          <div class="md:col-span-2"><strong>Lý do thu hồi:</strong> ${emblem.LyDoThuHoi || ''}</div>
-                      </div>
-                  </div>
-              ` : ''}
-              ${emblem.GhiChu ? `
-                  <div class="mt-4">
-                      <strong>Ghi chú:</strong> ${emblem.GhiChu}
+              ${license.Lydocaplai ? `
+                  <div class="mt-4 p-4 bg-blue-50 rounded">
+                      <h4 class="font-semibold text-blue-800">Lý do cấp lại:</h4>
+                      <div class="mt-2">${license.Lydocaplai}</div>
                   </div>
               ` : ''}
           </div>
       </div>
   `;
-            document.body.insertAdjacentHTML('beforeend', modalContent);
-        }
-
-        function showInternationalModal(license) {
-            const modalContent = `
-       <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="internationalModal">
-           <div class="bg-white rounded-lg p-6 max-w-3xl w-full mx-4 max-h-96 overflow-y-auto">
-               <div class="flex justify-between items-center mb-4">
-                   <h3 class="text-lg font-bold">Chi tiết Giấy phép Liên vận Quốc tế</h3>
-                   <button onclick="closeModal('internationalModal')" class="text-gray-500 hover:text-gray-700">
-                       <i class="fas fa-times"></i>
-                   </button>
-               </div>
-               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                   <div><strong>Số GP Liên vận QT:</strong> ${license.SoGPLienVanQT || ''}</div>
-                   <div><strong>Mã doanh nghiệp:</strong> ${license.IDDoanhNghiep || ''}</div>
-                   <div><strong>Tên đơn vị:</strong> ${license.TenDonViHienThi || ''}</div>
-                   <div><strong>Ngày cấp:</strong> ${formatDate(license.NgayCap)}</div>
-                   <div><strong>Loại cấp:</strong> ${license.LoaiCap || ''}</div>
-                   <div><strong>Trạng thái hoạt động:</strong> 
-                       <span class="px-2 py-1 text-xs rounded-full ${getInternationalStatusClass(license.TrangThaiHoatDong)}">
-                           ${license.TrangThaiHoatDong || ''}
-                       </span>
-                   </div>
-                   <div class="md:col-span-2"><strong>Mô hình hoạt động:</strong> ${Array.isArray(license.MoHinhHoatDong) ? license.MoHinhHoatDong.join(', ') : license.MoHinhHoatDong || ''}</div>
-               </div>
-               ${license.Lydocaplai ? `
-                   <div class="mt-4 p-4 bg-blue-50 rounded">
-                       <h4 class="font-semibold text-blue-800">Lý do cấp lại:</h4>
-                       <div class="mt-2">${license.Lydocaplai}</div>
-                   </div>
-               ` : ''}
-           </div>
-       </div>
-   `;
             document.body.insertAdjacentHTML('beforeend', modalContent);
         }
 
         function showIntEmblemModal(emblem) {
             const isExpiring = emblem.HieuLuc === 'Sắp đến hạn';
+            const companyInfo = getCompanyInfo(emblem.IDDoanhNghiep);
             const modalContent = `
-       <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="intEmblemModal">
-           <div class="bg-white rounded-lg p-6 max-w-3xl w-full mx-4 max-h-96 overflow-y-auto">
-               <div class="flex justify-between items-center mb-4">
-                   <h3 class="text-lg font-bold">Chi tiết Phù hiệu Liên vận</h3>
-                   <button onclick="closeModal('intEmblemModal')" class="text-gray-500 hover:text-gray-700">
-                       <i class="fas fa-times"></i>
-                   </button>
-               </div>
-               ${isExpiring ? `
-                   <div class="bg-yellow-100 border-l-4 border-yellow-500 p-4 mb-4">
-                       <div class="flex">
-                           <div class="flex-shrink-0">
-                               <i class="fas fa-exclamation-triangle text-yellow-500"></i>
-                           </div>
-                           <div class="ml-3">
-                               <p class="text-sm text-yellow-700">
-                                   <strong>Cảnh báo:</strong> Phù hiệu này sắp đến hạn!
-                               </p>
-                           </div>
-                       </div>
-                   </div>
-               ` : ''}
-               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                   <div><strong>Số phù hiệu:</strong> ${emblem.SoPhuHieu || ''}</div>
-                   <div><strong>Số thứ tự:</strong> ${emblem.SoThuTu || ''}</div>
-                   <div><strong>Biển số:</strong> ${emblem.Bienso || ''}</div>
-                   <div><strong>Tên doanh nghiệp:</strong> ${emblem.TenDoanhNghiep || ''}</div>
-                   <div><strong>Ngày cấp:</strong> ${formatDate(emblem.NgayCap)}</div>
-                   <div><strong>Ngày hết hạn:</strong> ${formatDate(emblem.NgayHetHan)}</div>
-                   <div><strong>Loại hình liên vận:</strong> ${emblem.LoaiHinhLienVan || ''}</div>
-                   <div><strong>Trạng thái cấp:</strong> ${emblem.TrangThaiCap || ''}</div>
-                   <div><strong>Trạng thái:</strong> 
-                       <span class="px-2 py-1 text-xs rounded-full ${getStatusClass(emblem.TrangThai)}">
-                           ${emblem.TrangThai || ''}
-                       </span>
-                   </div>
-                   <div><strong>Hiệu lực:</strong> 
-                       <span class="px-2 py-1 text-xs rounded-full ${isExpiring ? 'warning-badge' : 'bg-green-100 text-green-800'}">
-                           ${emblem.HieuLuc || ''}
-                       </span>
-                   </div>
-               </div>
-               ${emblem.QRLink ? `
-                   <div class="mt-4">
-                       <strong>QR Link:</strong> <a href="${emblem.QRLink}" target="_blank" class="text-blue-600 hover:underline">${emblem.QRLink}</a>
-                   </div>
-               ` : ''}
-           </div>
-       </div>
-   `;
+      <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="intEmblemModal">
+          <div class="bg-white rounded-lg p-6 max-w-3xl w-full mx-4 max-h-96 overflow-y-auto">
+              <div class="flex justify-between items-center mb-4">
+                  <h3 class="text-lg font-bold">Chi tiết Phù hiệu Liên vận</h3>
+                  <button onclick="closeModal('intEmblemModal')" class="text-gray-500 hover:text-gray-700">
+                      <i class="fas fa-times"></i>
+                  </button>
+              </div>
+              ${isExpiring ? `
+                  <div class="bg-yellow-100 border-l-4 border-yellow-500 p-4 mb-4">
+                      <div class="flex">
+                          <div class="flex-shrink-0">
+                              <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+                          </div>
+                          <div class="ml-3">
+                              <p class="text-sm text-yellow-700">
+                                  <strong>Cảnh báo:</strong> Phù hiệu này sắp đến hạn!
+                              </p>
+                          </div>
+                      </div>
+                  </div>
+              ` : ''}
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div><strong>Số phù hiệu:</strong> ${emblem.SoPhuHieu || ''}</div>
+                  <div><strong>Số thứ tự:</strong> ${emblem.SoThuTu || ''}</div>
+                  <div><strong>Biển số:</strong> ${emblem.Bienso || ''}</div>
+                  <div><strong>Tên doanh nghiệp:</strong> ${emblem.TenDoanhNghiep || ''}</div>
+                  <div><strong>Quận/Huyện:</strong> ${companyInfo.QuanHuyen || ''}</div>
+                  <div><strong>Xã/Phường:</strong> ${companyInfo.XaPhuongThiTran || ''}</div>
+                  <div><strong>Ngày cấp:</strong> ${formatDate(emblem.NgayCap)}</div>
+                  <div><strong>Ngày hết hạn:</strong> ${formatDate(emblem.NgayHetHan)}</div>
+                  <div><strong>Loại hình liên vận:</strong> ${emblem.LoaiHinhLienVan || ''}</div>
+                  <div><strong>Trạng thái cấp:</strong> ${emblem.TrangThaiCap || ''}</div>
+                  <div><strong>Trạng thái:</strong> 
+                      <span class="px-2 py-1 text-xs rounded-full ${getStatusClass(emblem.TrangThai)}">
+                          ${emblem.TrangThai || ''}
+                      </span>
+                  </div>
+                  <div><strong>Hiệu lực:</strong> 
+                      <span class="px-2 py-1 text-xs rounded-full ${isExpiring ? 'warning-badge' : 'bg-green-100 text-green-800'}">
+                          ${emblem.HieuLuc || ''}
+                      </span>
+                  </div>
+              </div>
+              ${emblem.QRLink ? `
+                  <div class="mt-4">
+                      <strong>QR Link:</strong> <a href="${emblem.QRLink}" target="_blank" class="text-blue-600 hover:underline">${emblem.QRLink}</a>
+                  </div>
+              ` : ''}
+          </div>
+      </div>
+  `;
             document.body.insertAdjacentHTML('beforeend', modalContent);
         }
 
         function showIntBookModal(book) {
             const isExpiring = book.HieuLuc === 'Sắp đến hạn';
+            const companyInfo = getCompanyInfo(book.IDDoanhNghiep);
             const modalContent = `
-       <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="intBookModal">
-           <div class="bg-white rounded-lg p-6 max-w-4xl w-full mx-4 max-h-96 overflow-y-auto">
-               <div class="flex justify-between items-center mb-4">
-                   <h3 class="text-lg font-bold">Chi tiết Sổ Liên vận</h3>
-                   <button onclick="closeModal('intBookModal')" class="text-gray-500 hover:text-gray-700">
-                       <i class="fas fa-times"></i>
-                   </button>
-               </div>
-               ${isExpiring ? `
-                   <div class="bg-yellow-100 border-l-4 border-yellow-500 p-4 mb-4">
-                       <div class="flex">
-                           <div class="flex-shrink-0">
-                               <i class="fas fa-exclamation-triangle text-yellow-500"></i>
-                           </div>
-                           <div class="ml-3">
-                               <p class="text-sm text-yellow-700">
-                                   <strong>Cảnh báo:</strong> Sổ liên vận này sắp đến hạn!
-                               </p>
-                           </div>
-                       </div>
-                   </div>
-               ` : ''}
-               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                   <div><strong>Số sổ liên vận:</strong> ${book.SoSoLienVan || ''}</div>
-                   <div><strong>Số thứ tự:</strong> ${book.SoThuTu || ''}</div>
-                   <div><strong>Biển số:</strong> ${book.BienSo || ''}</div>
-                   <div><strong>Tên chính:</strong> ${book.TenChinh || ''}</div>
-                   <div><strong>Ngày cấp:</strong> ${formatDate(book.NgayCap)}</div>
-                   <div><strong>Ngày hết hạn:</strong> ${formatDate(book.NgayHetHan)}</div>
-                   <div><strong>Ngày cấp GP:</strong> ${formatDate(book.NgayCapGP)}</div>
-                   <div><strong>Loại hình liên vận:</strong> ${book.LoaiHinhLienVan || ''}</div>
-                   <div><strong>Cửa khẩu:</strong> ${book.CuaKhau || ''}</div>
-                   <div><strong>Vùng hoạt động:</strong> ${book.VungHoatDong || ''}</div>
-                   <div><strong>Nơi đến:</strong> ${book.NoiDen || ''}</div>
-                   <div><strong>Trạng thái cấp:</strong> ${book.TrangThaiCap || ''}</div>
-                   <div><strong>Trạng thái:</strong> 
-                       <span class="px-2 py-1 text-xs rounded-full ${getStatusClass(book.TrangThai)}">
-                           ${book.TrangThai || ''}
-                       </span>
-                   </div>
-                   <div><strong>Hiệu lực:</strong> 
-                       <span class="px-2 py-1 text-xs rounded-full ${isExpiring ? 'warning-badge' : 'bg-green-100 text-green-800'}">
-                           ${book.HieuLuc || ''}
-                       </span>
-                   </div>
-                   <div><strong>Nguồn bảng:</strong> ${book.NguonBang || ''}</div>
-               </div>
-               <div class="mt-4">
-                   <div class="md:col-span-2"><strong>Mô hình hoạt động:</strong> ${Array.isArray(book.MoHinhHoatDong) ? book.MoHinhHoatDong.join(', ') : book.MoHinhHoatDong || ''}</div>
-               </div>
-               ${book.QRLink ? `
-                   <div class="mt-4">
-                       <strong>QR Link:</strong> <a href="${book.QRLink}" target="_blank" class="text-blue-600 hover:underline">${book.QRLink}</a>
-                   </div>
-               ` : ''}
-           </div>
-       </div>
-   `;
+      <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="intBookModal">
+          <div class="bg-white rounded-lg p-6 max-w-4xl w-full mx-4 max-h-96 overflow-y-auto">
+              <div class="flex justify-between items-center mb-4">
+                  <h3 class="text-lg font-bold">Chi tiết Sổ Liên vận</h3>
+                  <button onclick="closeModal('intBookModal')" class="text-gray-500 hover:text-gray-700">
+                      <i class="fas fa-times"></i>
+                  </button>
+              </div>
+              ${isExpiring ? `
+                  <div class="bg-yellow-100 border-l-4 border-yellow-500 p-4 mb-4">
+                      <div class="flex">
+                          <div class="flex-shrink-0">
+                              <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+                          </div>
+                          <div class="ml-3">
+                              <p class="text-sm text-yellow-700">
+                                  <strong>Cảnh báo:</strong> Sổ liên vận này sắp đến hạn!
+                              </p>
+                          </div>
+                      </div>
+                  </div>
+              ` : ''}
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div><strong>Số sổ liên vận:</strong> ${book.SoSoLienVan || ''}</div>
+                  <div><strong>Số thứ tự:</strong> ${book.SoThuTu || ''}</div>
+                  <div><strong>Biển số:</strong> ${book.BienSo || ''}</div>
+                  <div><strong>Tên chính:</strong> ${book.TenChinh || ''}</div>
+                  <div><strong>Quận/Huyện:</strong> ${companyInfo.QuanHuyen || ''}</div>
+                  <div><strong>Xã/Phường:</strong> ${companyInfo.XaPhuongThiTran || ''}</div>
+                  <div><strong>Ngày cấp:</strong> ${formatDate(book.NgayCap)}</div>
+                  <div><strong>Ngày hết hạn:</strong> ${formatDate(book.NgayHetHan)}</div>
+                  <div><strong>Ngày cấp GP:</strong> ${formatDate(book.NgayCapGP)}</div>
+                  <div><strong>Loại hình liên vận:</strong> ${book.LoaiHinhLienVan || ''}</div>
+                  <div><strong>Cửa khẩu:</strong> ${book.CuaKhau || ''}</div>
+                  <div><strong>Vùng hoạt động:</strong> ${book.VungHoatDong || ''}</div>
+                  <div><strong>Nơi đến:</strong> ${book.NoiDen || ''}</div>
+                  <div><strong>Trạng thái cấp:</strong> ${book.TrangThaiCap || ''}</div>
+                  <div><strong>Trạng thái:</strong> 
+                      <span class="px-2 py-1 text-xs rounded-full ${getStatusClass(book.TrangThai)}">
+                          ${book.TrangThai || ''}
+                      </span>
+                  </div>
+                  <div><strong>Hiệu lực:</strong> 
+                      <span class="px-2 py-1 text-xs rounded-full ${isExpiring ? 'warning-badge' : 'bg-green-100 text-green-800'}">
+                          ${book.HieuLuc || ''}
+                      </span>
+                  </div>
+                  <div><strong>Nguồn bảng:</strong> ${book.NguonBang || ''}</div>
+              </div>
+              <div class="mt-4">
+                  <div class="md:col-span-2"><strong>Mô hình hoạt động:</strong> ${Array.isArray(book.MoHinhHoatDong) ? book.MoHinhHoatDong.join(', ') : book.MoHinhHoatDong || ''}</div>
+              </div>
+              ${book.QRLink ? `
+                  <div class="mt-4">
+                      <strong>QR Link:</strong> <a href="${book.QRLink}" target="_blank" class="text-blue-600 hover:underline">${book.QRLink}</a>
+                  </div>
+              ` : ''}
+          </div>
+      </div>
+  `;
             document.body.insertAdjacentHTML('beforeend', modalContent);
         }
 
@@ -3157,6 +4444,7 @@
             }
         }
 
+        // Helper functions for charts - giữ nguyên code cũ
         function groupLicensesByMonth(dataToUse = filteredLicensesData) {
             const monthData = [];
             const revokedData = [];
@@ -3760,11 +5048,11 @@
             }
 
             notification.innerHTML = `
-      <div class="flex items-center">
-          <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'times' : type === 'warning' ? 'exclamation' : 'info'}-circle mr-2"></i>
-          <span>${message}</span>
-      </div>
-  `;
+     <div class="flex items-center">
+         <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'times' : type === 'warning' ? 'exclamation' : 'info'}-circle mr-2"></i>
+         <span>${message}</span>
+     </div>
+ `;
 
             document.body.appendChild(notification);
 
@@ -3782,7 +5070,8 @@
             }, 3000);
         }
 
-        // Initialize application
+        // Initialize application (CẬP NHẬT)
+        // Tìm và cập nhật hàm initializeApp() hiện có
         async function initializeApp() {
             // Set default dates
             const today = new Date();
@@ -3790,13 +5079,27 @@
             document.getElementById('startDate').value = lastMonth.toISOString().split('T')[0];
             document.getElementById('endDate').value = today.toISOString().split('T')[0];
 
-            // Add event listener for filter toggle
-            document.getElementById('applyToAll').addEventListener('change', handleFilterToggle);
+            // Initialize enhanced UI
+            initializeEnhancedUI();
+
+            // ✅ THÊM MỚI: Initialize date inputs for mobile
+            initializeDateInputs();
+            addMobileDateInputSupport();
+
+            // THÊM MỚI: Add event listener cho quận/huyện filter
+            document.getElementById('quanHuyenFilter').addEventListener('change', function () {
+                updateXaPhuongFilter();
+                // Tự động reset xã/phường về "Tất cả" khi thay đổi quận/huyện
+                document.getElementById('xaPhuongFilter').value = '';
+            });
 
             // Show loading notification
             showNotification('Đang khởi tạo hệ thống...', 'info');
 
             try {
+                // Load company data first
+                await fetchCompanyData();
+
                 // Load data from all tables
                 await Promise.all([
                     fetchLicensesData(),
@@ -3823,15 +5126,217 @@
                 showNotification('Có lỗi xảy ra khi khởi tạo hệ thống', 'error');
             }
         }
+        // ✅ THÊM MỚI
+        function initializeEnhancedUI() {
+            // Initialize toggle switch
+            const checkbox = document.getElementById('applyToAll');
+            const toggleBg = document.querySelector('.toggle-bg');
+            const toggleDot = document.querySelector('.toggle-dot');
+
+            if (checkbox.checked) {
+                toggleBg.classList.add('active');
+                toggleDot.style.transform = 'translateX(20px)';
+            } else {
+                toggleBg.classList.add('inactive');
+                toggleDot.style.transform = 'translateX(0px)';
+            }
+
+            // Add event listeners
+            checkbox.addEventListener('change', handleFilterToggle);
+
+            // Add smooth transitions
+            const filterElements = document.querySelectorAll('.filter-group input, .filter-group select');
+            filterElements.forEach(element => {
+                element.addEventListener('focus', function () {
+                    this.parentElement.style.transform = 'translateY(-2px)';
+                    this.parentElement.style.transition = 'transform 0.2s ease';
+                });
+
+                element.addEventListener('blur', function () {
+                    this.parentElement.style.transform = 'translateY(0)';
+                });
+            });
+        }
+
+        // Enhanced toggle function
+        function toggleApplyToAll() {
+            const checkbox = document.getElementById('applyToAll');
+            const toggleBg = document.querySelector('.toggle-bg');
+            const toggleDot = document.querySelector('.toggle-dot');
+
+            checkbox.checked = !checkbox.checked;
+
+            if (checkbox.checked) {
+                toggleBg.classList.remove('inactive');
+                toggleBg.classList.add('active');
+                toggleDot.style.transform = 'translateX(20px)';
+            } else {
+                toggleBg.classList.remove('active');
+                toggleBg.classList.add('inactive');
+                toggleDot.style.transform = 'translateX(0px)';
+            }
+
+            handleFilterToggle();
+        }
+
+        // ✅ CẬP NHẬT function này
+        function handleFilterToggle() {
+            const applyToAll = document.getElementById('applyToAll').checked;
+            const specificFilters = document.getElementById('specificFilters');
+
+            if (applyToAll) {
+                specificFilters.classList.add('filter-disabled');
+                document.querySelectorAll('.filter-section').forEach(section => {
+                    section.classList.add('hidden');
+                });
+            } else {
+                specificFilters.classList.remove('filter-disabled');
+                showCurrentTabFilters();
+            }
+        }
+
+        // Quick date preset functions
+        function setQuickDate(preset) {
+            const startDate = document.getElementById('startDate');
+            const endDate = document.getElementById('endDate');
+            const today = new Date();
+
+            // Add loading effect
+            const button = event.target;
+            button.classList.add('filter-loading');
+
+            switch (preset) {
+                case 'today':
+                    startDate.value = today.toISOString().split('T')[0];
+                    endDate.value = today.toISOString().split('T')[0];
+                    break;
+
+                case 'thisWeek':
+                    const startOfWeek = new Date(today);
+                    startOfWeek.setDate(today.getDate() - today.getDay());
+                    const endOfWeek = new Date(today);
+                    endOfWeek.setDate(today.getDate() + (6 - today.getDay()));
+
+                    startDate.value = startOfWeek.toISOString().split('T')[0];
+                    endDate.value = endOfWeek.toISOString().split('T')[0];
+                    break;
+
+                case 'thisMonth':
+                    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+                    const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+                    startDate.value = startOfMonth.toISOString().split('T')[0];
+                    endDate.value = endOfMonth.toISOString().split('T')[0];
+                    break;
+
+                case 'lastMonth':
+                    const startOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                    const endOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+
+                    startDate.value = startOfLastMonth.toISOString().split('T')[0];
+                    endDate.value = endOfLastMonth.toISOString().split('T')[0];
+                    break;
+
+                case 'thisYear':
+                    const startOfYear = new Date(today.getFullYear(), 0, 1);
+                    const endOfYear = new Date(today.getFullYear(), 11, 31);
+
+                    startDate.value = startOfYear.toISOString().split('T')[0];
+                    endDate.value = endOfYear.toISOString().split('T')[0];
+                    break;
+            }
+
+            // Remove loading effect and show success
+            setTimeout(() => {
+                button.classList.remove('filter-loading');
+                showNotification(`Đã chọn ${getPresetName(preset)}`, 'success');
+            }, 500);
+        }
+
+        function getPresetName(preset) {
+            const names = {
+                'today': 'hôm nay',
+                'thisWeek': 'tuần này',
+                'thisMonth': 'tháng này',
+                'lastMonth': 'tháng trước',
+                'thisYear': 'năm này'
+            };
+            return names[preset] || preset;
+        }
+
+        // Enhanced filter validation
+        function validateFilters() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            if (!startDate || !endDate) {
+                showFilterError('Vui lòng chọn khoảng thời gian');
+                return false;
+            }
+
+            if (new Date(startDate) > new Date(endDate)) {
+                showFilterError('Ngày bắt đầu không thể lớn hơn ngày kết thúc');
+                return false;
+            }
+
+            // Check if date range is too large (more than 2 years)
+            const daysDiff = (new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24);
+            if (daysDiff > 730) {
+                showFilterWarning('Khoảng thời gian quá lớn, có thể ảnh hưởng đến hiệu suất');
+            }
+
+            return true;
+        }
+
+        // Enhanced error/warning display
+        function showFilterError(message) {
+            const errorDiv = createFilterMessage(message, 'error');
+            insertFilterMessage(errorDiv);
+        }
+
+        function showFilterWarning(message) {
+            const warningDiv = createFilterMessage(message, 'warning');
+            insertFilterMessage(warningDiv);
+        }
+
+        function createFilterMessage(message, type) {
+            const div = document.createElement('div');
+            div.className = `mt-2 p-3 rounded-lg flex items-center ${type === 'error' ? 'bg-red-50 text-red-700 border border-red-200' :
+                'bg-yellow-50 text-yellow-700 border border-yellow-200'
+                }`;
+
+            div.innerHTML = `
+        <i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'exclamation-triangle'} mr-2"></i>
+        <span>${message}</span>
+        <button onclick="this.parentElement.remove()" class="ml-auto text-current hover:opacity-70">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+
+            return div;
+        }
+
+        function insertFilterMessage(messageDiv) {
+            const container = document.querySelector('.bg-white.rounded-lg.p-5.shadow-sm.border.border-gray-100.mb-6');
+            container.appendChild(messageDiv);
+
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (messageDiv.parentElement) {
+                    messageDiv.remove();
+                }
+            }, 5000);
+        }
 
         // Event listeners
         document.addEventListener('DOMContentLoaded', initializeApp);
 
-        // Auto-refresh data every 10 minutes
+        // Auto-refresh data every 10 minutes (CẬP NHẬT)
         setInterval(async () => {
             showNotification('Đang làm mới dữ liệu...', 'info');
             try {
                 await Promise.all([
+                    fetchCompanyData(), // Thêm làm mới dữ liệu công ty
                     fetchLicensesData(),
                     fetchEmblemsData(),
                     fetchInternationalData(),
@@ -3856,6 +5361,7 @@
             }
         });
 
+        // Security measures
         document.addEventListener('contextmenu', function (e) {
             e.preventDefault();
         }, false);
