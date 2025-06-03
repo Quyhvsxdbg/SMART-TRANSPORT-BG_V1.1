@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phù hiệu liên vận</title>
+
+    <!-- Thêm các thư viện cần thiết cho xuất Word -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.37.11/docxtemplater.js"></script>
+    <script src="https://unpkg.com/pizzip@3.1.4/dist/pizzip.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        body {
+            font-family: "Times New Roman", serif;
+            font-size: 13px;
+            line-height: 1.4;
+            background: white;
+            width: 210mm;
+            height: 297mm;
+            margin: 0 auto;
+            padding: 20mm;
+            min-height: 297mm;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            width: 100%;
+            height: calc(100% - 40mm);
+            position: relative;
+        }
+
+        .header-number {
+            position: absolute;
+            right: 0;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .main-content {
+            margin-top: 40mm;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .company-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .company-info {
+            flex: 1;
+        }
+
+        .company-label {
+            font-size: 13px;
+            margin-bottom: 5mm;
+        }
+
+        .company-name {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 3mm;
+        }
+
+        .registration-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .registration-info {
+            flex: 1;
+        }
+
+        .registration-label {
+            font-size: 13px;
+            margin-bottom: 5mm;
+        }
+
+        .registration-number {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 3mm;
+        }
+
+        .validity-label {
+            font-size: 13px;
+            margin-bottom: 5mm;
+        }
+
+        .validity-dates {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .issuing-authority {
+            text-align: right;
+            font-size: 13px;
+            font-style: italic;
+        }
+
+        /* Button styles */
+        .button-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-family: "Times New Roman", serif;
+        }
+
+        .print-button {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .print-button:hover {
+            background-color: #45a049;
+        }
+
+        .export-button {
+            background-color: #2b579a;
+            color: white;
+        }
+
+        .export-button:hover {
+            background-color: #1e3f6f;
+        }
+
+        #loading-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            z-index: 2000;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media print {
+            body {
+                width: 210mm;
+                height: 297mm;
+                margin: 0;
+                padding: 20mm;
+            }
+
+            .button-container {
+                display: none;
+            }
+        }
+
+        @media screen {
+            body {
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                margin: 20px auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Button Container -->
+    <div class="button-container">
+        <button class="button print-button" onclick="window.print()">
+            <i class="fas fa-print"></i> In Tài Liệu
+        </button>
+        <button class="button export-button" onclick="exportToWordTemplate()">
+            <i class="fas fa-file-word"></i> Xuất Word
+        </button>
+    </div>
+
+    <!-- Loading Message -->
+    <div id="loading-message">Đang tải dữ liệu...</div>
+
+    <div class="container">
+        <div class="header-number">
+            Số (Number): <span id="so-phu-hieu"></span>
+        </div>
+
+        <div class="main-content">
+            <div class="company-section">
+                <div class="company-info">
+                    <div class="company-label">Đơn vị kinh doanh vận tải (Transport Operator Name):</div>
+                    <div class="company-name" id="ten-doanh-nghiep"></div>
+                </div>
+            </div>
+
+            <div class="registration-section">
+                <div class="registration-info">
+                    <div class="registration-label">Số đăng ký (Registration Number):</div>
+                    <div class="registration-number" id="bien-so"></div>
+                </div>
+                <div class="issuing-authority">
+                    <div>Cơ quan cấp phép/Issuing Authority</div>
+                    <div>(Ký tên, đóng dấu/Signature, Seal)</div>
+                </div>
+            </div>
+
+            <div class="validity-section">
+                <div class="validity-label">Thời hạn (Period of validity):</div>
+                <div class="validity-dates">
+                    Từ ngày (from) <span id="ngay-tu"></span> đến ngày (until) <span id="ngay-den"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Constants for AppSheet connection
+        const appId = 'd22767b5-f711-42f8-bbbd-4cf04b26ef3d';
+        const accessKey = 'V2-Qcjpo-7Ybu9-g87XI-TFLes-kJGWn-btYR5-cLMmk-FjrRj';
+        const region = 'www';
+
+        // Biến toàn cục để lưu dữ liệu
+        let globalPhuHieuData = null;
+
+        // Function to get ID from URL parameter
+        function getPhuHieuIDFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('IDPhuHieu');
+        }
+
+        // Generic function to make API calls
+        async function callAPI(tableName, selector) {
+            const response = await fetch(`https://${region}.appsheet.com/api/v2/apps/${appId}/tables/${tableName}/Action`, {
+                method: 'POST',
+                headers: {
+                    'ApplicationAccessKey': accessKey,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    Action: 'Find',
+                    Properties: {
+                        Selector: selector
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status} for table: ${tableName}`);
+            }
+
+            return await response.json();
+        }
+
+        // Format date function
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            const day = date.getDate().toString().padStart(2, '0'); // Always pad day with zero
+            const month = date.getMonth() + 1;
+            // Only pad months 1 and 2 with zero
+            const formattedMonth = month <= 2 ?
+                month.toString().padStart(2, '0') :
+                month.toString();
+            return `${day}/${formattedMonth}/${date.getFullYear()}`;
+        }
+
+        // Main function to fetch all data simultaneously
+        async function fetchData() {
+            const idPhuHieu = getPhuHieuIDFromURL();
+            console.log("ID from URL:", idPhuHieu);
+
+            if (!idPhuHieu) {
+                hideLoadingMessage();
+                alert('Không tìm thấy IDPhuHieu trong URL.');
+                return;
+            }
+
+            try {
+                // Get PhuHieuLienVan data
+                console.log("Bắt đầu gọi API PhuHieuLienVan...");
+                const phuHieuResult = await callAPI('PhuHieuLienVan', `Filter(PhuHieuLienVan, [IDPhuHieu] = "${idPhuHieu}")`);
+
+                console.log("Phù hiệu data:", phuHieuResult);
+
+                // Validate phu hieu data
+                if (!phuHieuResult || phuHieuResult.length === 0) {
+                    hideLoadingMessage();
+                    alert('Không tìm thấy dữ liệu phù hiệu với ID: ' + idPhuHieu);
+                    return;
+                }
+
+                // Get Ref_DoanhNghiep from phu hieu data
+                const refDoanhNghiep = phuHieuResult[0].IDDoanhNghiep;
+                if (!refDoanhNghiep) {
+                    hideLoadingMessage();
+                    alert('Không tìm thấy thông tin doanh nghiệp liên kết.');
+                    return;
+                }
+
+                // Get doanh nghiep data
+                console.log("Gọi API doanh nghiệp với ID:", refDoanhNghiep);
+                const doanhNghiepResult = await callAPI('THONGTINDONVIVANTAI', `Filter(THONGTINDONVIVANTAI, [IDDoanhNghiep] = "${refDoanhNghiep}")`);
+
+                console.log("Doanh nghiệp data:", doanhNghiepResult);
+
+                // Validate doanh nghiep data
+                if (!doanhNghiepResult || doanhNghiepResult.length === 0) {
+                    hideLoadingMessage();
+                    alert('Không tìm thấy thông tin doanh nghiệp với ID: ' + refDoanhNghiep);
+                    return;
+                }
+
+                // Lưu dữ liệu vào biến toàn cục
+                globalPhuHieuData = {
+                    phuHieu: phuHieuResult[0],
+                    doanhNghiep: doanhNghiepResult[0]
+                };
+
+                // Process and populate all data
+                populateData(phuHieuResult[0], doanhNghiepResult[0]);
+
+                // Hide loading message
+                hideLoadingMessage();
+                console.log("Hoàn thành tải dữ liệu!");
+
+            } catch (error) {
+                console.error('Lỗi:', error);
+                hideLoadingMessage();
+                alert('Đã xảy ra lỗi khi lấy dữ liệu: ' + error.message);
+            }
+        }
+
+        // Populate all data into HTML elements
+        function populateData(phuHieuData, doanhNghiepData) {
+            // Populate số phù hiệu
+            if (phuHieuData.SoPhuHieu) {
+                document.getElementById('so-phu-hieu').textContent = phuHieuData.SoPhuHieu;
+            }
+
+            // Populate company name
+            if (doanhNghiepData.TenDoanhNghiep) {
+                document.getElementById('ten-doanh-nghiep').textContent = doanhNghiepData.TenDoanhNghiep;
+            }
+
+            // Populate biển số
+            if (phuHieuData.Bienso) {
+                document.getElementById('bien-so').textContent = phuHieuData.Bienso;
+            }
+
+            // Populate validity dates
+            if (phuHieuData.NgayTu_DinhDang) {
+                document.getElementById('ngay-tu').textContent = formatDate(phuHieuData.NgayTu_DinhDang);
+            }
+
+            if (phuHieuData.NgayDen_DinhDang) {
+                document.getElementById('ngay-den').textContent = formatDate(phuHieuData.NgayDen_DinhDang);
+            }
+        }
+
+        // Hàm xuất Word template
+        async function exportToWordTemplate() {
+            try {
+                if (!globalPhuHieuData) {
+                    alert('Dữ liệu chưa được tải. Vui lòng đợi dữ liệu tải xong.');
+                    return;
+                }
+
+                document.getElementById('loading-message').style.display = 'block';
+                document.getElementById('loading-message').textContent = 'Đang xuất file Word...';
+
+                const { phuHieu, doanhNghiep } = globalPhuHieuData;
+
+                // Lấy template từ server
+                const response = await fetch('https://hoangmv.github.io/templates/giay_phep_lien_van_template.docx');
+                if (!response.ok) {
+                    throw new Error('Không thể tải template Word');
+                }
+                const templateContent = await response.arrayBuffer();
+
+                // Tạo instance mới của PizZip và docxtemplater
+                const zip = new PizZip(templateContent);
+                const doc = new window.docxtemplater(zip, {
+                    paragraphLoop: true,
+                    linebreaks: true
+                });
+
+                // Đặt dữ liệu vào template
+                const data = {
+                    so_phu_hieu: phuHieu.SoPhuHieu || '',
+                    ten_doanh_nghiep: doanhNghiep.TenDoanhNghiep || '',
+                    bien_so: phuHieu.Bienso || '',
+                    ngay_tu: formatDate(phuHieu.NgayTu_DinhDang) || '',
+                    ngay_den: formatDate(phuHieu.NgayDen_DinhDang) || ''
+                };
+
+                // Render template với dữ liệu
+                doc.setData(data);
+                doc.render();
+
+                // Tạo và tải file
+                const blob = doc.getZip().generate({
+                    type: "blob",
+                    mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                });
+
+                const fileName = `Phu_hieu_lien_van_${phuHieu.SoPhuHieu || 'unknown'}.docx`;
+                saveAs(blob, fileName);
+
+                document.getElementById('loading-message').textContent = 'Đang tải dữ liệu...';
+                hideLoadingMessage();
+
+            } catch (error) {
+                console.error('Error exporting to Word template:', error);
+                if (error.properties && error.properties.errors) {
+                    console.log('Template Error details:', error.properties.errors);
+                }
+                alert('Có lỗi khi xuất file Word: ' + error.message);
+                hideLoadingMessage();
+            }
+        }
+
+        // Hide loading message
+        function hideLoadingMessage() {
+            document.getElementById('loading-message').classList.add('hidden');
+        }
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', fetchData);
+    </script>
+</body>
+
+</html>
