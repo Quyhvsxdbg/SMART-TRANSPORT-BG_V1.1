@@ -137,7 +137,7 @@
             background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
             border: 2px solid #f59e0b;
             border-radius: 16px;
-            padding: 2rem;
+            padding: 1rem;
             margin-top: 1.5rem;
             box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.1);
             position: relative;
@@ -180,7 +180,6 @@
         .filter-group {
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
             position: relative;
         }
 
@@ -872,12 +871,12 @@
         <!-- Enhanced Date Range Selector -->
         <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-lg border border-blue-100 p-6 mb-6">
             <!-- Header with Icon -->
-            <div class="flex items-center mb-6">
+            <!-- <div class="flex items-center mb-6">
                 <div class="bg-blue-500 rounded-lg p-2 mr-3">
                     <i class="fas fa-filter text-white text-lg"></i>
                 </div>
                 <h2 class="text-xl font-bold text-gray-800">Bộ lọc và Tìm kiếm</h2>
-            </div>
+            </div> -->
 
             <!-- Filter Mode Toggle with enhanced design -->
             <div class="bg-white rounded-lg p-4 mb-6 shadow-sm border border-gray-100">
@@ -902,10 +901,10 @@
 
             <!-- Main Filter Controls with enhanced design -->
             <div class="bg-white rounded-lg p-5 shadow-sm border border-gray-100 mb-6">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <!-- <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                     <i class="fas fa-calendar-alt text-blue-500 mr-2"></i>
                     Khoảng thời gian và Địa điểm
-                </h3>
+                </h3> -->
 
                 <div class="grid grid-cols-1 lg:grid-cols-6 gap-4 mb-4">
                     <!-- Date Range -->
@@ -985,10 +984,10 @@
 
                 <!-- Quick Date Presets -->
                 <div class="border-t border-gray-200 pt-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-3">
+                    <!-- <label class="block text-sm font-medium text-gray-700 mb-3">
                         <i class="fas fa-clock text-indigo-500 mr-1"></i>
                         Khoảng thời gian nhanh
-                    </label>
+                    </label> -->
                     <div class="flex flex-wrap gap-2">
                         <button onclick="setQuickDate('today')"
                             class="px-3 py-2 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 transition-colors duration-200">
@@ -1016,9 +1015,9 @@
 
             <!-- Enhanced Specific Filters -->
             <div id="specificFilters" class="specific-filters filter-disabled">
-                <div
-                    class="bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-lg p-5 shadow-sm">
-                    <div class="flex items-center mb-4">
+                <!-- <div
+                    class="bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-lg p-5 shadow-sm"> -->
+                <!-- <div class="flex items-center mb-4">
                         <div class="bg-amber-500 rounded-lg p-2 mr-3">
                             <i class="fas fa-sliders-h text-white"></i>
                         </div>
@@ -1026,296 +1025,326 @@
                         <span class="ml-auto text-sm text-amber-600 bg-amber-100 px-3 py-1 rounded-full">
                             Theo tab hiện tại
                         </span>
-                    </div>
+                    </div> -->
 
-                    <!-- Bộ lọc cho Giấy phép -->
-                    <div id="licenseFilters" class="filter-section hidden">
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <div class="filter-group">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-building text-blue-500 mr-1"></i>
-                                    TÊN ĐƠN VỊ
-                                </label>
-                                <input type="text" id="licenseCompanyFilter" placeholder="Nhập tên đơn vị..."
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200">
+                <!-- Bộ lọc cho Giấy phép -->
+                <div id="licenseFilters" class="filter-section hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                        <div class="filter-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-building text-blue-500 mr-1"></i>
+                                TÊN ĐƠN VỊ
+                            </label>
+                            <input type="text" id="licenseCompanyFilter" placeholder="Nhập tên đơn vị..."
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200">
+                        </div>
+                        <div class="filter-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-tag text-green-500 mr-1"></i>
+                                LOẠI CẤP
+                            </label>
+                            <div class="relative">
+                                <select id="licenseTypeFilter"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
+                                    <option value="">Tất cả</option>
+                                </select>
+                                <i
+                                    class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
                             </div>
-                            <div class="filter-group">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-tag text-green-500 mr-1"></i>
-                                    LOẠI CẤP
-                                </label>
-                                <div class="relative">
-                                    <select id="licenseTypeFilter"
-                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
-                                        <option value="">Tất cả</option>
-                                    </select>
-                                    <i
-                                        class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
-                                </div>
+                        </div>
+                        <!-- THÊM FILTER MỚI -->
+                        <div class="filter-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-industry text-orange-500 mr-1"></i>
+                                LOẠI HÌNH ĐƠN VỊ
+                            </label>
+                            <div class="relative">
+                                <select id="licenseUnitTypeFilter"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
+                                    <option value="">Tất cả</option>
+                                </select>
+                                <i
+                                    class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
                             </div>
-                            <div class="filter-group">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-truck text-purple-500 mr-1"></i>
-                                    LOẠI HÌNH VẬN TẢI
-                                </label>
-                                <div class="relative">
-                                    <select id="licenseTransportFilter"
-                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
-                                        <option value="">Tất cả</option>
-                                    </select>
-                                    <i
-                                        class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
-                                </div>
+                        </div>
+                        <div class="filter-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-truck text-purple-500 mr-1"></i>
+                                LOẠI HÌNH VẬN TẢI
+                            </label>
+                            <div class="relative">
+                                <select id="licenseTransportFilter"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
+                                    <option value="">Tất cả</option>
+                                </select>
+                                <i
+                                    class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
                             </div>
-                            <div class="filter-group">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-info-circle text-red-500 mr-1"></i>
-                                    TRẠNG THÁI
-                                </label>
-                                <div class="relative">
-                                    <select id="licenseStatusFilter"
-                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
-                                        <option value="">Tất cả</option>
-                                        <option value="active">Còn hiệu lực</option>
-                                        <option value="expired">Hết hiệu lực</option>
-                                        <option value="revoked">Đã thu hồi</option>
-                                    </select>
-                                    <i
-                                        class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
-                                </div>
+                        </div>
+                        <div class="filter-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-info-circle text-red-500 mr-1"></i>
+                                TRẠNG THÁI
+                            </label>
+                            <div class="relative">
+                                <select id="licenseStatusFilter"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
+                                    <option value="">Tất cả</option>
+                                    <option value="active">Còn hiệu lực</option>
+                                    <option value="expired">Hết hiệu lực</option>
+                                    <option value="revoked">Đã thu hồi</option>
+                                </select>
+                                <i
+                                    class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Bộ lọc cho Phù hiệu -->
-                    <div id="emblemFilters" class="filter-section hidden">
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <div class="filter-group">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-building text-blue-500 mr-1"></i>
-                                    TÊN ĐƠN VỊ
-                                </label>
-                                <input type="text" id="emblemCompanyFilter" placeholder="Nhập tên đơn vị..."
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200">
+                <!-- Bộ lọc cho Phù hiệu -->
+                <div id="emblemFilters" class="filter-section hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                        <div class="filter-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-building text-blue-500 mr-1"></i>
+                                TÊN ĐƠN VỊ
+                            </label>
+                            <input type="text" id="emblemCompanyFilter" placeholder="Nhập tên đơn vị..."
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200">
+                        </div>
+                        <!-- THÊM FILTER MỚI -->
+                        <div class="filter-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-industry text-orange-500 mr-1"></i>
+                                LOẠI HÌNH ĐƠN VỊ
+                            </label>
+                            <div class="relative">
+                                <select id="emblemUnitTypeFilter"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
+                                    <option value="">Tất cả</option>
+                                </select>
+                                <i
+                                    class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
                             </div>
-                            <div class="filter-group">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-certificate text-green-500 mr-1"></i>
-                                    LOẠI PHÙ HIỆU
-                                </label>
-                                <div class="relative">
-                                    <select id="emblemTypeFilter"
-                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
-                                        <option value="">Tất cả</option>
-                                    </select>
-                                    <i
-                                        class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
-                                </div>
+                        </div>
+                        <div class="filter-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-certificate text-green-500 mr-1"></i>
+                                LOẠI PHÙ HIỆU
+                            </label>
+                            <div class="relative">
+                                <select id="emblemTypeFilter"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
+                                    <option value="">Tất cả</option>
+                                </select>
+                                <i
+                                    class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
                             </div>
-                            <div class="filter-group">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-tag text-purple-500 mr-1"></i>
-                                    LOẠI CẤP
-                                </label>
-                                <div class="relative">
-                                    <select id="emblemCapFilter"
-                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
-                                        <option value="">Tất cả</option>
-                                    </select>
-                                    <i
-                                        class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
-                                </div>
+                        </div>
+                        <div class="filter-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-tag text-purple-500 mr-1"></i>
+                                LOẠI CẤP
+                            </label>
+                            <div class="relative">
+                                <select id="emblemCapFilter"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
+                                    <option value="">Tất cả</option>
+                                </select>
+                                <i
+                                    class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
                             </div>
-                            <div class="filter-group">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-info-circle text-red-500 mr-1"></i>
-                                    TRẠNG THÁI
-                                </label>
-                                <div class="relative">
-                                    <select id="emblemStatusFilter"
-                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
-                                        <option value="">Tất cả</option>
-                                        <option value="active">Còn hiệu lực</option>
-                                        <option value="expired">Hết hạn</option>
-                                        <option value="revoked">Đã thu hồi</option>
-                                    </select>
-                                    <i
-                                        class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
-                                </div>
+                        </div>
+                        <div class="filter-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-info-circle text-red-500 mr-1"></i>
+                                TRẠNG THÁI
+                            </label>
+                            <div class="relative">
+                                <select id="emblemStatusFilter"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
+                                    <option value="">Tất cả</option>
+                                    <option value="active">Còn hiệu lực</option>
+                                    <option value="expired">Hết hạn</option>
+                                    <option value="revoked">Đã thu hồi</option>
+                                </select>
+                                <i
+                                    class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Bộ lọc cho GP Liên vận QT -->
-                    <div id="internationalFilters" class="filter-section hidden">
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <div class="filter-group">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-building text-blue-500 mr-1"></i>
-                                    TÊN ĐƠN VỊ
-                                </label>
-                                <input type="text" id="internationalCompanyFilter" placeholder="Nhập tên đơn vị..."
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200">
+                <!-- Bộ lọc cho GP Liên vận QT -->
+                <div id="internationalFilters" class="filter-section hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="filter-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-building text-blue-500 mr-1"></i>
+                                TÊN ĐƠN VỊ
+                            </label>
+                            <input type="text" id="internationalCompanyFilter" placeholder="Nhập tên đơn vị..."
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200">
+                        </div>
+                        <div class="filter-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-tag text-green-500 mr-1"></i>
+                                LOẠI CẤP
+                            </label>
+                            <div class="relative">
+                                <select id="internationalTypeFilter"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
+                                    <option value="">Tất cả</option>
+                                </select>
+                                <i
+                                    class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
                             </div>
-                            <div class="filter-group">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-tag text-green-500 mr-1"></i>
-                                    LOẠI CẤP
-                                </label>
-                                <div class="relative">
-                                    <select id="internationalTypeFilter"
-                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
-                                        <option value="">Tất cả</option>
-                                    </select>
-                                    <i
-                                        class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
-                                </div>
+                        </div>
+                        <div class="filter-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-cogs text-purple-500 mr-1"></i>
+                                MÔ HÌNH HOẠT ĐỘNG
+                            </label>
+                            <div class="relative">
+                                <select id="internationalModelFilter"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
+                                    <option value="">Tất cả</option>
+                                </select>
+                                <i
+                                    class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
                             </div>
-                            <div class="filter-group">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-cogs text-purple-500 mr-1"></i>
-                                    MÔ HÌNH HOẠT ĐỘNG
-                                </label>
-                                <div class="relative">
-                                    <select id="internationalModelFilter"
-                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
-                                        <option value="">Tất cả</option>
-                                    </select>
-                                    <i
-                                        class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
-                                </div>
-                            </div>
-                            <div class="filter-group">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-info-circle text-red-500 mr-1"></i>
-                                    TRẠNG THÁI
-                                </label>
-                                <div class="relative">
-                                    <select id="internationalStatusFilter"
-                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
-                                        <option value="">Tất cả</option>
-                                        <option value="active">Đang hoạt động</option>
-                                        <option value="suspended">Ngừng tạm thời</option>
-                                        <option value="revoked">Bị thu hồi</option>
-                                    </select>
-                                    <i
-                                        class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
-                                </div>
+                        </div>
+                        <div class="filter-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-info-circle text-red-500 mr-1"></i>
+                                TRẠNG THÁI
+                            </label>
+                            <div class="relative">
+                                <select id="internationalStatusFilter"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
+                                    <option value="">Tất cả</option>
+                                    <option value="active">Đang hoạt động</option>
+                                    <option value="suspended">Ngừng tạm thời</option>
+                                    <option value="revoked">Bị thu hồi</option>
+                                </select>
+                                <i
+                                    class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Bộ lọc cho Phù hiệu Liên vận -->
-                    <div id="internationalEmblemFilters" class="filter-section hidden">
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <div class="filter-group">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-building text-blue-500 mr-1"></i>
-                                    TÊN DOANH NGHIỆP
-                                </label>
-                                <input type="text" id="intEmblemCompanyFilter" placeholder="Nhập tên doanh nghiệp..."
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200">
+                <!-- Bộ lọc cho Phù hiệu Liên vận -->
+                <div id="internationalEmblemFilters" class="filter-section hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="filter-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-building text-blue-500 mr-1"></i>
+                                TÊN DOANH NGHIỆP
+                            </label>
+                            <input type="text" id="intEmblemCompanyFilter" placeholder="Nhập tên doanh nghiệp..."
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200">
+                        </div>
+                        <div class="filter-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-info-circle text-green-500 mr-1"></i>
+                                TRẠNG THÁI
+                            </label>
+                            <div class="relative">
+                                <select id="intEmblemStatusFilter"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
+                                    <option value="">Tất cả</option>
+                                </select>
+                                <i
+                                    class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
                             </div>
-                            <div class="filter-group">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-info-circle text-green-500 mr-1"></i>
-                                    TRẠNG THÁI
-                                </label>
-                                <div class="relative">
-                                    <select id="intEmblemStatusFilter"
-                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
-                                        <option value="">Tất cả</option>
-                                    </select>
-                                    <i
-                                        class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
-                                </div>
+                        </div>
+                        <div class="filter-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-globe text-purple-500 mr-1"></i>
+                                LOẠI HÌNH LIÊN VẬN
+                            </label>
+                            <div class="relative">
+                                <select id="intEmblemTypeFilter"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
+                                    <option value="">Tất cả</option>
+                                </select>
+                                <i
+                                    class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
                             </div>
-                            <div class="filter-group">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-globe text-purple-500 mr-1"></i>
-                                    LOẠI HÌNH LIÊN VẬN
-                                </label>
-                                <div class="relative">
-                                    <select id="intEmblemTypeFilter"
-                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
-                                        <option value="">Tất cả</option>
-                                    </select>
-                                    <i
-                                        class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
-                                </div>
-                            </div>
-                            <div class="filter-group">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-check-circle text-red-500 mr-1"></i>
-                                    TRẠNG THÁI CẤP
-                                </label>
-                                <div class="relative">
-                                    <select id="intEmblemCapStatusFilter"
-                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
-                                        <option value="">Tất cả</option>
-                                    </select>
-                                    <i
-                                        class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
-                                </div>
+                        </div>
+                        <div class="filter-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-check-circle text-red-500 mr-1"></i>
+                                TRẠNG THÁI CẤP
+                            </label>
+                            <div class="relative">
+                                <select id="intEmblemCapStatusFilter"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
+                                    <option value="">Tất cả</option>
+                                </select>
+                                <i
+                                    class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Bộ lọc cho Sổ Liên vận -->
-                    <div id="internationalBookFilters" class="filter-section hidden">
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <div class="filter-group">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-user text-blue-500 mr-1"></i>
-                                    TÊN CHÍNH
-                                </label>
-                                <input type="text" id="intBookCompanyFilter" placeholder="Nhập tên..."
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200">
+                <!-- Bộ lọc cho Sổ Liên vận -->
+                <div id="internationalBookFilters" class="filter-section hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="filter-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-user text-blue-500 mr-1"></i>
+                                TÊN CHÍNH
+                            </label>
+                            <input type="text" id="intBookCompanyFilter" placeholder="Nhập tên..."
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200">
+                        </div>
+                        <div class="filter-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-info-circle text-green-500 mr-1"></i>
+                                TRẠNG THÁI
+                            </label>
+                            <div class="relative">
+                                <select id="intBookStatusFilter"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
+                                    <option value="">Tất cả</option>
+                                </select>
+                                <i
+                                    class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
                             </div>
-                            <div class="filter-group">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-info-circle text-green-500 mr-1"></i>
-                                    TRẠNG THÁI
-                                </label>
-                                <div class="relative">
-                                    <select id="intBookStatusFilter"
-                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
-                                        <option value="">Tất cả</option>
-                                    </select>
-                                    <i
-                                        class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
-                                </div>
+                        </div>
+                        <div class="filter-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-globe text-purple-500 mr-1"></i>
+                                LOẠI HÌNH LIÊN VẬN
+                            </label>
+                            <div class="relative">
+                                <select id="intBookTypeFilter"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
+                                    <option value="">Tất cả</option>
+                                </select>
+                                <i
+                                    class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
                             </div>
-                            <div class="filter-group">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-globe text-purple-500 mr-1"></i>
-                                    LOẠI HÌNH LIÊN VẬN
-                                </label>
-                                <div class="relative">
-                                    <select id="intBookTypeFilter"
-                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
-                                        <option value="">Tất cả</option>
-                                    </select>
-                                    <i
-                                        class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
-                                </div>
-                            </div>
-                            <div class="filter-group">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-check-circle text-red-500 mr-1"></i>
-                                    TRẠNG THÁI CẤP
-                                </label>
-                                <div class="relative">
-                                    <select id="intBookCapStatusFilter"
-                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
-                                        <option value="">Tất cả</option>
-                                    </select>
-                                    <i
-                                        class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
-                                </div>
+                        </div>
+                        <div class="filter-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-check-circle text-red-500 mr-1"></i>
+                                TRẠNG THÁI CẤP
+                            </label>
+                            <div class="relative">
+                                <select id="intBookCapStatusFilter"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
+                                    <option value="">Tất cả</option>
+                                </select>
+                                <i
+                                    class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
                             </div>
                         </div>
                     </div>
+                    <!-- </div> -->
                 </div>
             </div>
         </div>
@@ -1413,17 +1442,23 @@
 
                 <!-- License Summary Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
-                        <h4 class="font-semibold text-blue-800">GPKD được cấp</h4>
-                        <p class="text-2xl font-bold text-blue-600" id="licensesIssued">0</p>
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-semibold text-blue-800">GPKD được cấp</h4>
+                            <p class="text-2xl font-bold text-blue-600" id="licensesIssued">0</p>
+                        </div>
                     </div>
-                    <div class="bg-red-50 border-l-4 border-red-500 p-4">
-                        <h4 class="font-semibold text-red-800">GPKD bị thu hồi</h4>
-                        <p class="text-2xl font-bold text-red-600" id="licensesRevoked">0</p>
+                    <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-semibold text-red-800">GPKD bị thu hồi</h4>
+                            <p class="text-2xl font-bold text-red-600" id="licensesRevoked">0</p>
+                        </div>
                     </div>
-                    <div class="bg-green-50 border-l-4 border-green-500 p-4">
-                        <h4 class="font-semibold text-green-800">GPKD còn hiệu lực</h4>
-                        <p class="text-2xl font-bold text-green-600" id="activeLicenses">0</p>
+                    <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-semibold text-green-800">GPKD còn hiệu lực</h4>
+                            <p class="text-2xl font-bold text-green-600" id="activeLicenses">0</p>
+                        </div>
                     </div>
                 </div>
 
@@ -1455,21 +1490,29 @@
 
                 <!-- Emblem Summary -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                    <div class="bg-green-50 border-l-4 border-green-500 p-4">
-                        <h4 class="font-semibold text-green-800">Phù hiệu được cấp</h4>
-                        <p class="text-2xl font-bold text-green-600" id="emblemsIssued">0</p>
+                    <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-semibold text-green-800">Phù hiệu được cấp</h4>
+                            <p class="text-2xl font-bold text-green-600" id="emblemsIssued">0</p>
+                        </div>
                     </div>
-                    <div class="bg-red-50 border-l-4 border-red-500 p-4">
-                        <h4 class="font-semibold text-red-800">Bị thu hồi</h4>
-                        <p class="text-2xl font-bold text-red-600" id="emblemsRevoked">0</p>
+                    <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-semibold text-red-800">Bị thu hồi</h4>
+                            <p class="text-2xl font-bold text-red-600" id="emblemsRevoked">0</p>
+                        </div>
                     </div>
-                    <div class="bg-orange-50 border-l-4 border-orange-500 p-4">
-                        <h4 class="font-semibold text-orange-800">Quá hạn</h4>
-                        <p class="text-2xl font-bold text-orange-600" id="emblemsExpired">0</p>
+                    <div class="bg-orange-50 border-l-4 border-orange-500 p-4 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-semibold text-orange-800">Quá hạn</h4>
+                            <p class="text-2xl font-bold text-orange-600" id="emblemsExpired">0</p>
+                        </div>
                     </div>
-                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
-                        <h4 class="font-semibold text-blue-800">Còn hiệu lực</h4>
-                        <p class="text-2xl font-bold text-blue-600" id="emblemsActive">0</p>
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-semibold text-blue-800">Còn hiệu lực</h4>
+                            <p class="text-2xl font-bold text-blue-600" id="emblemsActive">0</p>
+                        </div>
                     </div>
                 </div>
 
@@ -1502,21 +1545,29 @@
 
                 <!-- International License Summary -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                    <div class="bg-purple-50 border-l-4 border-purple-500 p-4">
-                        <h4 class="font-semibold text-purple-800">GP được cấp</h4>
-                        <p class="text-2xl font-bold text-purple-600" id="internationalIssued">0</p>
+                    <div class="bg-purple-50 border-l-4 border-purple-500 p-4 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-semibold text-purple-800">GP được cấp</h4>
+                            <p class="text-2xl font-bold text-purple-600" id="internationalIssued">0</p>
+                        </div>
                     </div>
-                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
-                        <h4 class="font-semibold text-blue-800">Đang hoạt động</h4>
-                        <p class="text-2xl font-bold text-blue-600" id="internationalActive">0</p>
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-semibold text-blue-800">Đang hoạt động</h4>
+                            <p class="text-2xl font-bold text-blue-600" id="internationalActive">0</p>
+                        </div>
                     </div>
-                    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4">
-                        <h4 class="font-semibold text-yellow-800">Tạm ngừng</h4>
-                        <p class="text-2xl font-bold text-yellow-600" id="internationalSuspended">0</p>
+                    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-semibold text-yellow-800">Tạm ngừng</h4>
+                            <p class="text-2xl font-bold text-yellow-600" id="internationalSuspended">0</p>
+                        </div>
                     </div>
-                    <div class="bg-red-50 border-l-4 border-red-500 p-4">
-                        <h4 class="font-semibold text-red-800">Bị thu hồi</h4>
-                        <p class="text-2xl font-bold text-red-600" id="internationalRevoked">0</p>
+                    <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-semibold text-red-800">Bị thu hồi</h4>
+                            <p class="text-2xl font-bold text-red-600" id="internationalRevoked">0</p>
+                        </div>
                     </div>
                 </div>
 
@@ -1549,21 +1600,29 @@
 
                 <!-- International Emblem Summary -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                    <div class="bg-cyan-50 border-l-4 border-cyan-500 p-4">
-                        <h4 class="font-semibold text-cyan-800">Phù hiệu được cấp</h4>
-                        <p class="text-2xl font-bold text-cyan-600" id="intEmblemsIssued">0</p>
+                    <div class="bg-cyan-50 border-l-4 border-cyan-500 p-4 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-semibold text-cyan-800">Phù hiệu được cấp</h4>
+                            <p class="text-2xl font-bold text-cyan-600" id="intEmblemsIssued">0</p>
+                        </div>
                     </div>
-                    <div class="bg-green-50 border-l-4 border-green-500 p-4">
-                        <h4 class="font-semibold text-green-800">Còn hiệu lực</h4>
-                        <p class="text-2xl font-bold text-green-600" id="intEmblemsActive">0</p>
+                    <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-semibold text-green-800">Còn hiệu lực</h4>
+                            <p class="text-2xl font-bold text-green-600" id="intEmblemsActive">0</p>
+                        </div>
                     </div>
-                    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4">
-                        <h4 class="font-semibold text-yellow-800">Sắp đến hạn</h4>
-                        <p class="text-2xl font-bold text-yellow-600" id="intEmblemsExpiring">0</p>
+                    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-semibold text-yellow-800">Sắp đến hạn</h4>
+                            <p class="text-2xl font-bold text-yellow-600" id="intEmblemsExpiring">0</p>
+                        </div>
                     </div>
-                    <div class="bg-red-50 border-l-4 border-red-500 p-4">
-                        <h4 class="font-semibold text-red-800">Hết hạn/Thu hồi</h4>
-                        <p class="text-2xl font-bold text-red-600" id="intEmblemsExpired">0</p>
+                    <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-semibold text-red-800">Hết hạn/Thu hồi</h4>
+                            <p class="text-2xl font-bold text-red-600" id="intEmblemsExpired">0</p>
+                        </div>
                     </div>
                 </div>
 
@@ -1613,21 +1672,29 @@
 
                 <!-- International Book Summary -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                    <div class="bg-indigo-50 border-l-4 border-indigo-500 p-4">
-                        <h4 class="font-semibold text-indigo-800">Sổ được cấp</h4>
-                        <p class="text-2xl font-bold text-indigo-600" id="intBooksIssued">0</p>
+                    <div class="bg-indigo-50 border-l-4 border-indigo-500 p-4 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-semibold text-indigo-800">Sổ được cấp</h4>
+                            <p class="text-2xl font-bold text-indigo-600" id="intBooksIssued">0</p>
+                        </div>
                     </div>
-                    <div class="bg-green-50 border-l-4 border-green-500 p-4">
-                        <h4 class="font-semibold text-green-800">Còn hiệu lực</h4>
-                        <p class="text-2xl font-bold text-green-600" id="intBooksActive">0</p>
+                    <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-semibold text-green-800">Còn hiệu lực</h4>
+                            <p class="text-2xl font-bold text-green-600" id="intBooksActive">0</p>
+                        </div>
                     </div>
-                    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4">
-                        <h4 class="font-semibold text-yellow-800">Sắp đến hạn</h4>
-                        <p class="text-2xl font-bold text-yellow-600" id="intBooksExpiring">0</p>
+                    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-semibold text-yellow-800">Sắp đến hạn</h4>
+                            <p class="text-2xl font-bold text-yellow-600" id="intBooksExpiring">0</p>
+                        </div>
                     </div>
-                    <div class="bg-red-50 border-l-4 border-red-500 p-4">
-                        <h4 class="font-semibold text-red-800">Hết hạn/Thu hồi</h4>
-                        <p class="text-2xl font-bold text-red-600" id="intBooksExpired">0</p>
+                    <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-semibold text-red-800">Hết hạn/Thu hồi</h4>
+                            <p class="text-2xl font-bold text-red-600" id="intBooksExpired">0</p>
+                        </div>
                     </div>
                 </div>
 
@@ -1757,6 +1824,13 @@
             </div>
         </div>
     </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white mt-12">
+        <div class="container mx-auto px-6 py-4">
+            <p class="text-center text-sm">&copy; Hệ thống Quản lý vận tải đường bộ. Copyright by Quý Hoàng!</p>
+        </div>
+    </footer>
 
     <script>
         // AppSheet API Configuration
@@ -2890,17 +2964,35 @@
             });
         }
 
+        // Thêm hàm helper để bỏ dấu tiếng Việt
+        function removeVietnameseAccents(str) {
+            if (!str) return '';
+
+            return str
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '') // Bỏ các dấu
+                .replace(/đ/g, 'd')
+                .replace(/Đ/g, 'D')
+                .toLowerCase();
+        }
+
         // Áp dụng bộ lọc chi tiết cho Licenses
         function applyLicenseSpecificFilters(data) {
             const companyFilter = document.getElementById('licenseCompanyFilter').value.toLowerCase();
             const typeFilter = document.getElementById('licenseTypeFilter').value;
             const transportFilter = document.getElementById('licenseTransportFilter').value;
             const statusFilter = document.getElementById('licenseStatusFilter').value;
+            const unitTypeFilter = document.getElementById('licenseUnitTypeFilter').value;
 
             return data.filter(license => {
-                // Company name filter
-                if (companyFilter && !license.TenDonVi?.toLowerCase().includes(companyFilter)) {
-                    return false;
+                // Company name filter - CẬP NHẬT ĐỂ HỖ TRỢ TÌM KIẾM KHÔNG DẤU
+                if (companyFilter) {
+                    const normalizedFilter = removeVietnameseAccents(companyFilter);
+                    const normalizedCompanyName = removeVietnameseAccents(license.TenDonVi || '');
+
+                    if (!normalizedCompanyName.includes(normalizedFilter)) {
+                        return false;
+                    }
                 }
 
                 // Type filter
@@ -2924,6 +3016,11 @@
                     if (!hasTransportType) return false;
                 }
 
+                // Unit type filter
+                if (unitTypeFilter && license.Loaihinh_donvi !== unitTypeFilter) {
+                    return false;
+                }
+
                 // Status filter
                 if (statusFilter) {
                     const licenseStatus = getLicenseFilterStatus(license);
@@ -2940,11 +3037,17 @@
             const typeFilter = document.getElementById('emblemTypeFilter').value;
             const capFilter = document.getElementById('emblemCapFilter').value;
             const statusFilter = document.getElementById('emblemStatusFilter').value;
+            const unitTypeFilter = document.getElementById('emblemUnitTypeFilter').value;
 
             return data.filter(emblem => {
-                // Company name filter
-                if (companyFilter && !emblem.Ten_don_vi?.toLowerCase().includes(companyFilter)) {
-                    return false;
+                // Company name filter - CẬP NHẬT ĐỂ HỖ TRỢ TÌM KIẾM KHÔNG DẤU
+                if (companyFilter) {
+                    const normalizedFilter = removeVietnameseAccents(companyFilter);
+                    const normalizedCompanyName = removeVietnameseAccents(emblem.Ten_don_vi || '');
+
+                    if (!normalizedCompanyName.includes(normalizedFilter)) {
+                        return false;
+                    }
                 }
 
                 // Type filter
@@ -2954,6 +3057,11 @@
 
                 // Cap filter
                 if (capFilter && emblem.LoaiCap !== capFilter) {
+                    return false;
+                }
+
+                // Unit type filter
+                if (unitTypeFilter && emblem.Loaihinh_donvi !== unitTypeFilter) {
                     return false;
                 }
 
@@ -2973,10 +3081,16 @@
             const typeFilter = document.getElementById('internationalTypeFilter').value;
             const modelFilter = document.getElementById('internationalModelFilter').value;
             const statusFilter = document.getElementById('internationalStatusFilter').value;
+
             return data.filter(license => {
-                // Company name filter
-                if (companyFilter && !license.TenDonViHienThi?.toLowerCase().includes(companyFilter)) {
-                    return false;
+                // Company name filter - CẬP NHẬT ĐỂ HỖ TRỢ TÌM KIẾM KHÔNG DẤU
+                if (companyFilter) {
+                    const normalizedFilter = removeVietnameseAccents(companyFilter);
+                    const normalizedCompanyName = removeVietnameseAccents(license.TenDonViHienThi || '');
+
+                    if (!normalizedCompanyName.includes(normalizedFilter)) {
+                        return false;
+                    }
                 }
 
                 // Type filter
@@ -3011,9 +3125,14 @@
             const capStatusFilter = document.getElementById('intEmblemCapStatusFilter').value;
 
             return data.filter(emblem => {
-                // Company name filter
-                if (companyFilter && !emblem.TenDoanhNghiep?.toLowerCase().includes(companyFilter)) {
-                    return false;
+                // Company name filter - CẬP NHẬT ĐỂ HỖ TRỢ TÌM KIẾM KHÔNG DẤU
+                if (companyFilter) {
+                    const normalizedFilter = removeVietnameseAccents(companyFilter);
+                    const normalizedCompanyName = removeVietnameseAccents(emblem.TenDoanhNghiep || '');
+
+                    if (!normalizedCompanyName.includes(normalizedFilter)) {
+                        return false;
+                    }
                 }
 
                 // Status filter
@@ -3043,9 +3162,14 @@
             const capStatusFilter = document.getElementById('intBookCapStatusFilter').value;
 
             return data.filter(book => {
-                // Company name filter
-                if (companyFilter && !book.TenChinh?.toLowerCase().includes(companyFilter)) {
-                    return false;
+                // Company name filter - CẬP NHẬT ĐỂ HỖ TRỢ TÌM KIẾM KHÔNG DẤU
+                if (companyFilter) {
+                    const normalizedFilter = removeVietnameseAccents(companyFilter);
+                    const normalizedCompanyName = removeVietnameseAccents(book.TenChinh || '');
+
+                    if (!normalizedCompanyName.includes(normalizedFilter)) {
+                        return false;
+                    }
                 }
 
                 // Status filter
@@ -3106,12 +3230,14 @@
             document.getElementById('licenseTypeFilter').value = '';
             document.getElementById('licenseTransportFilter').value = '';
             document.getElementById('licenseStatusFilter').value = '';
+            document.getElementById('licenseUnitTypeFilter').value = ''; // THÊM DÒNG NÀY
 
             // Clear emblem filters
             document.getElementById('emblemCompanyFilter').value = '';
             document.getElementById('emblemTypeFilter').value = '';
             document.getElementById('emblemCapFilter').value = '';
             document.getElementById('emblemStatusFilter').value = '';
+            document.getElementById('emblemUnitTypeFilter').value = ''; // THÊM DÒNG NÀY
 
             // Clear international filters
             document.getElementById('internationalCompanyFilter').value = '';
@@ -3639,22 +3765,36 @@
             }, { once: true });
         }
 
-        // Enhanced date formatting for display
-        function formatDateForDisplay(dateString) {
-            if (!dateString) return '';
+        // Hàm helper để format ngày cho input[type="date"] (YYYY-MM-DD)
+        function formatDateForInput(date) {
+            if (!date) return '';
+
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+
+            return `${year}-${month}-${day}`;
+        }
+
+        // Cập nhật hàm formatDateForDisplay để hiển thị đúng định dạng dd/mm/yyyy
+        function formatDateForDisplay(date) {
+            if (!date) return '';
 
             try {
-                const date = parseAppSheetDate(dateString);
-                if (!date) return '';
+                // Nếu input là string, parse nó thành Date
+                if (typeof date === 'string') {
+                    date = new Date(date);
+                }
 
-                // Always return dd/mm/yyyy format
-                const day = date.getDate().toString().padStart(2, '0');
-                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                if (isNaN(date.getTime())) return '';
+
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
                 const year = date.getFullYear();
 
                 return `${day}/${month}/${year}`;
             } catch (error) {
-                console.error('Error formatting date for display:', dateString, error);
+                console.error('Error formatting date for display:', date, error);
                 return '';
             }
         }
@@ -3941,7 +4081,7 @@
         }
 
         function showEmblemModal(emblem) {
-            const companyInfo = getCompanyInfo(emblem.IDDoanhNghiep);
+            const companyInfo = getCompanyInfo(emblem.Ref_DonViCapPhuHieu, 'PHUHIEUXE');
             const modalContent = `
      <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="emblemModal">
          <div class="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
@@ -3991,7 +4131,7 @@
         }
 
         function showInternationalModal(license) {
-            const companyInfo = getCompanyInfo(license.IDDoanhNghiep);
+            const companyInfo = getCompanyInfo(license.Ref_DoanhNghiep, 'DoanhNghiep');
             const modalContent = `
       <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="internationalModal">
           <div class="bg-white rounded-lg p-6 max-w-3xl w-full mx-4 max-h-96 overflow-y-auto">
@@ -4030,7 +4170,7 @@
 
         function showIntEmblemModal(emblem) {
             const isExpiring = emblem.HieuLuc === 'Sắp đến hạn';
-            const companyInfo = getCompanyInfo(emblem.IDDoanhNghiep);
+            const companyInfo = getCompanyInfo(emblem.IDDoanhNghiep, 'PhuHieuLienVan');
             const modalContent = `
       <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="intEmblemModal">
           <div class="bg-white rounded-lg p-6 max-w-3xl w-full mx-4 max-h-96 overflow-y-auto">
@@ -4089,7 +4229,7 @@
 
         function showIntBookModal(book) {
             const isExpiring = book.HieuLuc === 'Sắp đến hạn';
-            const companyInfo = getCompanyInfo(book.IDDoanhNghiep);
+            const companyInfo = getCompanyInfo(book.IDDoanhNghiep, 'SoLienVan');
             const modalContent = `
       <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="intBookModal">
           <div class="bg-white rounded-lg p-6 max-w-4xl w-full mx-4 max-h-96 overflow-y-auto">
@@ -4778,6 +4918,50 @@
             populateInternationalFilters();
             populateIntEmblemFilters();
             populateIntBookFilters();
+            populateUnitTypeFilters(); // THÊM DÒNG NÀY
+        }
+
+        function populateUnitTypeFilters() {
+            populateLicenseUnitTypeFilter();
+            populateEmblemUnitTypeFilter();
+        }
+
+        function populateLicenseUnitTypeFilter() {
+            if (!originalLicensesData.length) return;
+
+            const unitTypeFilter = document.getElementById('licenseUnitTypeFilter');
+            const unitTypes = [...new Set(originalLicensesData.map(item => item.Loaihinh_donvi).filter(Boolean))];
+
+            // Clear existing options except first one
+            while (unitTypeFilter.children.length > 1) {
+                unitTypeFilter.removeChild(unitTypeFilter.lastChild);
+            }
+
+            unitTypes.sort().forEach(unitType => {
+                const option = document.createElement('option');
+                option.value = unitType;
+                option.textContent = unitType;
+                unitTypeFilter.appendChild(option);
+            });
+        }
+
+        function populateEmblemUnitTypeFilter() {
+            if (!originalEmblemsData.length) return;
+
+            const unitTypeFilter = document.getElementById('emblemUnitTypeFilter');
+            const unitTypes = [...new Set(originalEmblemsData.map(item => item.Loaihinh_donvi).filter(Boolean))];
+
+            // Clear existing options except first one
+            while (unitTypeFilter.children.length > 1) {
+                unitTypeFilter.removeChild(unitTypeFilter.lastChild);
+            }
+
+            unitTypes.sort().forEach(unitType => {
+                const option = document.createElement('option');
+                option.value = unitType;
+                option.textContent = unitType;
+                unitTypeFilter.appendChild(option);
+            });
         }
 
         function populateLicenseFilters() {
@@ -5071,12 +5255,12 @@
         }
 
         // Initialize application (CẬP NHẬT)
-        // Tìm và cập nhật hàm initializeApp() hiện có
         async function initializeApp() {
-            // Set default dates
+            // Set default dates - 30 ngày gần nhất
             const today = new Date();
-            const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-            document.getElementById('startDate').value = lastMonth.toISOString().split('T')[0];
+            const thirtyDaysAgo = new Date(today);
+            thirtyDaysAgo.setDate(today.getDate() - 30);
+            document.getElementById('startDate').value = thirtyDaysAgo.toISOString().split('T')[0];
             document.getElementById('endDate').value = today.toISOString().split('T')[0];
 
             // Initialize enhanced UI
@@ -5205,63 +5389,82 @@
             const button = event.target;
             button.classList.add('filter-loading');
 
+            let startDateValue, endDateValue;
+
             switch (preset) {
                 case 'today':
-                    startDate.value = today.toISOString().split('T')[0];
-                    endDate.value = today.toISOString().split('T')[0];
+                    startDateValue = new Date(today);
+                    endDateValue = new Date(today);
                     break;
 
                 case 'thisWeek':
+                    // Tuần này - từ thứ 2 đến Chủ nhật
                     const startOfWeek = new Date(today);
-                    startOfWeek.setDate(today.getDate() - today.getDay());
-                    const endOfWeek = new Date(today);
-                    endOfWeek.setDate(today.getDate() + (6 - today.getDay()));
+                    const dayOfWeek = today.getDay();
+                    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Nếu Chủ nhật thì lùi 6 ngày, còn lại thì tính từ thứ 2
+                    startOfWeek.setDate(today.getDate() + mondayOffset);
 
-                    startDate.value = startOfWeek.toISOString().split('T')[0];
-                    endDate.value = endOfWeek.toISOString().split('T')[0];
+                    const endOfWeek = new Date(startOfWeek);
+                    endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+                    startDateValue = startOfWeek;
+                    endDateValue = endOfWeek;
                     break;
 
                 case 'thisMonth':
-                    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-                    const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-
-                    startDate.value = startOfMonth.toISOString().split('T')[0];
-                    endDate.value = endOfMonth.toISOString().split('T')[0];
+                    // Tháng này - từ ngày 1 đến ngày cuối tháng
+                    startDateValue = new Date(today.getFullYear(), today.getMonth(), 1);
+                    endDateValue = new Date(today.getFullYear(), today.getMonth() + 1, 0);
                     break;
 
                 case 'lastMonth':
-                    const startOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-                    const endOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
-
-                    startDate.value = startOfLastMonth.toISOString().split('T')[0];
-                    endDate.value = endOfLastMonth.toISOString().split('T')[0];
+                    // Tháng trước - từ ngày 1 đến ngày cuối tháng trước
+                    startDateValue = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                    endDateValue = new Date(today.getFullYear(), today.getMonth(), 0);
                     break;
 
                 case 'thisYear':
-                    const startOfYear = new Date(today.getFullYear(), 0, 1);
-                    const endOfYear = new Date(today.getFullYear(), 11, 31);
-
-                    startDate.value = startOfYear.toISOString().split('T')[0];
-                    endDate.value = endOfYear.toISOString().split('T')[0];
+                    // Năm này - từ 01/01 đến 31/12
+                    startDateValue = new Date(today.getFullYear(), 0, 1);
+                    endDateValue = new Date(today.getFullYear(), 11, 31);
                     break;
             }
 
-            // Remove loading effect and show success
+            // Chuyển đổi sang định dạng YYYY-MM-DD cho input[type="date"]
+            startDate.value = formatDateForInput(startDateValue);
+            endDate.value = formatDateForInput(endDateValue);
+
+            // Remove loading effect and show success với thông tin chi tiết
             setTimeout(() => {
                 button.classList.remove('filter-loading');
-                showNotification(`Đã chọn ${getPresetName(preset)}`, 'success');
+                const dateRange = `${formatDateForDisplay(startDateValue)} - ${formatDateForDisplay(endDateValue)}`;
+                showNotification(`Đã chọn ${getPresetName(preset)}: ${dateRange}`, 'success');
             }, 500);
         }
 
         function getPresetName(preset) {
             const names = {
-                'today': 'hôm nay',
-                'thisWeek': 'tuần này',
-                'thisMonth': 'tháng này',
-                'lastMonth': 'tháng trước',
-                'thisYear': 'năm này'
+                'today': 'Hôm nay',
+                'thisWeek': 'Tuần này',
+                'thisMonth': 'Tháng này',
+                'lastMonth': 'Tháng trước',
+                'thisYear': 'Năm này'
             };
             return names[preset] || preset;
+        }
+
+        // Thêm hàm để hiển thị thông tin khoảng thời gian đã chọn
+        function updateDateRangeDisplay() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            if (startDate && endDate) {
+                const startDisplay = formatDateForDisplay(startDate);
+                const endDisplay = formatDateForDisplay(endDate);
+
+                // Cập nhật hiển thị ở đâu đó trong UI nếu cần
+                console.log(`Khoảng thời gian đã chọn: ${startDisplay} - ${endDisplay}`);
+            }
         }
 
         // Enhanced filter validation
@@ -5327,6 +5530,21 @@
                 }
             }, 5000);
         }
+
+
+        // Thêm event listener cho date inputs để cập nhật hiển thị khi người dùng thay đổi thủ công
+        document.addEventListener('DOMContentLoaded', function () {
+            const startDateInput = document.getElementById('startDate');
+            const endDateInput = document.getElementById('endDate');
+
+            if (startDateInput) {
+                startDateInput.addEventListener('change', updateDateRangeDisplay);
+            }
+
+            if (endDateInput) {
+                endDateInput.addEventListener('change', updateDateRangeDisplay);
+            }
+        });
 
         // Event listeners
         document.addEventListener('DOMContentLoaded', initializeApp);
