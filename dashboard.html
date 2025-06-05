@@ -1106,11 +1106,12 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                         <div class="filter-group">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i class="fas fa-building text-blue-500 mr-1"></i>
-                                TÊN ĐƠN VỊ
+                                <i class="fas fa-search text-blue-500 mr-1"></i>
+                                TÊN ĐƠN VỊ / BIỂN SỐ
                             </label>
-                            <input type="text" id="emblemCompanyFilter" placeholder="Nhập tên đơn vị..."
+                            <input type="text" id="emblemCompanyFilter" placeholder="Nhập tên đơn vị hoặc biển số..."
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200">
+
                         </div>
                         <!-- THÊM FILTER MỚI -->
                         <div class="filter-group">
@@ -1239,10 +1240,11 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div class="filter-group">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i class="fas fa-building text-blue-500 mr-1"></i>
-                                TÊN DOANH NGHIỆP
+                                <i class="fas fa-search text-blue-500 mr-1"></i>
+                                TÊN DOANH NGHIỆP / BIỂN SỐ
                             </label>
-                            <input type="text" id="intEmblemCompanyFilter" placeholder="Nhập tên doanh nghiệp..."
+                            <input type="text" id="intEmblemCompanyFilter"
+                                placeholder="Nhập tên doanh nghiệp hoặc biển số..."
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200">
                         </div>
                         <div class="filter-group">
@@ -1295,10 +1297,10 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div class="filter-group">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i class="fas fa-user text-blue-500 mr-1"></i>
-                                TÊN CHÍNH
+                                <i class="fas fa-search text-blue-500 mr-1"></i>
+                                TÊN CHÍNH / BIỂN SỐ
                             </label>
-                            <input type="text" id="intBookCompanyFilter" placeholder="Nhập tên..."
+                            <input type="text" id="intBookCompanyFilter" placeholder="Nhập tên chính hoặc biển số..."
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200">
                         </div>
                         <div class="filter-group">
@@ -3040,12 +3042,17 @@
             const unitTypeFilter = document.getElementById('emblemUnitTypeFilter').value;
 
             return data.filter(emblem => {
-                // Company name filter - CẬP NHẬT ĐỂ HỖ TRỢ TÌM KIẾM KHÔNG DẤU
+                // Company name and license plate filter - CẬP NHẬT ĐỂ TÌM CẢ TÊN VÀ BIỂN SỐ
                 if (companyFilter) {
                     const normalizedFilter = removeVietnameseAccents(companyFilter);
                     const normalizedCompanyName = removeVietnameseAccents(emblem.Ten_don_vi || '');
+                    const normalizedLicensePlate = removeVietnameseAccents(emblem.BienSo || '');
 
-                    if (!normalizedCompanyName.includes(normalizedFilter)) {
+                    // Tìm kiếm trong cả tên đơn vị và biển số
+                    const matchesCompany = normalizedCompanyName.includes(normalizedFilter);
+                    const matchesLicensePlate = normalizedLicensePlate.includes(normalizedFilter);
+
+                    if (!matchesCompany && !matchesLicensePlate) {
                         return false;
                     }
                 }
@@ -3074,7 +3081,6 @@
                 return true;
             });
         }
-
         // Áp dụng bộ lọc chi tiết cho International
         function applyInternationalSpecificFilters(data) {
             const companyFilter = document.getElementById('internationalCompanyFilter').value.toLowerCase();
@@ -3125,12 +3131,17 @@
             const capStatusFilter = document.getElementById('intEmblemCapStatusFilter').value;
 
             return data.filter(emblem => {
-                // Company name filter - CẬP NHẬT ĐỂ HỖ TRỢ TÌM KIẾM KHÔNG DẤU
+                // Company name and license plate filter - CẬP NHẬT ĐỂ TÌM CẢ TÊN VÀ BIỂN SỐ
                 if (companyFilter) {
                     const normalizedFilter = removeVietnameseAccents(companyFilter);
                     const normalizedCompanyName = removeVietnameseAccents(emblem.TenDoanhNghiep || '');
+                    const normalizedLicensePlate = removeVietnameseAccents(emblem.Bienso || '');
 
-                    if (!normalizedCompanyName.includes(normalizedFilter)) {
+                    // Tìm kiếm trong cả tên doanh nghiệp và biển số
+                    const matchesCompany = normalizedCompanyName.includes(normalizedFilter);
+                    const matchesLicensePlate = normalizedLicensePlate.includes(normalizedFilter);
+
+                    if (!matchesCompany && !matchesLicensePlate) {
                         return false;
                     }
                 }
@@ -3162,12 +3173,17 @@
             const capStatusFilter = document.getElementById('intBookCapStatusFilter').value;
 
             return data.filter(book => {
-                // Company name filter - CẬP NHẬT ĐỂ HỖ TRỢ TÌM KIẾM KHÔNG DẤU
+                // Company name and license plate filter - CẬP NHẬT ĐỂ TÌM CẢ TÊN VÀ BIỂN SỐ
                 if (companyFilter) {
                     const normalizedFilter = removeVietnameseAccents(companyFilter);
                     const normalizedCompanyName = removeVietnameseAccents(book.TenChinh || '');
+                    const normalizedLicensePlate = removeVietnameseAccents(book.BienSo || '');
 
-                    if (!normalizedCompanyName.includes(normalizedFilter)) {
+                    // Tìm kiếm trong cả tên chính và biển số
+                    const matchesCompany = normalizedCompanyName.includes(normalizedFilter);
+                    const matchesLicensePlate = normalizedLicensePlate.includes(normalizedFilter);
+
+                    if (!matchesCompany && !matchesLicensePlate) {
                         return false;
                     }
                 }
@@ -3189,6 +3205,29 @@
 
                 return true;
             });
+        }
+
+        // Hàm hỗ trợ tìm kiếm linh hoạt cho biển số
+        function isLicensePlateMatch(licensePlate, searchTerm) {
+            if (!licensePlate || !searchTerm) return false;
+
+            const normalizedPlate = removeVietnameseAccents(licensePlate.replace(/[^a-zA-Z0-9]/g, ''));
+            const normalizedSearch = removeVietnameseAccents(searchTerm.replace(/[^a-zA-Z0-9]/g, ''));
+
+            // Tìm kiếm chính xác
+            if (normalizedPlate.includes(normalizedSearch)) return true;
+
+            // Tìm kiếm chỉ số (bỏ qua chữ cái)
+            const plateNumbers = licensePlate.replace(/[^0-9]/g, '');
+            const searchNumbers = searchTerm.replace(/[^0-9]/g, '');
+            if (searchNumbers && plateNumbers.includes(searchNumbers)) return true;
+
+            // Tìm kiếm chỉ chữ cái (bỏ qua số)
+            const plateLetters = removeVietnameseAccents(licensePlate.replace(/[^a-zA-Z]/g, ''));
+            const searchLetters = removeVietnameseAccents(searchTerm.replace(/[^a-zA-Z]/g, ''));
+            if (searchLetters && plateLetters.includes(searchLetters)) return true;
+
+            return false;
         }
 
         // Xóa tất cả bộ lọc (CẬP NHẬT)
@@ -3225,34 +3264,31 @@
 
         // Xóa bộ lọc chi tiết
         function clearSpecificFilters() {
-            // Clear license filters
-            document.getElementById('licenseCompanyFilter').value = '';
-            document.getElementById('licenseTypeFilter').value = '';
-            document.getElementById('licenseTransportFilter').value = '';
-            document.getElementById('licenseStatusFilter').value = '';
-            document.getElementById('licenseUnitTypeFilter').value = ''; // THÊM DÒNG NÀY
-
             // Clear emblem filters
-            document.getElementById('emblemCompanyFilter').value = '';
+            const emblemCompanyFilter = document.getElementById('emblemCompanyFilter');
+            emblemCompanyFilter.value = '';
+            emblemCompanyFilter.placeholder = 'Nhập tên đơn vị hoặc biển số...';
+
+            // Clear international emblem filters
+            const intEmblemCompanyFilter = document.getElementById('intEmblemCompanyFilter');
+            intEmblemCompanyFilter.value = '';
+            intEmblemCompanyFilter.placeholder = 'Nhập tên doanh nghiệp hoặc biển số...';
+
+            // Clear international book filters
+            const intBookCompanyFilter = document.getElementById('intBookCompanyFilter');
+            intBookCompanyFilter.value = '';
+            intBookCompanyFilter.placeholder = 'Nhập tên chính hoặc biển số...';
+
+            // Các filter khác giữ nguyên...
             document.getElementById('emblemTypeFilter').value = '';
             document.getElementById('emblemCapFilter').value = '';
             document.getElementById('emblemStatusFilter').value = '';
-            document.getElementById('emblemUnitTypeFilter').value = ''; // THÊM DÒNG NÀY
+            document.getElementById('emblemUnitTypeFilter').value = '';
 
-            // Clear international filters
-            document.getElementById('internationalCompanyFilter').value = '';
-            document.getElementById('internationalTypeFilter').value = '';
-            document.getElementById('internationalModelFilter').value = '';
-            document.getElementById('internationalStatusFilter').value = '';
-
-            // Clear international emblem filters
-            document.getElementById('intEmblemCompanyFilter').value = '';
             document.getElementById('intEmblemStatusFilter').value = '';
             document.getElementById('intEmblemTypeFilter').value = '';
             document.getElementById('intEmblemCapStatusFilter').value = '';
 
-            // Clear international book filters
-            document.getElementById('intBookCompanyFilter').value = '';
             document.getElementById('intBookStatusFilter').value = '';
             document.getElementById('intBookTypeFilter').value = '';
             document.getElementById('intBookCapStatusFilter').value = '';
@@ -4096,12 +4132,9 @@
                  <div><strong>Biển số xe:</strong> ${emblem.BienSo || ''}</div>
                  <div><strong>Tên đơn vị:</strong> ${emblem.Ten_don_vi || ''}</div>
                  <div><strong>Địa chỉ:</strong> ${emblem['Địa chỉ'] || ''}</div>
-                 <div><strong>Quận/Huyện:</strong> ${companyInfo.QuanHuyen || ''}</div>
-                 <div><strong>Xã/Phường:</strong> ${companyInfo.XaPhuongThiTran || ''}</div>
                  <div><strong>Ngày cấp:</strong> ${formatDate(emblem.NgayCap)}</div>
                  <div><strong>Ngày hết hạn:</strong> ${formatDate(emblem.NgayHetHan)}</div>
                  <div><strong>Loại phù hiệu:</strong> ${emblem.LoaiPH || ''}</div>
-                 <div><strong>Màu phù hiệu:</strong> ${emblem.MauPhuHieu || ''}</div>
                  <div><strong>Trạng thái:</strong> 
                      <span class="px-2 py-1 text-xs rounded-full ${isEmblemExpired(emblem.NgayHetHan) ? 'bg-red-100 text-red-800' : getStatusClass(emblem.TrangThai)}">
                          ${isEmblemExpired(emblem.NgayHetHan) ? 'Hết hạn' : (emblem.TrangThai || '')}
@@ -4117,11 +4150,6 @@
                          <div><strong>Quyết định thu hồi:</strong> ${emblem.QDThuHoi || ''}</div>
                          <div class="md:col-span-2"><strong>Lý do thu hồi:</strong> ${emblem.LyDoThuHoi || ''}</div>
                      </div>
-                 </div>
-             ` : ''}
-             ${emblem.GhiChu ? `
-                 <div class="mt-4">
-                     <strong>Ghi chú:</strong> ${emblem.GhiChu}
                  </div>
              ` : ''}
          </div>
