@@ -386,14 +386,14 @@
     <div class="page" id="page1">
         <div class="header">
             <div class="header-left">
-                <div>SỞ XÂY DỰNG BẮC GIANG</div>
+                <div>SỞ XÂY DỰNG <span id="tinh-header">BẮC GIANG</span></div>
                 <div class="underline-title">PHÒNG VẬN TẢI& ATGT</div> <br> <br>
                 <div class="document-number">Số: <span id="so-bien-ban"></span></div>
             </div>
             <div class="header-right">
                 <div style="font-size: 13pt;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
                 <div class="underline-title-full">Độc lập - Tự do - Hạnh phúc</div><br><br>
-                <div id="ngay-tham-dinh">Bắc Giang, ngày tháng năm </div>
+                <div id="ngay-tham-dinh"><span id="tinh-footer">Bắc Giang</span>, ngày tháng năm </div>
             </div>
         </div>
 
@@ -403,7 +403,8 @@
         </div>
 
         <div class="content">
-            Phòng Vận tải và An toàn giao thông- Sở Xây dựng tỉnh Bắc Giang nhận được Hồ sơ đề nghị cấp Giấy phép liên
+            Phòng Vận tải và An toàn giao thông- Sở Xây dựng tỉnh <span id="tinh-content">Bắc Giang</span> nhận được Hồ
+            sơ đề nghị cấp Giấy phép liên
             vận Việt Nam-Lào của các tổ chức, cá nhân trên địa bàn tỉnh. Thực hiện chức năng, nhiệm vụ được giao, Phòng
             Vận tải và An toàn giao thông báo cáo kết quả thẩm định hồ sơ như sau:
         </div>
@@ -465,10 +466,36 @@
         const accessKey = 'V2-Qcjpo-7Ybu9-g87XI-TFLes-kJGWn-btYR5-cLMmk-FjrRj';
         const region = 'www';
 
+        // Biến toàn cục để lưu dữ liệu tỉnh
+        let globalTinhData = null;
+
         // Function to get ID from URL parameter
         function getIDThamDinhFromURL() {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get('IDThamDinh');
+        }
+
+        // Generic function to make API calls
+        async function callAPI(tableName, selector) {
+            const response = await fetch(`https://${region}.appsheet.com/api/v2/apps/${appId}/tables/${tableName}/Action`, {
+                method: 'POST',
+                headers: {
+                    'ApplicationAccessKey': accessKey,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    Action: 'Find',
+                    Properties: {
+                        Selector: selector
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status} for table: ${tableName}`);
+            }
+
+            return await response.json();
         }
 
         // Main function to fetch data
@@ -483,16 +510,36 @@
             }
 
             try {
-                // 1. Fetch ThamDinhHoSo data
-                const thamDinhData = await fetchThamDinhData(idThamDinh);
+                // Prepare API calls
+                const currentDate = new Date().toISOString();
+
+                const apiCalls = [
+                    // 1. Fetch ThamDinhHoSo data
+                    fetchThamDinhData(idThamDinh),
+
+                    // 2. Get ThongTin data (for tinh)
+                    callAPI('ThongTin', `Filter(ThongTin, [Ngay_hieu_luc] <= "${currentDate}")`)
+                ];
+
+                // Execute API calls
+                console.log("Bắt đầu gọi API...");
+                const [thamDinhData, tinhResult] = await Promise.all(apiCalls);
+
+                console.log("ThamDinh data:", thamDinhData);
+                console.log("Tinh data:", tinhResult);
+
+                // Validate tham dinh data
                 if (!thamDinhData || thamDinhData.length === 0) {
                     hideLoadingMessage();
                     alert('Không tìm thấy dữ liệu thẩm định với ID: ' + idThamDinh);
                     return;
                 }
 
-                // Populate header information
-                populateThamDinhData(thamDinhData[0]);
+                // Lưu dữ liệu tỉnh vào biến toàn cục
+                globalTinhData = tinhResult;
+
+                // Populate header information với tên tỉnh
+                populateThamDinhData(thamDinhData[0], tinhResult);
 
                 // 2. Fetch HoSoCapPhep data
                 const hoSoData = await fetchHoSoCapPhepData(idThamDinh);
@@ -824,8 +871,22 @@
             document.getElementById('so-xe-ko-du-dk').textContent = `${formattedFailed} (xe).`;
         }
 
-        // Populate ThamDinhHoSo data
-        function populateThamDinhData(data) {
+        // Populate ThamDinhHoSo data với tên tỉnh
+        function populateThamDinhData(data, tinhData) {
+            // Xử lý tên tỉnh
+            let tenTinh = 'Bắc Giang'; // Giá trị mặc định
+            if (tinhData && tinhData.length > 0) {
+                const sortedTinhData = tinhData.sort((a, b) =>
+                    new Date(b.Ngay_hieu_luc) - new Date(a.Ngay_hieu_luc)
+                );
+                tenTinh = sortedTinhData[0].Tinh || 'Bắc Giang';
+            }
+
+            // Cập nhật tên tỉnh ở các vị trí khác nhau
+            document.getElementById('tinh-header').textContent = tenTinh.toUpperCase();
+            document.getElementById('tinh-footer').textContent = tenTinh;
+            document.getElementById('tinh-content').textContent = tenTinh;
+
             // Update SoBienBan
             document.getElementById('so-bien-ban').textContent = data.SoBienBan || '';
 
@@ -836,7 +897,7 @@
                 const month = (date.getMonth() + 1).toString().padStart(2, '0');
                 const year = date.getFullYear();
                 document.getElementById('ngay-tham-dinh').textContent =
-                    `Bắc Giang, ngày ${day} tháng ${month} năm ${year}`;
+                    `${tenTinh}, ngày ${day} tháng ${month} năm ${year}`;
             }
 
             // Update signatures

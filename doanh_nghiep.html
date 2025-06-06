@@ -232,7 +232,7 @@
         </div>
 
         <div class="footer-section">
-            <div>Bắc Giang, ngày <span id="ngay-cap"></span></div>
+            <div><span id="tinh-footer">Bắc Giang</span>, ngày <span id="ngay-cap"></span></div>
             <div class="signature-area">
                 <div class="signature-title">CƠ QUAN CẤP PHÉP</div>
                 <div class="signature-subtitle">Issuing authority</div>
@@ -316,11 +316,23 @@
             }
 
             try {
-                // Get DoanhNghiep data
-                console.log("Bắt đầu gọi API DoanhNghiep...");
-                const doanhNghiepResult = await callAPI('DoanhNghiep', `Filter(DoanhNghiep, [IDDoanhNghiep] = "${idDoanhNghiep}")`);
+                // Prepare API calls
+                const currentDate = new Date().toISOString();
+
+                const apiCalls = [
+                    // 1. Get DoanhNghiep data
+                    callAPI('DoanhNghiep', `Filter(DoanhNghiep, [IDDoanhNghiep] = "${idDoanhNghiep}")`),
+                    
+                    // 2. Get ThongTin data (for tinh)
+                    callAPI('ThongTin', `Filter(ThongTin, [Ngay_hieu_luc] <= "${currentDate}")`)
+                ];
+
+                // Execute first batch of API calls
+                console.log("Bắt đầu gọi API đầu tiên...");
+                const [doanhNghiepResult, tinhResult] = await Promise.all(apiCalls);
 
                 console.log("DoanhNghiep data:", doanhNghiepResult);
+                console.log("Tinh data:", tinhResult);
 
                 // Validate doanh nghiep data
                 if (!doanhNghiepResult || doanhNghiepResult.length === 0) {
@@ -353,11 +365,12 @@
                 // Lưu dữ liệu vào biến toàn cục
                 globalDoanhNghiepData = {
                     doanhNghiep: doanhNghiepResult[0],
-                    thongTinDonVi: thongTinDonViResult[0]
+                    thongTinDonVi: thongTinDonViResult[0],
+                    tinh: tinhResult
                 };
 
                 // Process and populate all data
-                populateData(doanhNghiepResult[0], thongTinDonViResult[0]);
+                populateData(doanhNghiepResult[0], thongTinDonViResult[0], tinhResult);
 
                 // Hide loading message
                 hideLoadingMessage();
@@ -371,7 +384,16 @@
         }
 
         // Populate all data into HTML elements
-        function populateData(doanhNghiepData, thongTinDonViData) {
+        function populateData(doanhNghiepData, thongTinDonViData, tinhData) {
+            
+            // Update tinh name
+            if (tinhData && tinhData.length > 0) {
+                const sortedTinhData = tinhData.sort((a, b) =>
+                    new Date(b.Ngay_hieu_luc) - new Date(a.Ngay_hieu_luc)
+                );
+                const tenTinh = sortedTinhData[0].Tinh || 'Bắc Giang';
+                document.getElementById('tinh-footer').textContent = tenTinh;
+            }
 
             // Populate số giấy phép (từ bảng DoanhNghiep hoặc THONGTINDONVIVANTAI)
             if (doanhNghiepData.SoGPLienVanQT) {
@@ -420,7 +442,21 @@
                 document.getElementById('loading-message').style.display = 'block';
                 document.getElementById('loading-message').textContent = 'Đang xuất file Word...';
 
-                const { doanhNghiep, thongTinDonVi } = globalDoanhNghiepData;
+                const { doanhNghiep, thongTinDonVi, tinh } = globalDoanhNghiepData;
+                
+                // Xử lý tên tỉnh cho Word export
+                let tenTinh = 'Bắc Giang';
+                if (tinh && tinh.length > 0) {
+                    const sortedTinhData = tinh.sort((a, b) =>
+                        new Date(b.Ngay_hieu_luc) - new Date(a.Ngay_hieu_luc)
+                    );
+                    tenTinh = sortedTinhData[0].Tinh || 'Bắc Giang';
+                    // Chuẩn hóa định dạng: chữ cái đầu viết hoa
+                    tenTinh = tenTinh.toLowerCase().split(' ')
+                        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                        .join(' ');
+                }
+                
                 // Xử lý loại hình hoạt động cho Word export
                 let loaiHinhHoatDong = '';
                 if (doanhNghiep.MoHinhHoatDong) {
@@ -451,7 +487,8 @@
                     dia_chi: thongTinDonVi.DiachiDayDu || '',
                     so_dien_thoai: thongTinDonVi.SoDienThoai || '',
                     loai_hinh_hoat_dong: loaiHinhHoatDong,
-                    ngay_cap: formatDate(doanhNghiep.NgayCap) || ''
+                    ngay_cap: formatDate(doanhNghiep.NgayCap) || '',
+                    tinh: tenTinh
                 };
 
                 // Render template với dữ liệu
@@ -464,7 +501,7 @@
                     mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 });
 
-                const fileName = `Doanh_nghiep_${doanhNghiep.TenDonViHienThi || ''}.docx`;
+                const fileName = `Doanh_nghiep_${doanhNghiep.TenDonViHienThi || 'unknown'}.docx`;
                 saveAs(blob, fileName);
 
                 document.getElementById('loading-message').textContent = 'Đang tải dữ liệu...';
@@ -487,6 +524,26 @@
 
         // Load data when page loads
         document.addEventListener('DOMContentLoaded', fetchData);
+
+        // Disable right-click and F12
+        document.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+        }, false);
+
+        document.onkeydown = function (e) {
+            if (e.keyCode == 123) {
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) {
+                return false;
+            }
+        };
     </script>
 </body>
 

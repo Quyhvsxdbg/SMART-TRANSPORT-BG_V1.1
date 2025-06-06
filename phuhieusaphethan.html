@@ -266,7 +266,7 @@
         <div class="document-container">
             <div class="header">
                 <div class="header-left">
-                    <div style="margin-bottom: 5px;">UBND TỈNH BẮC GIANG</div>
+                    <div style="margin-bottom: 5px;">UBND TỈNH <span id="tinh-header">BẮC GIANG</span></div>
                     <div class="underline-title"><strong>SỞ XÂY DỰNG</strong></div>
                     <div class="document-number">Số: <span>______</span>/TB-SXD</div>
                 </div>
@@ -275,8 +275,7 @@
                     <div class="underline-title-full"><span class="underline-text">Độc lập – Tự do – Hạnh phúc</span>
                     </div>
                     <div style="font-style: italic; font-weight: normal; margin-top: 10px; text-align: center;"
-                        id="ngay-thang">Bắc
-                        Giang, ngày &nbsp;&nbsp;&nbsp; tháng &nbsp;&nbsp;&nbsp; <span>năm 2025</span>
+                        id="ngay-thang"><span id="tinh-footer">Bắc Giang</span>, ngày &nbsp;&nbsp;&nbsp; tháng &nbsp;&nbsp;&nbsp; <span>năm 2025</span>
                     </div>
                 </div>
             </div>
@@ -292,20 +291,20 @@
             </div>
 
             <div class="text-block">
-                Sở Xây dựng tỉnh Bắc Giang thông báo danh sách các phương tiện sẽ hết hạn phù hiệu vào <span
+                Sở Xây dựng tỉnh <span id="tinh-content">Bắc Giang</span> thông báo danh sách các phương tiện sẽ hết hạn phù hiệu vào <span
                     id="thang-thong-bao">tháng</span> <i>(chi
                     tiết theo phụ lục đính kèm).</i>
             </div>
 
             <div class="text-block">
-                Định kỳ 05 ngày làm việc cuối hằng tháng, Sở Xây dựng tỉnh Bắc Giang thông báo bằng văn bản danh sách
+                Định kỳ 05 ngày làm việc cuối hằng tháng, Sở Xây dựng tỉnh <span id="tinh-content-2">Bắc Giang</span> thông báo bằng văn bản danh sách
                 các xe sẽ hết hạn phù hiệu của tháng tiếp theo và đăng tải thông tin trên Website có địa chỉ
-                https://sgtvt.bacgiang.gov.vn/) và trên Trang Zalo Official Account “Sở Xây dựng tỉnh Bắc Giang” (tại
+                https://sgtvt.bacgiang.gov.vn/) và trên Trang Zalo Official Account "Sở Xây dựng tỉnh <span id="tinh-content-3">Bắc Giang</span>" (tại
                 mục: <strong>Tin tức- Phù hiệu đến hạn</strong>).
             </div>
 
             <div class="text-block">
-                Sở Xây dựng tỉnh Bắc Giang thông báo nội dung trên đến các tổ chức, cá nhân để phối hợp quản lý, kiểm
+                Sở Xây dựng tỉnh <span id="tinh-content-4">Bắc Giang</span> thông báo nội dung trên đến các tổ chức, cá nhân để phối hợp quản lý, kiểm
                 tra, giám sát./.
             </div>
 
@@ -326,7 +325,7 @@
                     <div class="signature-title">KT. GIÁM ĐỐC</div>
                     <div class="signature-title">PHÓ GIÁM ĐỐC</div>
                     <div style="margin-top: 195px;"></div>
-                    <div class="signature-name">Hoàng Văn Hải</div>
+                    <div class="signature-name" id="signature-name">Hoàng Văn Hải</div>
                 </div>
             </div>
         </div>
@@ -370,6 +369,10 @@
         const accessKey = 'V2-Qcjpo-7Ybu9-g87XI-TFLes-kJGWn-btYR5-cLMmk-FjrRj';
         const region = 'www';
 
+        // Biến toàn cục để lưu dữ liệu
+        let globalTinhData = null;
+        let globalPhSapHetHanData = null;
+
         // Function to get next month and year
         function getNextMonth() {
             const today = new Date();
@@ -379,23 +382,65 @@
             return { month, year };
         }
 
+        // Generic function to make API calls
+        async function callAPI(tableName, selector) {
+            const response = await fetch(`https://${region}.appsheet.com/api/v2/apps/${appId}/tables/${tableName}/Action`, {
+                method: 'POST',
+                headers: {
+                    'ApplicationAccessKey': accessKey,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    Action: 'Find',
+                    Properties: {
+                        Selector: selector
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status} for table: ${tableName}`);
+            }
+
+            return await response.json();
+        }
+
         // Main function to fetch data
         async function fetchData() {
             try {
                 // Get next month
                 const { month, year } = getNextMonth();
 
-                // Update page 1 content with next month
-                updatePage1Content(month, year);
+                // Prepare API calls
+                const currentDate = new Date().toISOString();
 
-                // Fetch data from PH_SAP_HET_HAN table
-                const phSapHetHanData = await fetchPhSapHetHanData();
+                const apiCalls = [
+                    // 1. Fetch PH_SAP_HET_HAN data
+                    callAPI('PH_SAP_HET_HAN', 'Select(PH_SAP_HET_HAN[ID_PhuHieu], true)'),
+                    
+                    // 2. Get ThongTin data (for tinh)
+                    callAPI('ThongTin', `Filter(ThongTin, [Ngay_hieu_luc] <= "${currentDate}")`)
+                ];
+
+                // Execute API calls
+                console.log("Bắt đầu gọi API...");
+                const [phSapHetHanData, tinhResult] = await Promise.all(apiCalls);
+
+                console.log("PH_SAP_HET_HAN data:", phSapHetHanData);
+                console.log("Tinh data:", tinhResult);
+
+                // Store data globally
+                globalPhSapHetHanData = phSapHetHanData;
+                globalTinhData = tinhResult;
 
                 if (!phSapHetHanData || phSapHetHanData.length === 0) {
                     hideLoadingMessage();
                     alert('Không tìm thấy dữ liệu phù hiệu sắp hết hạn.');
                     return;
                 }
+
+                // Update page 1 content with next month and tinh data
+                updatePage1Content(month, year, tinhResult);
 
                 // Populate page 2 with data
                 populateTableData(phSapHetHanData);
@@ -407,35 +452,6 @@
                 console.error('Lỗi:', error);
                 hideLoadingMessage();
                 alert('Đã xảy ra lỗi khi lấy dữ liệu: ' + error.message);
-            }
-        }
-
-        // Fetch PH_SAP_HET_HAN data
-        async function fetchPhSapHetHanData() {
-            try {
-                const response = await fetch(`https://${region}.appsheet.com/api/v2/apps/${appId}/tables/PH_SAP_HET_HAN/Action`, {
-                    method: 'POST',
-                    headers: {
-                        'ApplicationAccessKey': accessKey,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        Action: 'Find',
-                        Properties: {
-                            Selector: 'Select(PH_SAP_HET_HAN[ID_PhuHieu], true)'
-                        }
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const result = await response.json();
-                return result;
-            } catch (error) {
-                console.error('Lỗi khi lấy dữ liệu từ bảng PH_SAP_HET_HAN:', error);
-                throw error;
             }
         }
 
@@ -452,8 +468,25 @@
             return `${day}/${formattedMonth}/${date.getFullYear()}`;
         }
 
-        // Update page 1 content with proper administrative date formatting
-        function updatePage1Content(month, year) {
+        // Update page 1 content with proper administrative date formatting and tinh data
+        function updatePage1Content(month, year, tinhData) {
+            // Xử lý tên tỉnh
+            let tenTinh = 'Bắc Giang'; // Default value
+            if (tinhData && tinhData.length > 0) {
+                const sortedTinhData = tinhData.sort((a, b) =>
+                    new Date(b.Ngay_hieu_luc) - new Date(a.Ngay_hieu_luc)
+                );
+                tenTinh = sortedTinhData[0].Tinh || 'Bắc Giang';
+            }
+
+            // Update all tinh references
+            document.getElementById('tinh-header').textContent = tenTinh.toUpperCase();
+            document.getElementById('tinh-footer').textContent = tenTinh;
+            document.getElementById('tinh-content').textContent = tenTinh;
+            document.getElementById('tinh-content-2').textContent = tenTinh;
+            document.getElementById('tinh-content-3').textContent = tenTinh;
+            document.getElementById('tinh-content-4').textContent = tenTinh;
+
             const today = new Date();
             const day = today.getDate().toString().padStart(2, '0');
             const currentMonth = today.getMonth() + 1;
@@ -468,8 +501,8 @@
                 month.toString();
 
             // Update date
-            document.getElementById('ngay-thang').textContent =
-                `Bắc Giang, ngày ${day} tháng ${formattedCurrentMonth} năm ${year}`;
+            document.getElementById('ngay-thang').innerHTML =
+                `<span id="tinh-footer">${tenTinh}</span>, ngày ${day} tháng ${formattedCurrentMonth} năm ${year}`;
 
             // Update title with next month
             document.getElementById('title-thang').textContent =
@@ -481,7 +514,6 @@
             document.getElementById('table-title-thang').textContent =
                 `DANH SÁCH CÁC PHƯƠNG TIỆN SẼ HẾT HẠN PHÙ HIỆU VẬN TẢI TRONG THÁNG ${formattedNextMonth}/${year}`;
         }
-
 
         // Populate table data for page 2
         function populateTableData(data) {
@@ -516,20 +548,28 @@
             try {
                 document.getElementById('loading-message').classList.remove('hidden');
 
-                // Get next month info
-                const { month, year } = getNextMonth();
-                const today = new Date();
-
-                // Fetch data from PH_SAP_HET_HAN
-                const phSapHetHanData = await fetchPhSapHetHanData();
-                if (!phSapHetHanData || phSapHetHanData.length === 0) {
-                    alert('Không tìm thấy dữ liệu phù hiệu sắp hết hạn.');
+                // Check if we have data
+                if (!globalPhSapHetHanData || !globalTinhData) {
+                    alert('Dữ liệu chưa được tải. Vui lòng đợi dữ liệu tải xong.');
                     document.getElementById('loading-message').classList.add('hidden');
                     return;
                 }
 
+                // Get next month info
+                const { month, year } = getNextMonth();
+                const today = new Date();
+
+                // Xử lý tên tỉnh cho Word export
+                let tenTinh = 'Bắc Giang';
+                if (globalTinhData && globalTinhData.length > 0) {
+                    const sortedTinhData = globalTinhData.sort((a, b) =>
+                        new Date(b.Ngay_hieu_luc) - new Date(a.Ngay_hieu_luc)
+                    );
+                    tenTinh = sortedTinhData[0].Tinh || 'Bắc Giang';
+                }
+
                 // Prepare data for Word template
-                const donViList = phSapHetHanData.map((item, index) => {
+                const donViList = globalPhSapHetHanData.map((item, index) => {
                     return {
                         stt: (index + 1).toString(),
                         bien_so: item.BienSo || '',
@@ -566,8 +606,10 @@
                     month.toString().padStart(2, '0') :
                     month.toString();
 
-                // Set data for template với định dạng ngày tháng mới
+                // Set data for template với định dạng ngày tháng mới và tên tỉnh
                 const data = {
+                    tinh: tenTinh,
+                    tinh_upper: tenTinh.toUpperCase(),
                     ngayKy: ngayKy,
                     thangKy: formattedThangKy, // Chỉ pad zero cho tháng 1 và 2
                     nam: today.getFullYear(),

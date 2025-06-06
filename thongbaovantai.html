@@ -394,13 +394,6 @@
             page-break-inside: avoid;
         }
 
-        /* Thêm style cho thống kê */
-        /* .statistics-section {
-            margin: 20px 0;
-            color: red;
-            font-weight: bold;
-        } */
-
         .stat-item {
             margin: 5px 0;
         }
@@ -449,7 +442,7 @@
             <div class="document-container">
                 <div class="header">
                     <div class="header-left">
-                        <div style="margin-bottom: 5px;">UBND TỈNH BẮC GIANG</div>
+                        <div style="margin-bottom: 5px;">UBND TỈNH <span id="tinh-header">BẮC GIANG</span></div>
                         <div class="underline-title"><strong>SỞ XÂY DỰNG</strong></div>
                         <div class="document-number">Số: <span>______</span>/TB-SXD</div>
                     </div>
@@ -459,8 +452,8 @@
                                 phúc</span>
                         </div>
                         <div style="font-style: italic; font-weight: normal; margin-top: 10px; text-align: center;"
-                            id="ngay-thang">Bắc
-                            Giang, ngày &nbsp;&nbsp;&nbsp; tháng &nbsp;&nbsp;&nbsp; <span>năm 2025</span>
+                            id="ngay-thang"><span id="tinh-footer">Bắc Giang</span>, ngày &nbsp;&nbsp;&nbsp; tháng
+                            &nbsp;&nbsp;&nbsp; <span>năm 2025</span>
                         </div>
                     </div>
                 </div>
@@ -484,7 +477,8 @@
 
                 <div class="text-block">
                     Để phục vụ công tác kiểm tra, giám sát của các cơ quan chức năng và chính quyền địa phương trong
-                    hoạt động kinh doanh vận tải bằng xe ô tô, Sở Xây dựng tỉnh Bắc Giang thông báo danh sách phương
+                    hoạt động kinh doanh vận tải bằng xe ô tô, Sở Xây dựng tỉnh <span id="tinh-content">Bắc Giang</span>
+                    thông báo danh sách phương
                     tiện, loại phù hiệu đã cấp, thời hạn có hiệu lực của phù hiệu và đơn vị kinh doanh vận tải đã được
                     cấp giấy phép kinh doanh vận tải bằng xe ô tô; danh sách phương tiện bị thu hồi, bị tước phù hiệu;
                     danh sách đơn vị kinh doanh vận tải bị thu hồi, bị tước giấy phép kinh doanh vận tải bằng xe ô tô
@@ -507,7 +501,7 @@
                 </div>
 
                 <div class="text-block">
-                    Sở Xây dựng tỉnh Bắc Giang trân trọng thông báo./.
+                    Sở Xây dựng tỉnh <span id="tinh-content-2">Bắc Giang</span> trân trọng thông báo./.
                 </div>
 
                 <div class="footer">
@@ -528,7 +522,7 @@
                         <div class="signature-title">KT. GIÁM ĐỐC</div>
                         <div class="signature-title">PHÓ GIÁM ĐỐC</div>
                         <div style="margin-top: 195px;"></div>
-                        <div class="signature-name">Hoàng Văn Hải</div>
+                        <div class="signature-name" id="nguoi-ky">Hoàng Văn Hải</div>
                     </div>
                 </div>
             </div>
@@ -555,7 +549,7 @@
         const accessKey = 'V2-Qcjpo-7Ybu9-g87XI-TFLes-kJGWn-btYR5-cLMmk-FjrRj';
         const region = 'www';
 
-        // Biến toàn cục để lưu thống kê
+        // Biến toàn cục để lưu thống kê và dữ liệu tỉnh
         let globalStats = {
             phuHieu: 0,
             gpkd: 0,
@@ -563,12 +557,14 @@
             gpkdThuHoi: 0
         };
 
+        let globalTinhData = null;
+
         // Function to populate year selector
         function populateYearSelector() {
             const yearSelect = document.getElementById('year-select');
             const currentYear = new Date().getFullYear();
 
-            for (let year = 2020; year <= currentYear + 2; year++) {
+            for (let year = 2020; year <= currentYear + 5; year++) {
                 const option = document.createElement('option');
                 option.value = year;
                 option.textContent = year;
@@ -620,71 +616,46 @@
             return { startDate, endDate };
         }
 
+        // Generic function to make API calls
+        async function callAPI(tableName, selector) {
+            const response = await fetch(`https://${region}.appsheet.com/api/v2/apps/${appId}/tables/${tableName}/Action`, {
+                method: 'POST',
+                headers: {
+                    'ApplicationAccessKey': accessKey,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    Action: 'Find',
+                    Properties: {
+                        Selector: selector
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status} for table: ${tableName}`);
+            }
+
+            return await response.json();
+        }
+
         // Function to fetch all THONGTINDONVIVANTAI data for lookup
         async function fetchAllCompanyData() {
             try {
-                const response = await fetch(`https://${region}.appsheet.com/api/v2/apps/${appId}/tables/THONGTINDONVIVANTAI/Action`, {
-                    method: 'POST',
-                    headers: {
-                        'ApplicationAccessKey': accessKey,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        Action: 'Find',
-                        Properties: {
-                            Selector: 'SELECT(THONGTINDONVIVANTAI[IDDoanhNghiep], TRUE)'
-                        }
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const result = await response.json();
-
-                const companyLookup = {};
-                result.forEach(company => {
-                    if (company.IDDoanhNghiep) {
-                        companyLookup[company.IDDoanhNghiep] = {
-                            tenDoanh: company.TenDoanhNghiep || '',
-                            diaChi: company.SoNha_TDP || '',
-                            xaPhuongThiTran: company.XaPhuongThiTran || '',
-                            quanHuyen: company.QuanHuyen || ''
-                        };
-                    }
-                });
-
-                return companyLookup;
+                return await callAPI('THONGTINDONVIVANTAI', 'SELECT(THONGTINDONVIVANTAI[IDDoanhNghiep], TRUE)');
             } catch (error) {
                 console.error('Lỗi khi lấy dữ liệu công ty:', error);
-                return {};
+                return [];
             }
         }
 
         async function fetchTableDataWithFilter(tableName, idField, dateField, month, year) {
             try {
                 const { startDate, endDate } = formatDateForFilter(month, year);
+                const result = await callAPI(tableName,
+                    `SELECT(${tableName}[${idField}], AND([${dateField}] >= DATE("${startDate}"), [${dateField}] <= DATE("${endDate}")))`
+                );
 
-                const response = await fetch(`https://${region}.appsheet.com/api/v2/apps/${appId}/tables/${tableName}/Action`, {
-                    method: 'POST',
-                    headers: {
-                        'ApplicationAccessKey': accessKey,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        Action: 'Find',
-                        Properties: {
-                            Selector: `SELECT(${tableName}[${idField}], AND([${dateField}] >= DATE("${startDate}"), [${dateField}] <= DATE("${endDate}")))`
-                        }
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const result = await response.json();
                 console.log(`Dữ liệu từ bảng ${tableName}:`, result);
                 return result;
             } catch (error) {
@@ -758,6 +729,30 @@
             document.getElementById('stat-gpkd-thu-hoi').textContent = globalStats.gpkdThuHoi;
         }
 
+        // Function to update tinh information
+        function updateTinhInfo(tinhData) {
+            let tenTinh = 'Bắc Giang'; // Default value
+            let nguoiKy = 'Hoàng Văn Hải'; // Default value
+
+            if (tinhData && tinhData.length > 0) {
+                const sortedTinhData = tinhData.sort((a, b) =>
+                    new Date(b.Ngay_hieu_luc) - new Date(a.Ngay_hieu_luc)
+                );
+                tenTinh = sortedTinhData[0].Tinh || 'Bắc Giang';
+                if (sortedTinhData[0].NguoiKy) {
+                    nguoiKy = sortedTinhData[0].NguoiKy;
+                }
+            }
+
+            // Update all tinh references
+            document.getElementById('tinh-header').textContent = tenTinh.toUpperCase();
+            document.getElementById('tinh-content').textContent = tenTinh;
+            document.getElementById('tinh-content-2').textContent = tenTinh;
+            document.getElementById('nguoi-ky').textContent = nguoiKy;
+
+            return { tenTinh, nguoiKy };
+        }
+
         // Function to create table for specific data type
         function createTableByType(data, tableType, subIndex) {
             if (!data || data.length === 0) {
@@ -809,39 +804,39 @@
                 case 'phuHieuThuHoi':
                     subHeaderText = '- Danh sách các phương tiện bị thu hồi phù hiệu vận tải';
                     headerHtml = `
-                    <table>
-                   <thead>
-                       <tr>
-                           <th style="width: 4%;">STT</th>
-                           <th style="width: 10%;">Biển số</th>
-                           <th style="width: 10%;">Số Phù hiệu</th>
-                           <th style="width: 10%;">Loại PH</th>
-                           <th style="width: 10%;">Hạn Phù hiệu</th>
-                           <th style="width: 10%;">Tuyến cố định</th>
-                           <th style="width: 10%;">Tuyến buýt</th>
-                           <th style="width: 15%;">Tên đơn vị vận tải</th>
-                           <th style="width: 15%;">Địa chỉ chi tiết</th>
-                          <th style="width: 12%;">Chỉ chú</th>
-                      </tr>
-                  </thead>
-                  <tbody>`;
+                   <table>
+                  <thead>
+                      <tr>
+                          <th style="width: 4%;">STT</th>
+                          <th style="width: 10%;">Biển số</th>
+                          <th style="width: 10%;">Số Phù hiệu</th>
+                          <th style="width: 10%;">Loại PH</th>
+                          <th style="width: 10%;">Hạn Phù hiệu</th>
+                          <th style="width: 10%;">Tuyến cố định</th>
+                          <th style="width: 10%;">Tuyến buýt</th>
+                          <th style="width: 15%;">Tên đơn vị vận tải</th>
+                          <th style="width: 15%;">Địa chỉ chi tiết</th>
+                         <th style="width: 12%;">Chỉ chú</th>
+                     </tr>
+                 </thead>
+                 <tbody>`;
                     break;
                 case 'gpkdThuHoi':
                     subHeaderText = '- Danh sách các đơn vị bị thu hồi giấy phép kinh doanh vận tải bằng xe ô tô';
                     headerHtml = `
-              <table>
-                      <thead>
-                          <tr>
-                              <th style="width: 4%;">STT</th>
-                              <th style="width: 15%;">Tên đơn vị vận tải</th>
-                              <th style="width: 24%;">Địa chỉ chi tiết</th>
-                              <th style="width: 10%;">Số ĐKKD</th>
-                              <th style="width: 12%;">Số GP KDVT</th>
-                              <th style="width: 10%;">Ngày cấp</th>
-                              <th style="width: 18%;">Loại hình KDVT đã được cấp</th>
-                          </tr>
-                      </thead>
-                      <tbody>`;
+             <table>
+                     <thead>
+                         <tr>
+                             <th style="width: 4%;">STT</th>
+                             <th style="width: 15%;">Tên đơn vị vận tải</th>
+                             <th style="width: 24%;">Địa chỉ chi tiết</th>
+                             <th style="width: 10%;">Số ĐKKD</th>
+                             <th style="width: 12%;">Số GP KDVT</th>
+                             <th style="width: 10%;">Ngày cấp</th>
+                             <th style="width: 18%;">Loại hình KDVT đã được cấp</th>
+                         </tr>
+                     </thead>
+                     <tbody>`;
                     break;
             }
 
@@ -854,58 +849,58 @@
                 switch (tableType) {
                     case 'phuHieu':
                         rowHtml = `
-                  <tr>
-                      <td>${index + 1}</td>
-                      <td>${item.BienSo || ''}</td>
-                      <td>${item['Số ghế'] || ''}</td>
-                      <td>${item['Tải trọng'] || ''}</td>
-                      <td>${item.SoPhuHieu || ''}</td>
-                      <td>${item.LoaiPH || ''}</td>
-                      <td>${formatDate(item.NgayHetHan)}</td>
-                      <td class="text-left">${item['Tuyến khai thác'] || ''}</td>
-                      <td class="text-left">${item['Tuyến buýt'] || ''}</td>
-                      <td class="text-left">${item.tenDoanhNghiep || ''}</td>
-                      <td class="text-left">${item.diaChiDoanhNghiep || ''}</td>
-                </tr>`;
+                 <tr>
+                     <td>${index + 1}</td>
+                     <td>${item.BienSo || ''}</td>
+                     <td>${item['Số ghế'] || ''}</td>
+                     <td>${item['Tải trọng'] || ''}</td>
+                     <td>${item.SoPhuHieu || ''}</td>
+                     <td>${item.LoaiPH || ''}</td>
+                     <td>${formatDate(item.NgayHetHan)}</td>
+                     <td class="text-left">${item['Tuyến khai thác'] || ''}</td>
+                     <td class="text-left">${item['Tuyến buýt'] || ''}</td>
+                     <td class="text-left">${item.tenDoanhNghiep || ''}</td>
+                     <td class="text-left">${item.diaChiDoanhNghiep || ''}</td>
+               </tr>`;
                         break;
                     case 'gpkd':
                         rowHtml = `
-                <tr>
-                    <td>${index + 1}</td>
-                    <td class="text-left">${item.tenDoanhNghiep || ''}</td>
-                    <td class="text-left">${item.diaChiDoanhNghiep || ''}</td>
-                    <td>${item.SoDKKD || ''}</td>
-                    <td>${item.SoGiayPhep || ''}</td>
-                    <td>${formatDate(item.NgayCap)}</td>
-                    <td>${item.LoaiHinhVanTai || ''}</td>
-                </tr>`;
+               <tr>
+                   <td>${index + 1}</td>
+                   <td class="text-left">${item.tenDoanhNghiep || ''}</td>
+                   <td class="text-left">${item.diaChiDoanhNghiep || ''}</td>
+                   <td>${item.SoDKKD || ''}</td>
+                   <td>${item.SoGiayPhep || ''}</td>
+                   <td>${formatDate(item.NgayCap)}</td>
+                   <td>${item.LoaiHinhVanTai || ''}</td>
+               </tr>`;
                         break;
                     case 'phuHieuThuHoi':
                         rowHtml = `
-                <tr>
-                    <td>${index + 1}</td>
-                    <td>${item['Biển số'] || ''}</td>
-                    <td>${item['Số Phù hiệu'] || ''}</td>
-                    <td>${item['Loại Phù hiệu'] || ''}</td>
-                    <td>${formatDate(item['Ngày hết hạn phù hiệu'])}</td>
-                    <td class="text-left">${item['Tuyến khai thác'] || ''}</td>
-                    <td class="text-left">${item['Tuyến buýt'] || ''}</td>
-                    <td class="text-left">${item.tenDoanhNghiep || ''}</td>
-                    <td class="text-left">${item.diaChiDoanhNghiep || ''}</td>
-                    <td class="text-left">${item['Văn bản ngừng'] || ''}</td>
-                </tr>`;
+               <tr>
+                   <td>${index + 1}</td>
+                   <td>${item['Biển số'] || ''}</td>
+                   <td>${item['Số Phù hiệu'] || ''}</td>
+                   <td>${item['Loại Phù hiệu'] || ''}</td>
+                   <td>${formatDate(item['Ngày hết hạn phù hiệu'])}</td>
+                   <td class="text-left">${item['Tuyến khai thác'] || ''}</td>
+                   <td class="text-left">${item['Tuyến buýt'] || ''}</td>
+                   <td class="text-left">${item.tenDoanhNghiep || ''}</td>
+                   <td class="text-left">${item.diaChiDoanhNghiep || ''}</td>
+                   <td class="text-left">${item['Văn bản ngừng'] || ''}</td>
+               </tr>`;
                         break;
                     case 'gpkdThuHoi':
                         rowHtml = `
-                <tr>
-                    <td>${index + 1}</td>
-                    <td class="text-left">${item.tenDoanhNghiep || ''}</td>
-                    <td class="text-left">${item.diaChiDoanhNghiep || ''}</td>
-                    <td>${item['Số ĐKKD'] || ''}</td>
-                    <td>${item['Số GP KDVT'] || ''}</td>
-                    <td>${formatDate(item['Ngày cấp'])}</td>
-                    <td>${item['Loại hình vận tải'] || ''}</td>
-                </tr>`;
+               <tr>
+                   <td>${index + 1}</td>
+                   <td class="text-left">${item.tenDoanhNghiep || ''}</td>
+                   <td class="text-left">${item.diaChiDoanhNghiep || ''}</td>
+                   <td>${item['Số ĐKKD'] || ''}</td>
+                   <td>${item['Số GP KDVT'] || ''}</td>
+                   <td>${formatDate(item['Ngày cấp'])}</td>
+                   <td>${item['Loại hình vận tải'] || ''}</td>
+               </tr>`;
                         break;
                 }
 
@@ -998,19 +993,45 @@
 
                 console.log(`Fetching data for month: ${month}, year: ${year}`);
 
-                // Update page 1 content with selected month
-                updatePage1Content(month, year);
+                // Prepare API calls
+                const currentDate = new Date().toISOString();
 
-                // First fetch company lookup data
-                const companyLookup = await fetchAllCompanyData();
-
-                // Fetch data from all tables with date filtering
-                const [phuHieuData, gpkdData, phuHieuThuHoiData, gpkdThuHoiData] = await Promise.all([
+                const apiCalls = [
+                    // Main data fetches
                     fetchTableDataWithFilter('PHUHIEUXE', 'ID_PhuHieu', 'NgayCap', month, year),
                     fetchTableDataWithFilter('GIAYPHEPKINHDOANHNOIDIA', 'ID_GPKD', 'NgayCap', month, year),
                     fetchTableDataWithFilter('PHUHIEU_THUHOI_CHITIET', 'ID_Row', 'Ngày hết hạn phù hiệu', month, year),
-                    fetchTableDataWithFilter('GPKD_THUHOI_CHITIET', 'ID_Row', 'Ngày thu hồi', month, year)
-                ]);
+                    fetchTableDataWithFilter('GPKD_THUHOI_CHITIET', 'ID_Row', 'Ngày thu hồi', month, year),
+
+                    // Company lookup and ThongTin data
+                    fetchAllCompanyData(),
+                    callAPI('ThongTin', `Filter(ThongTin, [Ngay_hieu_luc] <= "${currentDate}")`)
+                ];
+
+                // Execute API calls
+                console.log("Bắt đầu gọi API...");
+                const [phuHieuData, gpkdData, phuHieuThuHoiData, gpkdThuHoiData, companyData, tinhData] = await Promise.all(apiCalls);
+
+                console.log("Tinh data:", tinhData);
+
+                // Store tinhData globally
+                globalTinhData = tinhData;
+
+                // Process company lookup
+                const companyLookup = {};
+                companyData.forEach(company => {
+                    if (company.IDDoanhNghiep) {
+                        companyLookup[company.IDDoanhNghiep] = {
+                            tenDoanh: company.TenDoanhNghiep || '',
+                            diaChi: company.SoNha_TDP || '',
+                            xaPhuongThiTran: company.XaPhuongThiTran || '',
+                            quanHuyen: company.QuanHuyen || ''
+                        };
+                    }
+                });
+
+                // Update page 1 content with selected month and tinh info
+                updatePage1Content(month, year, tinhData);
 
                 // Calculate and update statistics
                 calculateStatistics(phuHieuData, gpkdData, phuHieuThuHoiData, gpkdThuHoiData);
@@ -1049,12 +1070,13 @@
             }
         }
 
-        // Format dates as dd/mm/yyyy
+        // Format dates as dd/mm/yyyy with administrative rules
         function formatDate(dateString) {
             if (!dateString) return '';
             const date = new Date(dateString);
-            const day = date.getDate().toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0'); // Always pad day
             const month = date.getMonth() + 1;
+            // Only pad months 1 and 2 with zero
             const formattedMonth = month <= 2 ?
                 month.toString().padStart(2, '0') :
                 month.toString();
@@ -1062,21 +1084,26 @@
         }
 
         // Function to update page 1 content
-        function updatePage1Content(month, year) {
+        function updatePage1Content(month, year, tinhData) {
+            // Update tinh information first
+            const { tenTinh, nguoiKy } = updateTinhInfo(tinhData);
+
             const today = new Date();
-            const day = today.getDate().toString().padStart(2, '0');
+            const day = today.getDate().toString().padStart(2, '0'); // Always pad day
             const currentMonth = today.getMonth() + 1;
+            // Only pad months 1 and 2 with zero
             const formattedCurrentMonth = currentMonth <= 2 ?
                 currentMonth.toString().padStart(2, '0') :
                 currentMonth.toString();
 
+            // Only pad months 1 and 2 with zero for selected month
             const formattedMonth = month <= 2 ?
                 month.toString().padStart(2, '0') :
                 month.toString();
 
-            // Update date
-            document.getElementById('ngay-thang').textContent =
-                `Bắc Giang, ngày ${day} tháng ${formattedCurrentMonth} năm ${year}`;
+            // Update date with tinh name
+            document.getElementById('ngay-thang').innerHTML =
+                `<span id="tinh-footer">${tenTinh}</span>, ngày ${day} tháng ${formattedCurrentMonth} năm ${year}`;
 
             // Update titles with selected month
             const monthYearText = `${formattedMonth}/${year}`;
@@ -1124,22 +1151,54 @@
 
                 const today = new Date();
 
-                // Fetch company lookup data first
-                const companyLookup = await fetchAllCompanyData();
+                // Prepare API calls
+                const currentDate = new Date().toISOString();
 
-                // Fetch data from all tables
-                const [phuHieuData, gpkdData, phuHieuThuHoiData, gpkdThuHoiData] = await Promise.all([
+                const apiCalls = [
                     fetchTableDataWithFilter('PHUHIEUXE', 'ID_PhuHieu', 'NgayCap', month, year),
                     fetchTableDataWithFilter('GIAYPHEPKINHDOANHNOIDIA', 'ID_GPKD', 'NgayCap', month, year),
                     fetchTableDataWithFilter('PHUHIEU_THUHOI_CHITIET', 'ID_Row', 'Ngày hết hạn phù hiệu', month, year),
-                    fetchTableDataWithFilter('GPKD_THUHOI_CHITIET', 'ID_Row', 'Ngày thu hồi', month, year)
-                ]);
+                    fetchTableDataWithFilter('GPKD_THUHOI_CHITIET', 'ID_Row', 'Ngày thu hồi', month, year),
+                    fetchAllCompanyData(),
+                    // Use global tinhData if available, otherwise fetch fresh
+                    globalTinhData ? Promise.resolve(globalTinhData) : callAPI('ThongTin', `Filter(ThongTin, [Ngay_hieu_luc] <= "${currentDate}")`)
+                ];
+
+                // Execute API calls
+                const [phuHieuData, gpkdData, phuHieuThuHoiData, gpkdThuHoiData, companyData, tinhDataResult] = await Promise.all(apiCalls);
+
+                // Process company lookup
+                const companyLookup = {};
+                companyData.forEach(company => {
+                    if (company.IDDoanhNghiep) {
+                        companyLookup[company.IDDoanhNghiep] = {
+                            tenDoanh: company.TenDoanhNghiep || '',
+                            diaChi: company.SoNha_TDP || '',
+                            xaPhuongThiTran: company.XaPhuongThiTran || '',
+                            quanHuyen: company.QuanHuyen || ''
+                        };
+                    }
+                });
 
                 // Group data by location
                 const groupedPhuHieu = groupDataByLocation(phuHieuData || [], companyLookup);
                 const groupedGpkd = groupDataByLocation(gpkdData || [], companyLookup);
                 const groupedPhuHieuThuHoi = groupDataByLocation(phuHieuThuHoiData || [], companyLookup);
                 const groupedGpkdThuHoi = groupDataByLocation(gpkdThuHoiData || [], companyLookup);
+
+                // Get tinh info for Word export
+                let tenTinh = 'Bắc Giang';
+                let nguoiKy = 'Hoàng Văn Hải';
+
+                if (tinhDataResult && tinhDataResult.length > 0) {
+                    const sortedTinhData = tinhDataResult.sort((a, b) =>
+                        new Date(b.Ngay_hieu_luc) - new Date(a.Ngay_hieu_luc)
+                    );
+                    tenTinh = sortedTinhData[0].Tinh || 'Bắc Giang';
+                    if (sortedTinhData[0].NguoiKy) {
+                        nguoiKy = sortedTinhData[0].NguoiKy;
+                    }
+                }
 
                 // Prepare grouped data for Word template
                 const prepareGroupedDataForWord = () => {
@@ -1256,19 +1315,23 @@
                     linebreaks: true
                 });
 
-                // Process date formatting
-                const ngayKy = today.getDate().toString().padStart(2, '0');
+                // Process date formatting with administrative rules
+                const ngayKy = today.getDate().toString().padStart(2, '0'); // Always pad day
                 const thangKy = today.getMonth() + 1;
+                // Only pad months 1 and 2 with zero
                 const formattedThangKy = thangKy <= 2 ?
                     thangKy.toString().padStart(2, '0') :
                     thangKy.toString();
 
+                // Only pad months 1 and 2 with zero for report month
                 const thang_thong_bao = month <= 2 ?
                     month.toString().padStart(2, '0') :
                     month.toString();
 
                 // Set data for template
                 const data = {
+                    tinh: tenTinh,
+                    nguoi_ky: nguoiKy,
                     ngayKy: ngayKy,
                     thangKy: formattedThangKy,
                     nam: today.getFullYear(),
@@ -1276,7 +1339,7 @@
                     nam_thong_bao: year,
                     locations: prepareGroupedDataForWord(),
                     totalLocations: prepareGroupedDataForWord().length,
-                    // Thêm thống kê vào data cho Word template
+                    // Statistics
                     stat_phu_hieu: globalStats.phuHieu,
                     stat_gpkd: globalStats.gpkd,
                     stat_phu_hieu_thu_hoi: globalStats.phuHieuThuHoi,
