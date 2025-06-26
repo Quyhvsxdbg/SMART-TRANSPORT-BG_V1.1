@@ -861,6 +861,9 @@
                 <button class="nav-btn py-3 px-4 hover:bg-blue-600 whitespace-nowrap" data-tab="reports">
                     <i class="fas fa-file-chart-line mr-2"></i>Báo cáo
                 </button>
+                <button class="nav-btn py-3 px-4 hover:bg-blue-600 whitespace-nowrap" data-tab="bus-stations">
+                    <i class="fas fa-map-marker-alt mr-2"></i>Bến xe
+                </button>
             </div>
         </div>
     </nav>
@@ -1348,6 +1351,56 @@
                     </div>
                     <!-- </div> -->
                 </div>
+
+                <!-- Bộ lọc cho Bến xe -->
+                <div id="busStationFilters" class="filter-section hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="filter-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-search text-blue-500 mr-1"></i>
+                                TÊN BẾN XE
+                            </label>
+                            <input type="text" id="busStationNameFilter" placeholder="Nhập tên bến xe..."
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200">
+                        </div>
+                        <div class="filter-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-tag text-green-500 mr-1"></i>
+                                LOẠI BẾN
+                            </label>
+                            <div class="relative">
+                                <select id="busStationTypeFilter"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
+                                    <option value="">Tất cả</option>
+                                </select>
+                                <i
+                                    class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
+                            </div>
+                        </div>
+                        <div class="filter-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-cogs text-purple-500 mr-1"></i>
+                                MÔ HÌNH
+                            </label>
+                            <div class="relative">
+                                <select id="busStationModelFilter"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
+                                    <option value="">Tất cả</option>
+                                </select>
+                                <i
+                                    class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
+                            </div>
+                        </div>
+                        <div class="filter-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-building text-orange-500 mr-1"></i>
+                                ĐƠN VỊ QUẢN LÝ
+                            </label>
+                            <input type="text" id="busStationManagerFilter" placeholder="Nhập tên đơn vị..."
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200">
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1825,6 +1878,148 @@
                 </div>
             </div>
         </div>
+
+        <!-- Bus Stations Tab -->
+        <div id="bus-stations" class="tab-content hidden">
+            <!-- Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+                <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-purple-100">Tổng số bến xe</p>
+                            <p class="text-3xl font-bold" id="totalBusStations">0</p>
+                        </div>
+                        <i class="fas fa-map-marker-alt text-4xl text-purple-200"></i>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-blue-100">Tuyến cố định quy hoạch</p>
+                            <p class="text-3xl font-bold" id="totalFixedRoutes">0</p>
+                        </div>
+                        <i class="fas fa-route text-4xl text-blue-200"></i>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-green-100">Tuyến cố định đang KT</p>
+                            <p class="text-3xl font-bold" id="activeFixedRoutes">0</p>
+                        </div>
+                        <i class="fas fa-play-circle text-4xl text-green-200"></i>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-orange-100">Tuyến buýt quy hoạch</p>
+                            <p class="text-3xl font-bold" id="totalBusRoutes">0</p>
+                        </div>
+                        <i class="fas fa-bus text-4xl text-orange-200"></i>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-r from-teal-500 to-teal-600 text-white rounded-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-teal-100">Tuyến buýt đang KT</p>
+                            <p class="text-3xl font-bold" id="activeBusRoutes">0</p>
+                        </div>
+                        <i class="fas fa-check-circle text-4xl text-teal-200"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Statistics -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <!-- Trip Statistics -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">Thống kê chuyến khai thác</h3>
+                    <div class="space-y-4">
+                        <div class="bg-blue-50 rounded-lg p-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-blue-800 font-medium">Tổng chuyến cố định</span>
+                                <span class="text-2xl font-bold text-blue-600" id="totalFixedTrips">0</span>
+                            </div>
+                        </div>
+                        <div class="bg-green-50 rounded-lg p-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-green-800 font-medium">Tổng chuyến buýt</span>
+                                <span class="text-2xl font-bold text-green-600" id="totalBusTrips">0</span>
+                            </div>
+                        </div>
+                        <div class="bg-purple-50 rounded-lg p-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-purple-800 font-medium">Tổng cộng</span>
+                                <span class="text-2xl font-bold text-purple-600" id="totalAllTrips">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Capacity Statistics -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">Thống kê công suất</h3>
+                    <div class="space-y-4">
+                        <div class="bg-indigo-50 rounded-lg p-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-indigo-800 font-medium">Tổng công suất/ngày</span>
+                                <span class="text-2xl font-bold text-indigo-600" id="totalDailyCapacity">0</span>
+                            </div>
+                        </div>
+                        <div class="bg-yellow-50 rounded-lg p-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-yellow-800 font-medium">Công suất TB/bến</span>
+                                <span class="text-2xl font-bold text-yellow-600" id="avgCapacityPerStation">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <!-- Station Type Chart -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">Phân loại theo loại bến xe</h3>
+                    <div class="pie-chart-container">
+                        <canvas id="stationTypeChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Capacity Chart -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">Công suất các bến xe (Top 10)</h3>
+                    <div class="chart-container">
+                        <canvas id="stationCapacityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bus Stations Table -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold mb-4">Danh sách bến xe</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-2 text-left">Mã bến</th>
+                                <th class="px-4 py-2 text-left">Tên bến xe</th>
+                                <th class="px-4 py-2 text-center">Loại bến</th>
+                                <th class="px-4 py-2 text-center">Mô hình</th>
+                                <th class="px-4 py-2 text-center">Công suất/ngày</th>
+                                <th class="px-4 py-2 text-center">Số tuyến KT</th>
+                                <th class="px-4 py-2 text-center">Đơn vị quản lý</th>
+                                <th class="px-4 py-2 text-center">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="busStationsTableBody">
+                            <!-- Dữ liệu sẽ được load từ API -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </main>
 
     <!-- Footer -->
@@ -1847,6 +2042,9 @@
         let originalIntEmblemsData = [];
         let originalIntBooksData = [];
         let originalCompanyData = []; // Thêm biến cho dữ liệu công ty
+        let originalBusStationsData = [];
+        let originalFixedRoutesData = [];
+        let originalBusRoutesData = [];
 
         // Filtered data variables (dữ liệu sau khi lọc)
         let filteredLicensesData = [];
@@ -1854,6 +2052,9 @@
         let filteredInternationalData = [];
         let filteredIntEmblemsData = [];
         let filteredIntBooksData = [];
+        let filteredBusStationsData = [];
+        let filteredFixedRoutesData = [];
+        let filteredBusRoutesData = [];
 
         // CHỨC NĂNG XUẤT EXCEL MỚI - SỬ DỤNG SHEETJS
         function exportCurrentTabData() {
@@ -1869,6 +2070,7 @@
                 'international': 'GP_Lien_van_QT',
                 'international-emblems': 'Phu_hieu_LV',
                 'international-books': 'So_lien_van',
+                'bus-stations': 'Ben_xe',           // THÊM
                 'statistics': 'Thong_ke',
                 'reports': 'Bao_cao'
             };
@@ -1907,6 +2109,9 @@
                     case 'reports':
                         workbook = exportReportsData();
                         break;
+                    case 'bus-stations':                    // THÊM
+                        workbook = exportBusStationsData(); // THÊM
+                        break;
                     default:
                         throw new Error('Tab không được hỗ trợ');
                 }
@@ -1936,7 +2141,10 @@
                 ['Phù hiệu có hiệu lực', filteredEmblemsData.filter(e => !isEmblemExpired(e.NgayHetHan) && e.TrangThai !== 'Đã thu hồi').length],
                 ['GP Liên vận QT', filteredInternationalData.length],
                 ['Phù hiệu LV', filteredIntEmblemsData.length],
-                ['Sổ liên vận', filteredIntBooksData.length]
+                ['Sổ liên vận', filteredIntBooksData.length],
+                ['Bến xe', filteredBusStationsData.length],         // THÊM
+                ['Tuyến cố định', filteredFixedRoutesData.length],  // THÊM
+                ['Tuyến buýt', filteredBusRoutesData.length]        // THÊM
             ];
 
             const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
@@ -1970,6 +2178,12 @@
             if (filteredIntBooksData.length > 0) {
                 const intBookSheet = createIntBookSheet();
                 XLSX.utils.book_append_sheet(workbook, intBookSheet, 'Sổ liên vận');
+            }
+
+            // Sheet 7: Bến xe - THÊM MỚI
+            if (filteredBusStationsData.length > 0) {
+                const busStationSheet = createBusStationSheet();
+                XLSX.utils.book_append_sheet(workbook, busStationSheet, 'Bến xe');
             }
 
             return workbook;
@@ -2405,6 +2619,89 @@
             return worksheet;
         }
 
+        // Tạo sheet Bến xe
+        function createBusStationSheet() {
+            const headers = [
+                'STT',
+                'Mã bến',
+                'Tên bến xe',
+                'Loại bến',
+                'Mô hình',
+                'Địa chỉ',
+                'Diện tích (m²)',
+                'Công suất/giờ',
+                'Công suất/ngày',
+                'Thời gian hoạt động',
+                'Số tuyến khai thác',
+                'Trưởng bến',
+                'Đơn vị quản lý',
+                'Số điện thoại',
+                'Email',
+                'Quyết định công bố',
+                'Ngày QĐ',
+                'Ngày hết hạn'
+            ];
+
+            const data = [
+                ['DANH SÁCH BẾN XE'],
+                [`Ngày xuất: ${new Date().toLocaleString('vi-VN')}`],
+                [`Tổng số: ${filteredBusStationsData.length} bến xe`],
+                [`Khoảng thời gian: ${formatDate(document.getElementById('startDate').value)} - ${formatDate(document.getElementById('endDate').value)}`],
+                [],
+                headers
+            ];
+
+            filteredBusStationsData.forEach((station, index) => {
+                data.push([
+                    index + 1,
+                    station.MaBen || '',
+                    station.TenBen || '',
+                    station.LoaiBen || '',
+                    station.MoHinh || '',
+                    station.DiaChiBenXe || '',
+                    station.DienTichBen || '',
+                    station.CongSuatBen_Gio || '',
+                    station.CongSuatBen_Ngay || '',
+                    station.ThoiGianHoatDongBen_Ngay || '',
+                    station.SoTuyenKhaiThac || 0,
+                    station.TruongBen || '',
+                    station.DonViQuanLy || '',
+                    station.SoDTBX || '',
+                    station.EmailBX || '',
+                    station.QuyetDinhCongBoBen || '',
+                    formatDate(station.NgayQDCBBen),
+                    formatDate(station.NgayHetHan)
+                ]);
+            });
+
+            const worksheet = XLSX.utils.aoa_to_sheet(data);
+
+            // Thiết lập độ rộng cột
+            const colWidths = [
+                { wch: 5 },   // STT
+                { wch: 10 },  // Mã bến
+                { wch: 30 },  // Tên bến xe
+                { wch: 20 },  // Loại bến
+                { wch: 15 },  // Mô hình
+                { wch: 40 },  // Địa chỉ
+                { wch: 12 },  // Diện tích
+                { wch: 15 },  // Công suất/giờ
+                { wch: 15 },  // Công suất/ngày
+                { wch: 20 },  // Thời gian hoạt động
+                { wch: 12 },  // Số tuyến KT
+                { wch: 20 },  // Trưởng bến
+                { wch: 25 },  // Đơn vị quản lý
+                { wch: 15 },  // Số điện thoại
+                { wch: 25 },  // Email
+                { wch: 20 },  // Quyết định
+                { wch: 12 },  // Ngày QĐ
+                { wch: 12 }   // Ngày hết hạn
+            ];
+            worksheet['!cols'] = colWidths;
+
+            return worksheet;
+        }
+
         // Xuất dữ liệu Thống kê
         function exportStatisticsData() {
             const workbook = XLSX.utils.book_new();
@@ -2499,6 +2796,14 @@
             ]);
             XLSX.utils.book_append_sheet(workbook, trendSheet, 'Xu hướng theo tháng');
 
+            return workbook;
+        }
+
+        // Xuất dữ liệu Bến xe
+        function exportBusStationsData() {
+            const workbook = XLSX.utils.book_new();
+            const sheet = createBusStationSheet();
+            XLSX.utils.book_append_sheet(workbook, sheet, 'Bến xe');
             return workbook;
         }
 
@@ -2822,6 +3127,66 @@
             }
         }
 
+        // Fetch Bus Stations Data
+        async function fetchBusStationsData() {
+            try {
+                const response = await apiRequest('MABENXE', 'Find', {
+                    Selector: "Filter(MABENXE, true)"
+                });
+
+                if (Array.isArray(response)) {
+                    originalBusStationsData = response;
+                    filteredBusStationsData = [...originalBusStationsData];
+                    console.log('Dữ liệu bến xe:', originalBusStationsData);
+                } else {
+                    throw new Error('Dữ liệu không hợp lệ');
+                }
+            } catch (error) {
+                console.error('Lỗi khi lấy dữ liệu bến xe:', error);
+                showNotification('Không thể tải dữ liệu bến xe', 'error');
+            }
+        }
+
+        // Fetch Fixed Routes Data
+        async function fetchFixedRoutesData() {
+            try {
+                const response = await apiRequest('DANHMUCTUYENCODINH', 'Find', {
+                    Selector: "Filter(DANHMUCTUYENCODINH, true)"
+                });
+
+                if (Array.isArray(response)) {
+                    originalFixedRoutesData = response;
+                    filteredFixedRoutesData = [...originalFixedRoutesData];
+                    console.log('Dữ liệu tuyến cố định:', originalFixedRoutesData);
+                } else {
+                    throw new Error('Dữ liệu không hợp lệ');
+                }
+            } catch (error) {
+                console.error('Lỗi khi lấy dữ liệu tuyến cố định:', error);
+                showNotification('Không thể tải dữ liệu tuyến cố định', 'error');
+            }
+        }
+
+        // Fetch Bus Routes Data
+        async function fetchBusRoutesData() {
+            try {
+                const response = await apiRequest('DANHMUCTUYENBUYT', 'Find', {
+                    Selector: "Filter(DANHMUCTUYENBUYT, true)"
+                });
+
+                if (Array.isArray(response)) {
+                    originalBusRoutesData = response;
+                    filteredBusRoutesData = [...originalBusRoutesData];
+                    console.log('Dữ liệu tuyến buýt:', originalBusRoutesData);
+                } else {
+                    throw new Error('Dữ liệu không hợp lệ');
+                }
+            } catch (error) {
+                console.error('Lỗi khi lấy dữ liệu tuyến buýt:', error);
+                showNotification('Không thể tải dữ liệu tuyến buýt', 'error');
+            }
+        }
+
         // Main Filter Function - Xử lý tất cả logic lọc (CẬP NHẬT)
         function applyFilters() {
             const startDate = document.getElementById('startDate').value;
@@ -2843,6 +3208,9 @@
             let tempInternational = filterByDateRange(originalInternationalData, startDate, endDate, 'NgayCap');
             let tempIntEmblems = filterByDateRange(originalIntEmblemsData, startDate, endDate, 'NgayCap');
             let tempIntBooks = filterByDateRange(originalIntBooksData, startDate, endDate, 'NgayCap');
+            let tempBusStations = filterByDateRange(originalBusStationsData, startDate, endDate, 'NgayQDCBBen'); // THÊM
+            let tempFixedRoutes = [...originalFixedRoutesData]; // THÊM
+            let tempBusRoutes = [...originalBusRoutesData]; // THÊM
 
             // Bước 2: Lọc theo khu vực với đúng table name
             if (selectedQuanHuyen || selectedXaPhuong) {
@@ -2873,6 +3241,9 @@
                     case 'international-books':
                         tempIntBooks = applyIntBookSpecificFilters(tempIntBooks);
                         break;
+                    case 'bus-stations':                                              // THÊM
+                        tempBusStations = applyBusStationSpecificFilters(tempBusStations); // THÊM
+                        break;
                 }
             }
 
@@ -2882,6 +3253,9 @@
             filteredInternationalData = tempInternational;
             filteredIntEmblemsData = tempIntEmblems;
             filteredIntBooksData = tempIntBooks;
+            filteredBusStationsData = tempBusStations;     // THÊM
+            filteredFixedRoutesData = tempFixedRoutes;     // THÊM
+            filteredBusRoutesData = tempBusRoutes;         // THÊM
 
             // Bước 5: Cập nhật toàn bộ UI
             updateAllUI();
@@ -3207,6 +3581,46 @@
             });
         }
 
+        // Apply Bus Station Specific Filters
+        function applyBusStationSpecificFilters(data) {
+            const nameFilter = document.getElementById('busStationNameFilter').value.toLowerCase();
+            const typeFilter = document.getElementById('busStationTypeFilter').value;
+            const modelFilter = document.getElementById('busStationModelFilter').value;
+            const managerFilter = document.getElementById('busStationManagerFilter').value.toLowerCase();
+
+            return data.filter(station => {
+                // Name filter
+                if (nameFilter) {
+                    const normalizedFilter = removeVietnameseAccents(nameFilter);
+                    const normalizedStationName = removeVietnameseAccents(station.TenBen || '');
+                    if (!normalizedStationName.includes(normalizedFilter)) {
+                        return false;
+                    }
+                }
+
+                // Type filter
+                if (typeFilter && station.LoaiBen !== typeFilter) {
+                    return false;
+                }
+
+                // Model filter
+                if (modelFilter && station.MoHinh !== modelFilter) {
+                    return false;
+                }
+
+                // Manager filter
+                if (managerFilter) {
+                    const normalizedFilter = removeVietnameseAccents(managerFilter);
+                    const normalizedManager = removeVietnameseAccents(station.DonViQuanLy || '');
+                    if (!normalizedManager.includes(normalizedFilter)) {
+                        return false;
+                    }
+                }
+
+                return true;
+            });
+        }
+
         // Hàm hỗ trợ tìm kiếm linh hoạt cho biển số
         function isLicensePlateMatch(licensePlate, searchTerm) {
             if (!licensePlate || !searchTerm) return false;
@@ -3279,7 +3693,12 @@
             intBookCompanyFilter.value = '';
             intBookCompanyFilter.placeholder = 'Nhập tên chính hoặc biển số...';
 
-            // Các filter khác giữ nguyên...
+            // Clear bus station filters
+            document.getElementById('busStationNameFilter').value = '';
+            document.getElementById('busStationTypeFilter').value = '';
+            document.getElementById('busStationModelFilter').value = '';
+            document.getElementById('busStationManagerFilter').value = '';
+
             document.getElementById('emblemTypeFilter').value = '';
             document.getElementById('emblemCapFilter').value = '';
             document.getElementById('emblemStatusFilter').value = '';
@@ -3301,6 +3720,7 @@
             updateInternationalUI();
             updateIntEmblemsUI();
             updateIntBooksUI();
+            updateBusStationsUI();  // THÊM
             updateStatisticsData();
         }
 
@@ -3473,6 +3893,53 @@
 
             // Update table
             updateIntBooksTable();
+        }
+
+        // Update Bus Stations UI
+        function updateBusStationsUI() {
+            // Calculate statistics
+            const totalStations = filteredBusStationsData.length;
+
+            // Calculate fixed routes statistics
+            const totalFixedRoutes = filteredFixedRoutesData.length;
+            const activeFixedRoutes = filteredFixedRoutesData.filter(route =>
+                route.TrangThai === 'Đang khai thác' || route.SoChuyenDaKT > 0
+            ).length;
+
+            // Calculate bus routes statistics  
+            const totalBusRoutes = filteredBusRoutesData.length;
+            const activeBusRoutes = filteredBusRoutesData.filter(route =>
+                route.TrangThai === 'Đang khai thác' || route.SoChuyenDaKT > 0
+            ).length;
+
+            // Calculate trip statistics
+            const totalFixedTrips = filteredFixedRoutesData.reduce((sum, route) =>
+                sum + (parseInt(route.SoChuyenDaKT) || 0), 0);
+            const totalBusTrips = filteredBusRoutesData.reduce((sum, route) =>
+                sum + (parseInt(route.SoChuyenDaKT) || 0), 0);
+
+            // Calculate capacity statistics
+            const totalDailyCapacity = filteredBusStationsData.reduce((sum, station) => {
+                const capacity = parseCapacity(station.CongSuatBen_Ngay);
+                return sum + capacity;
+            }, 0);
+
+            const avgCapacityPerStation = totalStations > 0 ? Math.round(totalDailyCapacity / totalStations) : 0;
+
+            // Update dashboard stats
+            document.getElementById('totalBusStations').textContent = totalStations;
+            document.getElementById('totalFixedRoutes').textContent = totalFixedRoutes;
+            document.getElementById('activeFixedRoutes').textContent = activeFixedRoutes;
+            document.getElementById('totalBusRoutes').textContent = totalBusRoutes;
+            document.getElementById('activeBusRoutes').textContent = activeBusRoutes;
+            document.getElementById('totalFixedTrips').textContent = totalFixedTrips.toLocaleString();
+            document.getElementById('totalBusTrips').textContent = totalBusTrips.toLocaleString();
+            document.getElementById('totalAllTrips').textContent = (totalFixedTrips + totalBusTrips).toLocaleString();
+            document.getElementById('totalDailyCapacity').textContent = totalDailyCapacity.toLocaleString();
+            document.getElementById('avgCapacityPerStation').textContent = avgCapacityPerStation.toLocaleString();
+
+            // Update table
+            updateBusStationsTable();
         }
 
         // Update Tables với dữ liệu đã lọc
@@ -3665,6 +4132,50 @@
          `;
                 tableBody.appendChild(row);
             });
+        }
+
+        // Update Bus Stations Table
+        function updateBusStationsTable() {
+            const tableBody = document.getElementById('busStationsTableBody');
+            if (!tableBody) return;
+
+            tableBody.innerHTML = '';
+
+            filteredBusStationsData.slice(0, 50).forEach(station => {
+                const row = document.createElement('tr');
+                row.className = 'border-b hover:bg-gray-50';
+
+                const capacity = parseCapacity(station.CongSuatBen_Ngay);
+
+                row.innerHTML = `
+            <td class="px-4 py-2 font-medium">${station.MaBen || ''}</td>
+            <td class="px-4 py-2">${station.TenBen || ''}</td>
+            <td class="px-4 py-2 text-center">
+                <span class="px-2 py-1 text-xs rounded-full ${getStationTypeClass(station.LoaiBen)}">
+                    ${station.LoaiBen || ''}
+                </span>
+            </td>
+            <td class="px-4 py-2 text-center">${station.MoHinh || ''}</td>
+            <td class="px-4 py-2 text-center font-medium">${capacity.toLocaleString()}</td>
+            <td class="px-4 py-2 text-center">${station.SoTuyenKhaiThac || 0}</td>
+            <td class="px-4 py-2 text-center">${station.DonViQuanLy || ''}</td>
+            <td class="px-4 py-2 text-center">
+                <button class="text-blue-600 hover:text-blue-800" onclick="viewBusStationDetail('${station.IDBen}')">
+                    Chi tiết
+                </button>
+            </td>
+        `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Parse capacity from text format
+        function parseCapacity(capacityText) {
+            if (!capacityText) return 0;
+
+            // Extract numbers from text (assuming format like "1000 lượt/ngày" or "1,000")
+            const numbers = capacityText.toString().replace(/[^\d]/g, '');
+            return parseInt(numbers) || 0;
         }
 
         // Helper function to parse AppSheet date format correctly
@@ -3915,6 +4426,22 @@
             }
         }
 
+        // Get station type class for styling
+        function getStationTypeClass(type) {
+            switch (type) {
+                case 'Bến xe khách liên tỉnh':
+                    return 'bg-blue-100 text-blue-800';
+                case 'Bến xe khách nội tỉnh':
+                    return 'bg-green-100 text-green-800';
+                case 'Bến xe buýt':
+                    return 'bg-purple-100 text-purple-800';
+                case 'Trạm dừng xe buýt':
+                    return 'bg-orange-100 text-orange-800';
+                default:
+                    return 'bg-gray-100 text-gray-800';
+            }
+        }
+
         function isEmblemExpired(dateString) {
             if (!dateString) return false;
             try {
@@ -3956,6 +4483,8 @@
                     setTimeout(initStatisticsCharts, 100);
                 } else if (tabId === 'reports') {
                     setTimeout(initReportCharts, 100);
+                } else if (tabId === 'bus-stations') {        // THÊM
+                    setTimeout(initBusStationCharts, 100);    // THÊM
                 }
             });
         });
@@ -3985,6 +4514,9 @@
                     break;
                 case 'international-books':
                     document.getElementById('internationalBookFilters').classList.remove('hidden');
+                    break;
+                case 'bus-stations':                                           // THÊM
+                    document.getElementById('busStationFilters').classList.remove('hidden'); // THÊM
                     break;
                 default:
                     // Ẩn tất cả nếu không phải tab có bộ lọc riêng
@@ -4065,6 +4597,61 @@
             if (book) {
                 showIntBookModal(book);
             }
+        }
+
+        // View Bus Station Detail Modal
+        function viewBusStationDetail(stationId) {
+            const station = originalBusStationsData.find(item => item.IDBen === stationId);
+            if (station) {
+                showBusStationModal(station);
+            }
+        }
+
+        // Show Bus Station Modal
+        function showBusStationModal(station) {
+            const capacity = parseCapacity(station.CongSuatBen_Ngay);
+            const modalContent = `
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="busStationModal">
+            <div class="bg-white rounded-lg p-6 max-w-4xl w-full mx-4 max-h-96 overflow-y-auto">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold">Chi tiết Bến xe</h3>
+                    <button onclick="closeModal('busStationModal')" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div><strong>Mã bến:</strong> ${station.MaBen || ''}</div>
+                    <div><strong>Tên bến xe:</strong> ${station.TenBen || ''}</div>
+                    <div><strong>Loại bến:</strong> 
+                        <span class="px-2 py-1 text-xs rounded-full ${getStationTypeClass(station.LoaiBen)}">
+                            ${station.LoaiBen || ''}
+                        </span>
+                    </div>
+                    <div><strong>Mô hình:</strong> ${station.MoHinh || ''}</div>
+                    <div><strong>Diện tích:</strong> ${station.DienTichBen ? station.DienTichBen + ' m²' : ''}</div>
+                    <div><strong>Công suất/ngày:</strong> ${capacity.toLocaleString()}</div>
+                    <div><strong>Thời gian hoạt động:</strong> ${station.ThoiGianHoatDongBen_Ngay || ''}</div>
+                    <div><strong>Số tuyến khai thác:</strong> ${station.SoTuyenKhaiThac || 0}</div>
+                    <div class="md:col-span-2"><strong>Địa chỉ:</strong> ${station.DiaChiBenXe || ''}</div>
+                    <div><strong>Số điện thoại:</strong> ${station.SoDTBX || ''}</div>
+                    <div><strong>Email:</strong> ${station.EmailBX || ''}</div>
+                    <div><strong>Trưởng bến:</strong> ${station.TruongBen || ''}</div>
+                    <div><strong>Đơn vị quản lý:</strong> ${station.DonViQuanLy || ''}</div>
+                </div>
+                ${station.QuyetDinhCongBoBen ? `
+                    <div class="mt-4 p-4 bg-blue-50 rounded">
+                        <h4 class="font-semibold text-blue-800">Thông tin quyết định:</h4>
+                        <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <div><strong>Quyết định công bố:</strong> ${station.QuyetDinhCongBoBen}</div>
+                            <div><strong>Ngày QĐ:</strong> ${formatDate(station.NgayQDCBBen)}</div>
+                            <div><strong>Ngày hết hạn:</strong> ${formatDate(station.NgayHetHan)}</div>
+                        </div>
+                    </div>
+                ` : ''}
+            </div>
+        </div>
+    `;
+            document.body.insertAdjacentHTML('beforeend', modalContent);
         }
 
         // Modal functions (giữ nguyên code modal cũ)
@@ -4345,6 +4932,8 @@
                 setTimeout(initStatisticsCharts, 100);
             } else if (activeTab === 'reports') {
                 setTimeout(initReportCharts, 100);
+            } else if (activeTab === 'bus-stations') {        // THÊM
+                setTimeout(initBusStationCharts, 100);        // THÊM
             }
         }
 
@@ -4612,6 +5201,95 @@
             }
         }
 
+        // Initialize Bus Station Charts
+        function initBusStationCharts() {
+            initStationTypeChart();
+            initStationCapacityChart();
+        }
+
+        // Station Type Chart
+        function initStationTypeChart() {
+            const ctx = document.getElementById('stationTypeChart');
+            if (!ctx || !filteredBusStationsData.length) return;
+
+            const typeData = groupStationsByType(filteredBusStationsData);
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: typeData.labels,
+                    datasets: [{
+                        data: typeData.values,
+                        backgroundColor: [
+                            '#3B82F6', // Blue
+                            '#10B981', // Green  
+                            '#8B5CF6', // Purple
+                            '#F59E0B', // Orange
+                            '#EF4444', // Red
+                            '#6366F1'  // Indigo
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Station Capacity Chart
+        function initStationCapacityChart() {
+            const ctx = document.getElementById('stationCapacityChart');
+            if (!ctx || !filteredBusStationsData.length) return;
+
+            // Get top 10 stations by capacity
+            const sortedStations = filteredBusStationsData
+                .map(station => ({
+                    name: station.TenBen,
+                    capacity: parseCapacity(station.CongSuatBen_Ngay)
+                }))
+                .sort((a, b) => b.capacity - a.capacity)
+                .slice(0, 10);
+
+            new Chart(ctx, {
+                type: 'horizontalBar',
+                data: {
+                    labels: sortedStations.map(s => s.name.length > 20 ? s.name.substring(0, 20) + '...' : s.name),
+                    datasets: [{
+                        label: 'Công suất/ngày',
+                        data: sortedStations.map(s => s.capacity),
+                        backgroundColor: '#10B981',
+                        borderColor: '#059669',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function (value) {
+                                    return value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
         // Helper functions for charts - giữ nguyên code cũ
         function groupLicensesByMonth(dataToUse = filteredLicensesData) {
             const monthData = [];
@@ -4689,6 +5367,22 @@
                 values: Object.values(typeCounts)
             };
         }
+
+        // Group stations by type
+        function groupStationsByType(data) {
+            const typeCounts = {};
+
+            data.forEach(station => {
+                const type = station.LoaiBen || 'Khác';
+                typeCounts[type] = (typeCounts[type] || 0) + 1;
+            });
+
+            return {
+                labels: Object.keys(typeCounts),
+                values: Object.values(typeCounts)
+            };
+        }
+
 
         function groupLicensesByTransportType(dataToUse = filteredLicensesData) {
             const typeCounts = {};
@@ -4947,6 +5641,7 @@
             populateIntEmblemFilters();
             populateIntBookFilters();
             populateUnitTypeFilters(); // THÊM DÒNG NÀY
+            populateBusStationFilters(); // THÊM
         }
 
         function populateUnitTypeFilters() {
@@ -5199,6 +5894,39 @@
             });
         }
 
+        // Populate Bus Station Filters
+        function populateBusStationFilters() {
+            if (!originalBusStationsData.length) return;
+
+            const typeFilter = document.getElementById('busStationTypeFilter');
+            const modelFilter = document.getElementById('busStationModelFilter');
+
+            const types = [...new Set(originalBusStationsData.map(item => item.LoaiBen).filter(Boolean))];
+            const models = [...new Set(originalBusStationsData.map(item => item.MoHinh).filter(Boolean))];
+
+            // Clear existing options except first one
+            while (typeFilter.children.length > 1) {
+                typeFilter.removeChild(typeFilter.lastChild);
+            }
+            while (modelFilter.children.length > 1) {
+                modelFilter.removeChild(modelFilter.lastChild);
+            }
+
+            types.sort().forEach(type => {
+                const option = document.createElement('option');
+                option.value = type;
+                option.textContent = type;
+                typeFilter.appendChild(option);
+            });
+
+            models.sort().forEach(model => {
+                const option = document.createElement('option');
+                option.value = model;
+                option.textContent = model;
+                modelFilter.appendChild(option);
+            });
+        }
+
         function updateStatisticsData() {
             // Count unique companies from filtered data
             const uniqueCompanies = new Set();
@@ -5318,7 +6046,10 @@
                     fetchEmblemsData(),
                     fetchInternationalData(),
                     fetchIntEmblemsData(),
-                    fetchIntBooksData()
+                    fetchIntBooksData(),
+                    fetchBusStationsData(),      // THÊM
+                    fetchFixedRoutesData(),      // THÊM  
+                    fetchBusRoutesData()
                 ]);
 
                 // Populate filter options
@@ -5587,7 +6318,10 @@
                     fetchEmblemsData(),
                     fetchInternationalData(),
                     fetchIntEmblemsData(),
-                    fetchIntBooksData()
+                    fetchIntBooksData(),
+                    fetchBusStationsData(),    // THÊM
+                    fetchFixedRoutesData(),    // THÊM
+                    fetchBusRoutesData()       // THÊM
                 ]);
                 updateAllUI();
                 showNotification('Dữ liệu đã được làm mới!', 'success');
