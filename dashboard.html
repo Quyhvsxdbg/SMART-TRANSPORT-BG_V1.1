@@ -924,6 +924,9 @@
                 <button class="nav-btn py-3 px-4 hover:bg-blue-600 whitespace-nowrap" data-tab="bus-stations">
                     <i class="fas fa-map-marker-alt mr-2"></i>Bến xe
                 </button>
+                <button class="nav-btn py-3 px-4 hover:bg-blue-600 whitespace-nowrap" data-tab="registration-centers">
+                    <i class="fas fa-tools mr-2"></i>Trung tâm ĐK
+                </button>
             </div>
         </div>
     </nav>
@@ -2055,7 +2058,6 @@
                                     <th class="px-4 py-2 text-left">Mã bến</th>
                                     <th class="px-4 py-2 text-left">Tên bến xe</th>
                                     <th class="px-4 py-2 text-center">Loại bến</th>
-                                    <th class="px-4 py-2 text-center">Mô hình</th>
                                     <th class="px-4 py-2 text-center">Công suất/ngày</th>
                                     <th class="px-4 py-2 text-center">Số tuyến KT</th>
                                     <th class="px-4 py-2 text-center">Đơn vị quản lý</th>
@@ -2063,6 +2065,67 @@
                                 </tr>
                             </thead>
                             <tbody id="busStationsTableBody">
+                                <!-- Dữ liệu sẽ được load từ API -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thêm sau phần bus-stations tab -->
+            <!-- Registration Centers Tab -->
+            <div id="registration-centers" class="tab-content hidden">
+                <!-- Summary Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white rounded-lg p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-indigo-100">Tổng số TTĐK</p>
+                                <p class="text-3xl font-bold" id="totalRegistrationCenters">0</p>
+                            </div>
+                            <i class="fas fa-tools text-4xl text-indigo-200"></i>
+                        </div>
+                    </div>
+                    <div class="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-green-100">Tổng Loại I</p>
+                                <p class="text-3xl font-bold" id="totalType1">0</p>
+                            </div>
+                            <i class="fas fa-car text-4xl text-green-200"></i>
+                        </div>
+                    </div>
+                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-blue-100">Tổng Loại II</p>
+                                <p class="text-3xl font-bold" id="totalType2">0</p>
+                            </div>
+                            <i class="fas fa-truck text-4xl text-blue-200"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Registration Centers Table -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">Danh sách Trung tâm Đăng kiểm</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-2 text-left">ID</th>
+                                    <th class="px-4 py-2 text-left">Tên trung tâm</th>
+                                    <th class="px-4 py-2 text-left">Địa chỉ</th>
+                                    <th class="px-4 py-2 text-center">Điện thoại TT</th>
+                                    <th class="px-4 py-2 text-center">Email</th>
+                                    <th class="px-4 py-2 text-center">Phụ trách</th>
+                                    <th class="px-4 py-2 text-center">ĐT Giám đốc</th>
+                                    <th class="px-4 py-2 text-center">Loại I</th>
+                                    <th class="px-4 py-2 text-center">Loại II</th>
+                                    <th class="px-4 py-2 text-center">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="registrationCentersTableBody">
                                 <!-- Dữ liệu sẽ được load từ API -->
                             </tbody>
                         </table>
@@ -2094,6 +2157,7 @@
         let originalBusStationsData = [];
         let originalFixedRoutesData = [];
         let originalBusRoutesData = [];
+        let originalRegistrationCentersData = [];
 
         // Filtered data variables (dữ liệu sau khi lọc)
         let filteredLicensesData = [];
@@ -2104,6 +2168,7 @@
         let filteredBusStationsData = [];
         let filteredFixedRoutesData = [];
         let filteredBusRoutesData = [];
+        let filteredRegistrationCentersData = [];
 
         // CHỨC NĂNG XUẤT EXCEL MỚI - SỬ DỤNG SHEETJS
         function exportCurrentTabData() {
@@ -2119,7 +2184,8 @@
                 'international': 'GP_Lien_van_QT',
                 'international-emblems': 'Phu_hieu_LV',
                 'international-books': 'So_lien_van',
-                'bus-stations': 'Ben_xe',           // THÊM
+                'bus-stations': 'Ben_xe',
+                'registration-centers': 'Trung_tam_DK',           // THÊM
                 'statistics': 'Thong_ke',
                 'reports': 'Bao_cao'
             };
@@ -2856,6 +2922,81 @@
             return workbook;
         }
 
+        // Thêm hàm xuất Excel cho Registration Centers
+        function exportRegistrationCentersData() {
+            const workbook = XLSX.utils.book_new();
+            const sheet = createRegistrationCenterSheet();
+            XLSX.utils.book_append_sheet(workbook, sheet, 'Trung tâm ĐK');
+            return workbook;
+        }
+
+        function createRegistrationCenterSheet() {
+            const headers = [
+                'STT',
+                'ID Trung tâm',
+                'Tên trung tâm',
+                'Địa chỉ',
+                'Điện thoại TT',
+                'Email',
+                'Phụ trách',
+                'ĐT Giám đốc',
+                'Loại I',
+                'Loại II',
+                'Tổng cộng',
+                'Link Map'
+            ];
+
+            const data = [
+                ['DANH SÁCH TRUNG TÂM ĐĂNG KIỂM'],
+                [`Ngày xuất: ${new Date().toLocaleString('vi-VN')}`],
+                [`Tổng số: ${filteredRegistrationCentersData.length} trung tâm`],
+                [],
+                headers
+            ];
+
+            filteredRegistrationCentersData.forEach((center, index) => {
+                const type1 = parseInt(center['Loại I']) || 0;
+                const type2 = parseInt(center['Loại II']) || 0;
+                const total = type1 + type2;
+
+                data.push([
+                    index + 1,
+                    center.IDTrungTam || '',
+                    center.TenTrungTam || '',
+                    center.DiaChi || '',
+                    center.SoDTTT || '',
+                    center.Email || '',
+                    center['Phụ trách'] || '',
+                    center.SoDTGiamDoc || '',
+                    type1,
+                    type2,
+                    total,
+                    center.LinkMap || ''
+                ]);
+            });
+
+            const worksheet = XLSX.utils.aoa_to_sheet(data);
+
+            // Thiết lập độ rộng cột
+            const colWidths = [
+                { wch: 5 },   // STT
+                { wch: 12 },  // ID
+                { wch: 30 },  // Tên trung tâm
+                { wch: 40 },  // Địa chỉ
+                { wch: 15 },  // ĐT TT
+                { wch: 25 },  // Email
+                { wch: 20 },  // Phụ trách
+                { wch: 15 },  // ĐT Giám đốc
+                { wch: 10 },  // Loại I
+                { wch: 10 },  // Loại II
+                { wch: 12 },  // Tổng cộng
+                { wch: 30 }   // Link Map
+            ];
+            worksheet['!cols'] = colWidths;
+
+            return worksheet;
+        }
+
         // Helper function để lấy thông tin công ty theo IDDoanhNghiep
         function getCompanyInfo(referenceValue, tableName) {
             if (!referenceValue || !originalCompanyData.length) {
@@ -3229,6 +3370,7 @@
         }
 
         // Fetch Bus Stations Data
+        // Thay thế hàm fetchBusStationsData() hiện tại bằng:
         async function fetchBusStationsData() {
             try {
                 const response = await apiRequest('MABENXE', 'Find', {
@@ -3236,9 +3378,21 @@
                 });
 
                 if (Array.isArray(response)) {
-                    originalBusStationsData = response;
+                    // Lọc chỉ hiển thị bến xe của Bắc Giang và Bắc Ninh và MoHinh là "BX"
+                    const filteredStations = response.filter(station => {
+                        const address = station.DiaChiBenXe || '';
+                        const moHinh = (station.MoHinh || '').toUpperCase();
+
+                        // Kiểm tra địa chỉ hoặc tên bến xe có chứa "Bắc Giang" hoặc "Bắc Ninh" và MoHinh là "BX"
+                        return (
+                            (address.includes('Bắc Giang') || address.includes('Bắc Ninh')) &&
+                            moHinh === 'BX'
+                        );
+                    });
+
+                    originalBusStationsData = filteredStations;
                     filteredBusStationsData = [...originalBusStationsData];
-                    console.log('Dữ liệu bến xe:', originalBusStationsData);
+                    console.log('Dữ liệu bến xe (Bắc Giang & Bắc Ninh, MoHinh=BX):', originalBusStationsData);
                 } else {
                     throw new Error('Dữ liệu không hợp lệ');
                 }
@@ -3285,6 +3439,26 @@
             } catch (error) {
                 console.error('Lỗi khi lấy dữ liệu tuyến buýt:', error);
                 showNotification('Không thể tải dữ liệu tuyến buýt', 'error');
+            }
+        }
+
+        // Thêm vào hàm fetchRegistrationCentersData
+        async function fetchRegistrationCentersData() {
+            try {
+                const response = await apiRequest('TRUNGTAMDK', 'Find', {
+                    Selector: "Filter(TRUNGTAMDK, true)"
+                });
+
+                if (Array.isArray(response)) {
+                    originalRegistrationCentersData = response;
+                    filteredRegistrationCentersData = [...originalRegistrationCentersData];
+                    console.log('Dữ liệu trung tâm đăng kiểm:', originalRegistrationCentersData);
+                } else {
+                    throw new Error('Dữ liệu không hợp lệ');
+                }
+            } catch (error) {
+                console.error('Lỗi khi lấy dữ liệu trung tâm đăng kiểm:', error);
+                showNotification('Không thể tải dữ liệu trung tâm đăng kiểm', 'error');
             }
         }
 
@@ -3824,6 +3998,7 @@
             updateIntEmblemsUI();
             updateIntBooksUI();
             updateBusStationsUI();  // THÊM
+            updateRegistrationCentersUI();
             updateStatisticsData();
         }
 
@@ -3854,13 +4029,9 @@
                 item.TrangThai === 'Hiệu lực' || item.TrangThai === 'Còn hiệu lực'
             );
 
-            // Phù hiệu quá hạn: ngày hết hạn < hôm nay HOẶC trạng thái là "Hết hạn", "Hết hiệu lực", "Đã thu hồi"
-            const expiredEmblems = filteredEmblemsData.filter(item => {
-                const expiredByDate = isEmblemExpired(item.NgayHetHan);
-                const expiredByStatus = ['Hết hạn'].includes(item.TrangThai);
-                return expiredByDate || expiredByStatus;
-            });
-
+            const expiredEmblems = filteredEmblemsData.filter(item =>
+                item.TrangThai === 'Hết hạn'
+            );
 
             const revokedEmblems = filteredEmblemsData.filter(item =>
                 item.TrangThai === 'Thu hồi' || item.TrangThai === 'Đã thu hồi'
@@ -4043,6 +4214,26 @@
 
             // Update table
             updateBusStationsTable();
+        }
+
+        // Update Registration Centers UI
+        function updateRegistrationCentersUI() {
+            const totalCenters = filteredRegistrationCentersData.length;
+
+            // Calculate totals
+            const totalType1 = filteredRegistrationCentersData.reduce((sum, center) =>
+                sum + (parseInt(center['Loại I']) || 0), 0);
+            const totalType2 = filteredRegistrationCentersData.reduce((sum, center) =>
+                sum + (parseInt(center['Loại II']) || 0), 0);
+            const totalVehicles = totalType1 + totalType2;
+
+            // Update dashboard stats
+            document.getElementById('totalRegistrationCenters').textContent = totalCenters;
+            document.getElementById('totalType1').textContent = totalType1.toLocaleString();
+            document.getElementById('totalType2').textContent = totalType2.toLocaleString();
+
+            // Update table
+            updateRegistrationCentersTable();
         }
 
         // Update Tables với dữ liệu đã lọc
@@ -4271,7 +4462,6 @@
                     ${station.LoaiBen || ''}
                 </span>
             </td>
-            <td class="px-4 py-2 text-center">${station.MoHinh || ''}</td>
             <td class="px-4 py-2 text-center font-medium">${capacity.toLocaleString()}</td>
             <td class="px-4 py-2 text-center">${station.SoTuyenKhaiThac || 0}</td>
             <td class="px-4 py-2 text-center">${station.DonViQuanLy || ''}</td>
@@ -4279,6 +4469,41 @@
                 <button class="text-blue-600 hover:text-blue-800" onclick="viewBusStationDetail('${station.IDBen}')">
                     Chi tiết
                 </button>
+            </td>
+        `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Update Registration Centers Table
+        function updateRegistrationCentersTable() {
+            const tableBody = document.getElementById('registrationCentersTableBody');
+            if (!tableBody) return;
+
+            tableBody.innerHTML = '';
+
+            filteredRegistrationCentersData.forEach(center => {
+                const row = document.createElement('tr');
+                row.className = 'border-b hover:bg-gray-50';
+
+                row.innerHTML = `
+            <td class="px-4 py-2 font-medium">${center.IDTrungTam || ''}</td>
+            <td class="px-4 py-2">${center.TenTrungTam || ''}</td>
+            <td class="px-4 py-2">${center.DiaChi || ''}</td>
+            <td class="px-4 py-2 text-center">${center.SoDTTT || ''}</td>
+            <td class="px-4 py-2 text-center">
+                ${center.Email ? `<a href="mailto:${center.Email}" class="text-blue-600 hover:underline">${center.Email}</a>` : ''}
+            </td>
+            <td class="px-4 py-2 text-center">${center['Phụ trách'] || ''}</td>
+            <td class="px-4 py-2 text-center">${center.SoDTGiamDoc || ''}</td>
+            <td class="px-4 py-2 text-center font-medium text-green-600">${(center['Loại I'] || 0).toLocaleString()}</td>
+            <td class="px-4 py-2 text-center font-medium text-blue-600">${(center['Loại II'] || 0).toLocaleString()}</td>
+            <td class="px-4 py-2 text-center">
+                    ${center.LinkMap ? `
+                        <a href="${center.LinkMap}" target="_blank" class="text-green-600 hover:text-green-800">
+                            <i class="fas fa-map-marker-alt"></i> Bản đồ
+                        </a>
+                    ` : ''}
             </td>
         `;
                 tableBody.appendChild(row);
@@ -4602,6 +4827,8 @@
                     setTimeout(initReportCharts, 100);
                 } else if (tabId === 'bus-stations') {        // THÊM
                     setTimeout(initBusStationCharts, 100);    // THÊM
+                } else if (tabId === 'registration-centers') {  // THÊM DÒNG NÀY
+                    // Không cần charts cho tab này
                 }
             });
         });
@@ -5117,24 +5344,108 @@
                         datasets: [{
                             data: typeData.values,
                             backgroundColor: [
-                                '#3B82F6',
-                                '#10B981',
-                                '#F59E0B',
-                                '#8B5CF6',
-                                '#EF4444',
-                                '#6366F1'
-                            ]
+                                '#3B82F6',  // Xanh dương
+                                '#10B981',  // Xanh lá
+                                '#F59E0B',  // Vàng
+                                '#8B5CF6',  // Tím
+                                '#EF4444',  // Đỏ
+                                '#6366F1'   // Indigo
+                            ],
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        layout: {
+                            padding: {
+                                top: 40,
+                                bottom: 40,
+                                left: 40,
+                                right: 40
+                            }
+                        },
                         plugins: {
                             legend: {
-                                position: 'bottom'
+                                display: false // TẮT LEGEND MẶC ĐỊNH
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    title: function (context) {
+                                        return 'Loại phù hiệu: ' + context[0].label;
+                                    },
+                                    label: function (context) {
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = total > 0 ? Math.round((context.raw / total) * 100) : 0;
+                                        return [
+                                            'Số lượng: ' + context.raw.toLocaleString(),
+                                            'Tỷ lệ: ' + percentage + '%'
+                                        ];
+                                    }
+                                }
                             }
                         }
-                    }
+                    },
+                    plugins: [{
+                        afterDraw: function (chart) {
+                            const ctx = chart.ctx;
+                            const data = chart.data;
+                            const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+
+                            const chartArea = chart.chartArea;
+                            const centerX = (chartArea.left + chartArea.right) / 2;
+                            const centerY = (chartArea.top + chartArea.bottom) / 2;
+                            const radius = Math.min(chartArea.right - chartArea.left, chartArea.bottom - chartArea.top) / 2.5;
+
+                            const colors = ['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EF4444', '#6366F1'];
+
+                            data.labels.forEach((label, index) => {
+                                const value = data.datasets[0].data[index];
+
+                                // HIỂN THỊ TẤT CẢ LABELS
+                                // Tính góc cho mỗi segment
+                                let startAngle = -Math.PI / 2; // Bắt đầu từ 12 giờ
+                                for (let i = 0; i < index; i++) {
+                                    startAngle += (data.datasets[0].data[i] / total) * 2 * Math.PI;
+                                }
+                                const endAngle = startAngle + (value / total) * 2 * Math.PI;
+                                const midAngle = (startAngle + endAngle) / 2;
+
+                                // Tính vị trí cho label
+                                const labelRadius = radius + 60;
+                                const labelX = centerX + Math.cos(midAngle) * labelRadius;
+                                const labelY = centerY + Math.sin(midAngle) * labelRadius;
+
+                                // Vẽ đường nối
+                                ctx.beginPath();
+                                ctx.moveTo(centerX + Math.cos(midAngle) * radius, centerY + Math.sin(midAngle) * radius);
+                                ctx.lineTo(labelX - (Math.cos(midAngle) > 0 ? 8 : -8), labelY);
+                                ctx.strokeStyle = colors[index % colors.length];
+                                ctx.lineWidth = 1;
+                                ctx.stroke();
+
+                                // Vẽ text với background - CHỈ HIỂN THỊ SỐ LƯỢNG
+                                const text = `${label}: ${value}`;
+                                ctx.font = 'bold 9px Arial';
+                                ctx.textAlign = Math.cos(midAngle) > 0 ? 'left' : 'right';
+
+                                // Vẽ background cho text
+                                const textMetrics = ctx.measureText(text);
+                                const textWidth = textMetrics.width + 6;
+                                const textHeight = 12;
+                                const bgX = Math.cos(midAngle) > 0 ? labelX - 3 : labelX - textWidth + 3;
+                                const bgY = labelY - textHeight / 2;
+
+                                ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                                ctx.fillRect(bgX, bgY, textWidth, textHeight);
+
+                                // Vẽ text
+                                ctx.fillStyle = colors[index % colors.length];
+                                ctx.fillText(text, labelX, labelY + 1);
+                            });
+                        }
+                    }]
                 });
             }
         }
@@ -5349,18 +5660,103 @@
                             '#F59E0B', // Orange
                             '#EF4444', // Red
                             '#6366F1'  // Indigo
-                        ]
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    layout: {
+                        padding: {
+                            top: 50,
+                            bottom: 50,
+                            left: 50,
+                            right: 50
+                        }
+                    },
                     plugins: {
                         legend: {
-                            position: 'bottom'
+                            display: false // TẮT LEGEND MẶC ĐỊNH
+                        },
+                        tooltip: {
+                            callbacks: {
+                                title: function (context) {
+                                    return 'Loại bến xe: ' + context[0].label;
+                                },
+                                label: function (context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? Math.round((context.raw / total) * 100) : 0;
+                                    return [
+                                        'Số lượng: ' + context.raw.toLocaleString(),
+                                        'Tỷ lệ: ' + percentage + '%'
+                                    ];
+                                }
+                            }
                         }
                     }
-                }
+                },
+                plugins: [{
+                    afterDraw: function (chart) {
+                        const ctx = chart.ctx;
+                        const data = chart.data;
+                        const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+
+                        const chartArea = chart.chartArea;
+                        const centerX = (chartArea.left + chartArea.right) / 2;
+                        const centerY = (chartArea.top + chartArea.bottom) / 2;
+                        const radius = Math.min(chartArea.right - chartArea.left, chartArea.bottom - chartArea.top) / 2.8;
+
+                        const colors = ['#3B82F6', '#10B981', '#8B5CF6', '#F59E0B', '#EF4444', '#6366F1'];
+
+                        data.labels.forEach((label, index) => {
+                            const value = data.datasets[0].data[index];
+
+                            // HIỂN THỊ TẤT CẢ LABELS
+                            // Tính góc cho mỗi segment
+                            let startAngle = -Math.PI / 2; // Bắt đầu từ 12 giờ
+                            for (let i = 0; i < index; i++) {
+                                startAngle += (data.datasets[0].data[i] / total) * 2 * Math.PI;
+                            }
+                            const endAngle = startAngle + (value / total) * 2 * Math.PI;
+                            const midAngle = (startAngle + endAngle) / 2;
+
+                            // Tính vị trí cho label
+                            const labelRadius = radius + 70;
+                            const labelX = centerX + Math.cos(midAngle) * labelRadius;
+                            const labelY = centerY + Math.sin(midAngle) * labelRadius;
+
+                            // Vẽ đường nối
+                            ctx.beginPath();
+                            ctx.moveTo(centerX + Math.cos(midAngle) * radius, centerY + Math.sin(midAngle) * radius);
+                            ctx.lineTo(labelX - (Math.cos(midAngle) > 0 ? 10 : -10), labelY);
+                            ctx.strokeStyle = colors[index % colors.length];
+                            ctx.lineWidth = 1.5;
+                            ctx.stroke();
+
+                            // Vẽ text với background - CHỈ HIỂN THỊ SỐ LƯỢNG
+                            const shortLabel = label.length > 12 ? label.substring(0, 12) + '...' : label;
+                            const text = `${shortLabel}: ${value}`;
+                            ctx.font = 'bold 9px Arial';
+                            ctx.textAlign = Math.cos(midAngle) > 0 ? 'left' : 'right';
+
+                            // Vẽ background cho text
+                            const textMetrics = ctx.measureText(text);
+                            const textWidth = textMetrics.width + 8;
+                            const textHeight = 14;
+                            const bgX = Math.cos(midAngle) > 0 ? labelX - 4 : labelX - textWidth + 4;
+                            const bgY = labelY - textHeight / 2;
+
+                            ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+                            ctx.fillRect(bgX, bgY, textWidth, textHeight);
+
+                            // Vẽ text
+                            ctx.fillStyle = colors[index % colors.length];
+                            ctx.fillText(text, labelX, labelY + 1);
+                        });
+                    }
+                }]
             });
         }
 
@@ -6176,7 +6572,8 @@
                     fetchIntBooksData(),
                     fetchBusStationsData(),      // THÊM
                     fetchFixedRoutesData(),      // THÊM  
-                    fetchBusRoutesData()
+                    fetchBusRoutesData(),
+                    fetchRegistrationCentersData()
                 ]);
 
                 // Populate filter options
@@ -6448,7 +6845,8 @@
                     fetchIntBooksData(),
                     fetchBusStationsData(),    // THÊM
                     fetchFixedRoutesData(),    // THÊM
-                    fetchBusRoutesData()       // THÊM
+                    fetchBusRoutesData(),
+                    fetchRegistrationCentersData()        // THÊM
                 ]);
                 updateAllUI();
                 showNotification('Dữ liệu đã được làm mới!', 'success');
