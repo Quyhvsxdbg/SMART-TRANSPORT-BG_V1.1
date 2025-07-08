@@ -5896,7 +5896,7 @@
             });
 
             return {
-                labels: Object.keys(typeCounts),
+                labels: Object.keys(typeCounts).map(type => `Loại: ${type}`),
                 values: Object.values(typeCounts)
             };
         }
