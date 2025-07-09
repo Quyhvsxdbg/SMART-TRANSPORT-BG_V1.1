@@ -670,7 +670,6 @@
 
             data.forEach(item => {
                 let xaPhuong = '';
-                let quanHuyen = '';
                 let companyInfo = null;
 
                 // Try different ID fields to match with company lookup
@@ -680,17 +679,16 @@
                     if (id && companyLookup[id]) {
                         companyInfo = companyLookup[id];
                         xaPhuong = companyInfo.xaPhuongThiTran;
-                        quanHuyen = companyInfo.quanHuyen;
                         break;
                     }
                 }
 
                 if (!xaPhuong) {
                     xaPhuong = 'Không xác định';
-                    quanHuyen = 'Không xác định';
                 }
 
-                const locationKey = `${xaPhuong}, ${quanHuyen}`;
+                // TẠO LOCATION KEY CHỈ VỚI XÃ PHƯỜNG
+                const locationKey = `Xã (phường) ${xaPhuong}`;
 
                 if (!grouped[locationKey]) {
                     grouped[locationKey] = [];
@@ -1024,8 +1022,8 @@
                         companyLookup[company.IDDoanhNghiep] = {
                             tenDoanh: company.TenDoanhNghiep || '',
                             diaChi: company.SoNha_TDP || '',
-                            xaPhuongThiTran: company.XaPhuongThiTran || '',
-                            quanHuyen: company.QuanHuyen || ''
+                            xaPhuongThiTran: company.XaPhuongSauSapNhap || '' // Ưu tiên XaPhuongSauSapNhap
+                            // Bỏ quanHuyen
                         };
                     }
                 });
@@ -1174,8 +1172,8 @@
                         companyLookup[company.IDDoanhNghiep] = {
                             tenDoanh: company.TenDoanhNghiep || '',
                             diaChi: company.SoNha_TDP || '',
-                            xaPhuongThiTran: company.XaPhuongThiTran || '',
-                            quanHuyen: company.QuanHuyen || ''
+                            xaPhuongThiTran: company.XaPhuongSauSapNhap || '' // Ưu tiên XaPhuongSauSapNhap
+                            // Bỏ quanHuyen
                         };
                     }
                 });
@@ -1331,6 +1329,7 @@
                 // Set data for template
                 const data = {
                     tinh: tenTinh,
+                    tinh_upper: tenTinh.toUpperCase(),
                     nguoi_ky: nguoiKy,
                     ngayKy: ngayKy,
                     thangKy: formattedThangKy,

@@ -606,17 +606,17 @@
 
                 // Determine which reason to use
                 let lyDoThuHoi = [];
-                if (item.LyDoThuHoiKhac && item.LyDoThuHoiKhac.trim() !== '') {
-                    lyDoThuHoi.push(`- ${item.LyDoThuHoiKhac}`);
-                }
                 if (item.LyDoThuHoiDuaQD && item.LyDoThuHoiDuaQD.trim() !== '') {
-                    lyDoThuHoi.push(`- ${item.LyDoThuHoiDuaQD}`);
+                    lyDoThuHoi.push(`${item.LyDoThuHoiDuaQD}`);
+                }
+                if (item.LyDoThuHoiKhac && item.LyDoThuHoiKhac.trim() !== '') {
+                    lyDoThuHoi.push(`(${item.LyDoThuHoiKhac})`);
                 }
 
                 row.innerHTML = `
                     <td>${index + 1}</td>
                     <td class="text-left">${item['Tên đơn vị'] || ''}</td>
-                    <td class="text-left">${item['Địa chỉ'] || ''}</td>
+                    <td class="text-left">${item['Địa chỉ sau sáp nhập'] || ''}</td>
                     <td>${item['Số ĐKKD'] || ''}</td>
                     <td>${item['Số GP KDVT'] || ''}</td>
                     <td>${item['Ngày cấp'] || ''}</td>
@@ -678,12 +678,13 @@
                 const donViList = globalChiTietData.map((item, index) => {
                     // Xác định lý do thu hồi
                     let lyDoThuHoi = [];
-                    if (item.LyDoThuHoiKhac && item.LyDoThuHoiKhac.trim() !== '') {
-                        lyDoThuHoi.push(`- ${item.LyDoThuHoiKhac}`);
-                    }
                     if (item.LyDoThuHoiDuaQD && item.LyDoThuHoiDuaQD.trim() !== '') {
-                        lyDoThuHoi.push(`- ${item.LyDoThuHoiDuaQD}`);
+                        lyDoThuHoi.push(`${item.LyDoThuHoiDuaQD}`);
                     }
+                    if (item.LyDoThuHoiKhac && item.LyDoThuHoiKhac.trim() !== '') {
+                        lyDoThuHoi.push(`(${item.LyDoThuHoiKhac})`);
+                    }
+                    
 
                     // Định dạng ngày cấp
                     let ngayCap = '';
@@ -700,7 +701,7 @@
                     return {
                         stt: (index + 1).toString(),
                         ten_don_vi: item['Tên đơn vị'] || '',
-                        dia_chi: item['Địa chỉ'] || '',
+                        dia_chi: item['Địa chỉ sau sáp nhập'] || '',
                         so_dkkd: item['Số ĐKKD'] || '',
                         so_gp_kdvt: item['Số GP KDVT'] || '',
                         ngay_cap: ngayCap,

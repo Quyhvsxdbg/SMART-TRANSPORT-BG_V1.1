@@ -609,11 +609,11 @@
 
                 // Determine which reason to use
                 let lyDoThuHoi = [];
-                if (item.LyDoThuHoiKhac && item.LyDoThuHoiKhac.trim() !== '') {
-                    lyDoThuHoi.push(`- ${item.LyDoThuHoiKhac}`);
-                }
                 if (item.LyDoThuHoiDuaQD && item.LyDoThuHoiDuaQD.trim() !== '') {
-                    lyDoThuHoi.push(`- ${item.LyDoThuHoiDuaQD}`);
+                    lyDoThuHoi.push(`${item.LyDoThuHoiDuaQD}`);
+                }
+                if (item.LyDoThuHoiKhac && item.LyDoThuHoiKhac.trim() !== '') {
+                    lyDoThuHoi.push(`(${item.LyDoThuHoiKhac})`);
                 }
 
                 row.innerHTML = `
@@ -624,7 +624,7 @@
                     <td>${item['Ngày cấp phù hiệu'] || ''}</td>
                     <td>${item['Ngày hết hạn phù hiệu'] || ''}</td>
                     <td class="text-left">${item['Tên đơn vị'] || ''}</td>
-                    <td class="text-left">${item['Địa chỉ'] || ''}</td>
+                    <td class="text-left">${item['Địa chỉ sau sáp nhập'] || ''}</td>
                     <td class="text-left">${lyDoThuHoi.join('<br>') || ''}</td>
                     <td class="text-left">${item.CanCuThuHoiDuaQD || ''}</td>
                     <td>${item['Ghi chú'] || ''}</td>
@@ -683,11 +683,11 @@
                 const donViList = globalChiTietData.map((item, index) => {
                     // Xác định lý do thu hồi
                     let lyDoThuHoi = [];
-                    if (item.LyDoThuHoiKhac && item.LyDoThuHoiKhac.trim() !== '') {
-                        lyDoThuHoi.push(`- ${item.LyDoThuHoiKhac}`);
-                    }
                     if (item.LyDoThuHoiDuaQD && item.LyDoThuHoiDuaQD.trim() !== '') {
-                        lyDoThuHoi.push(`- ${item.LyDoThuHoiDuaQD}`);
+                        lyDoThuHoi.push(`${item.LyDoThuHoiDuaQD}`);
+                    }
+                    if (item.LyDoThuHoiKhac && item.LyDoThuHoiKhac.trim() !== '') {
+                        lyDoThuHoi.push(`(${item.LyDoThuHoiKhac})`);
                     }
 
                     // Định dạng Ngày cấp phù hiệu with administrative rules
@@ -710,7 +710,7 @@
                         ngay_cap: ngayCap || '',
                         ngay_het_han: item['Ngày hết hạn phù hiệu'] || '',
                         ten_don_vi: item['Tên đơn vị'] || '',
-                        dia_chi: item['Địa chỉ'] || '',
+                        dia_chi: item['Địa chỉ sau sáp nhập'] || '',
                         ly_do_thu_hoi: lyDoThuHoi.join('\n') || '',
                         can_cu_thu_hoi: item.CanCuThuHoiDuaQD || '',
                         ghi_chu: item['Ghi chú'] || ''
