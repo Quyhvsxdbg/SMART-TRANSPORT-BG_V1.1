@@ -4029,9 +4029,12 @@
                 item.TrangThai === 'Hiệu lực' || item.TrangThai === 'Còn hiệu lực'
             );
 
-            const expiredEmblems = filteredEmblemsData.filter(item =>
-                item.TrangThai === 'Hết hạn'
-            );
+            // Phù hiệu quá hạn: ngày hết hạn < hôm nay HOẶC trạng thái là "Hết hạn", "Hết hiệu lực", "Đã thu hồi"
+            const expiredEmblems = filteredEmblemsData.filter(item => {
+                const expiredByDate = isEmblemExpired(item.NgayHetHan);
+                const expiredByStatus = ['Hết hạn'].includes(item.TrangThai);
+                return expiredByDate || expiredByStatus;
+            });
 
             const revokedEmblems = filteredEmblemsData.filter(item =>
                 item.TrangThai === 'Thu hồi' || item.TrangThai === 'Đã thu hồi'
