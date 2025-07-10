@@ -604,8 +604,37 @@
             const tableBody = document.getElementById('table-body');
             tableBody.innerHTML = '';
 
+            // Thay đổi trong function populateChiTietData
             data.forEach((item, index) => {
                 const row = document.createElement('tr');
+
+                // Format ngày cấp phù hiệu với quy tắc hành chính
+                let ngayCap = '';
+                if (item['Ngày cấp phù hiệu']) {
+                    const date = new Date(item['Ngày cấp phù hiệu']);
+                    const day = date.getDate().toString().padStart(2, '0'); // Always pad day
+                    const month = date.getMonth() + 1;
+                    // Only pad months 1 and 2 with zero
+                    const formattedMonth = month <= 2 ?
+                        month.toString().padStart(2, '0') :
+                        month.toString();
+                    const year = date.getFullYear();
+                    ngayCap = `${day}/${formattedMonth}/${year}`;
+                }
+
+                // Format ngày hết hạn phù hiệu với quy tắc hành chính
+                let ngayHetHan = '';
+                if (item['Ngày hết hạn phù hiệu']) {
+                    const date = new Date(item['Ngày hết hạn phù hiệu']);
+                    const day = date.getDate().toString().padStart(2, '0'); // Always pad day
+                    const month = date.getMonth() + 1;
+                    // Only pad months 1 and 2 with zero
+                    const formattedMonth = month <= 2 ?
+                        month.toString().padStart(2, '0') :
+                        month.toString();
+                    const year = date.getFullYear();
+                    ngayHetHan = `${day}/${formattedMonth}/${year}`;
+                }
 
                 // Determine which reason to use
                 let lyDoThuHoi = [];
@@ -617,21 +646,22 @@
                 }
 
                 row.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>${item['Biển số'] || ''}</td>
-                    <td>${item['Số Phù hiệu'] || ''}</td>
-                    <td>${item['Loại Phù hiệu'] || ''}</td>
-                    <td>${item['Ngày cấp phù hiệu'] || ''}</td>
-                    <td>${item['Ngày hết hạn phù hiệu'] || ''}</td>
-                    <td class="text-left">${item['Tên đơn vị'] || ''}</td>
-                    <td class="text-left">${item['Địa chỉ sau sáp nhập'] || ''}</td>
-                    <td class="text-left">${lyDoThuHoi.join('<br>') || ''}</td>
-                    <td class="text-left">${item.CanCuThuHoiDuaQD || ''}</td>
-                    <td>${item['Ghi chú'] || ''}</td>
-                `;
+        <td>${index + 1}</td>
+        <td>${item['Biển số'] || ''}</td>
+        <td>${item['Số Phù hiệu'] || ''}</td>
+        <td>${item['Loại Phù hiệu'] || ''}</td>
+        <td>${ngayCap}</td>
+        <td>${ngayHetHan}</td>
+        <td class="text-left">${item['Tên đơn vị'] || ''}</td>
+        <td class="text-left">${item['Địa chỉ sau sáp nhập'] || ''}</td>
+        <td class="text-left">${lyDoThuHoi.join('<br>') || ''}</td>
+        <td class="text-left">${item.CanCuThuHoiDuaQD || ''}</td>
+        <td>${item['Ghi chú'] || ''}</td>
+    `;
 
                 tableBody.appendChild(row);
             });
+
         }
 
         // Hide loading message
@@ -690,16 +720,30 @@
                         lyDoThuHoi.push(`(${item.LyDoThuHoiKhac})`);
                     }
 
-                    // Định dạng Ngày cấp phù hiệu with administrative rules
+                    // Định dạng Ngày cấp phù hiệu với quy tắc hành chính
                     let ngayCap = '';
                     if (item['Ngày cấp phù hiệu']) {
                         const ngayCapDate = new Date(item['Ngày cấp phù hiệu']);
-                        const day = ngayCapDate.getDate().toString().padStart(2, '0');
+                        const day = ngayCapDate.getDate().toString().padStart(2, '0'); // Always pad day
                         const month = ngayCapDate.getMonth() + 1;
+                        // Only pad months 1 and 2 with zero
                         const formattedMonth = month <= 2 ?
                             month.toString().padStart(2, '0') :
                             month.toString();
                         ngayCap = `${day}/${formattedMonth}/${ngayCapDate.getFullYear()}`;
+                    }
+
+                    // Định dạng Ngày hết hạn phù hiệu với quy tắc hành chính
+                    let ngayHetHan = '';
+                    if (item['Ngày hết hạn phù hiệu']) {
+                        const ngayHetHanDate = new Date(item['Ngày hết hạn phù hiệu']);
+                        const day = ngayHetHanDate.getDate().toString().padStart(2, '0'); // Always pad day
+                        const month = ngayHetHanDate.getMonth() + 1;
+                        // Only pad months 1 and 2 with zero
+                        const formattedMonth = month <= 2 ?
+                            month.toString().padStart(2, '0') :
+                            month.toString();
+                        ngayHetHan = `${day}/${formattedMonth}/${ngayHetHanDate.getFullYear()}`;
                     }
 
                     return {
@@ -707,8 +751,8 @@
                         bien_so: item['Biển số'] || '',
                         so_phu_hieu: item['Số Phù hiệu'] || '',
                         loai_phu_hieu: item['Loại Phù hiệu'] || '',
-                        ngay_cap: ngayCap || '',
-                        ngay_het_han: item['Ngày hết hạn phù hiệu'] || '',
+                        ngay_cap: ngayCap,
+                        ngay_het_han: ngayHetHan,
                         ten_don_vi: item['Tên đơn vị'] || '',
                         dia_chi: item['Địa chỉ sau sáp nhập'] || '',
                         ly_do_thu_hoi: lyDoThuHoi.join('\n') || '',

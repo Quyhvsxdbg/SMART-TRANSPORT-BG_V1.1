@@ -10,6 +10,7 @@
     <!-- Thêm thư viện SheetJS cho xuất Excel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
     <!-- Giữ nguyên toàn bộ CSS cũ -->
     <style>
         /* CSS cũ được giữ nguyên */
@@ -2171,7 +2172,7 @@
         let filteredRegistrationCentersData = [];
 
         // CHỨC NĂNG XUẤT EXCEL MỚI - SỬ DỤNG SHEETJS
-        function exportCurrentTabData() {
+        async function exportCurrentTabData() {
             const activeTab = document.querySelector('.nav-btn.active').getAttribute('data-tab');
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value;
@@ -2185,7 +2186,7 @@
                 'international-emblems': 'Phu_hieu_LV',
                 'international-books': 'So_lien_van',
                 'bus-stations': 'Ben_xe',
-                'registration-centers': 'Trung_tam_DK',           // THÊM
+                'registration-centers': 'Trung_tam_DK',
                 'statistics': 'Thong_ke',
                 'reports': 'Bao_cao'
             };
@@ -2197,43 +2198,51 @@
             showNotification('Đang chuẩn bị xuất dữ liệu Excel...', 'info');
 
             try {
-                let workbook;
+                if (activeTab === 'licenses') {
+                    // SỬ DỤNG EXCELJS CHO TAB LICENSES
+                    await exportLicensesData();
+                    showNotification(`Đã xuất thành công file: ${fileName}`, 'success');
+                } else if (activeTab === 'emblems') {
+                    // SỬ DỤNG EXCELJS CHO TAB EMBLEMS - MỚI THÊM
+                    await exportEmblemsData();
+                    showNotification(`Đã xuất thành công file: ${fileName}`, 'success');
+                } else {
+                    // SỬ DỤNG SHEETJS CHO CÁC TAB KHÁC
+                    let workbook;
 
-                switch (activeTab) {
-                    case 'dashboard':
-                        workbook = exportDashboardData();
-                        break;
-                    case 'licenses':
-                        workbook = exportLicensesData();
-                        break;
-                    case 'emblems':
-                        workbook = exportEmblemsData();
-                        break;
-                    case 'international':
-                        workbook = exportInternationalData();
-                        break;
-                    case 'international-emblems':
-                        workbook = exportIntEmblemsData();
-                        break;
-                    case 'international-books':
-                        workbook = exportIntBooksData();
-                        break;
-                    case 'statistics':
-                        workbook = exportStatisticsData();
-                        break;
-                    case 'reports':
-                        workbook = exportReportsData();
-                        break;
-                    case 'bus-stations':                    // THÊM
-                        workbook = exportBusStationsData(); // THÊM
-                        break;
-                    default:
-                        throw new Error('Tab không được hỗ trợ');
+                    switch (activeTab) {
+                        case 'dashboard':
+                            workbook = exportDashboardDataSheetJS();
+                            break;
+                        case 'international':
+                            workbook = exportInternationalDataSheetJS();
+                            break;
+                        case 'international-emblems':
+                            workbook = exportIntEmblemsDataSheetJS();
+                            break;
+                        case 'international-books':
+                            workbook = exportIntBooksDataSheetJS();
+                            break;
+                        case 'statistics':
+                            workbook = exportStatisticsDataSheetJS();
+                            break;
+                        case 'reports':
+                            workbook = exportReportsDataSheetJS();
+                            break;
+                        case 'bus-stations':
+                            workbook = exportBusStationsDataSheetJS();
+                            break;
+                        case 'registration-centers':
+                            workbook = exportRegistrationCentersDataSheetJS();
+                            break;
+                        default:
+                            throw new Error('Tab không được hỗ trợ');
+                    }
+
+                    // Xuất file Excel với SheetJS
+                    XLSX.writeFile(workbook, fileName);
+                    showNotification(`Đã xuất thành công file: ${fileName}`, 'success');
                 }
-
-                // Xuất file Excel
-                XLSX.writeFile(workbook, fileName);
-                showNotification(`Đã xuất thành công file: ${fileName}`, 'success');
 
             } catch (error) {
                 console.error('Lỗi khi xuất Excel:', error);
@@ -2305,50 +2314,120 @@
         }
 
         // Xuất dữ liệu Giấy phép
-        function exportLicensesData() {
-            const workbook = XLSX.utils.book_new();
-            const sheet = createLicenseSheet();
-            XLSX.utils.book_append_sheet(workbook, sheet, 'Giấy phép KDVT');
-            return workbook;
+        // THAY ĐỔI: Hàm xuất Excel cho tab Giấy phép sử dụng ExcelJS
+        async function exportLicensesData() {
+            try {
+                const workbook = new ExcelJS.Workbook();
+
+                // Sheet 1: Dữ liệu chi tiết (giữ nguyên logic cũ nhưng dùng ExcelJS)
+                const detailSheet = await createLicenseDetailSheet(workbook);
+
+                // Sheet 2: Danh sách bàn giao (mới)
+                const handoverSheet = await createLicenseHandoverSheet(workbook);
+
+                // Xuất file
+                const buffer = await workbook.xlsx.writeBuffer();
+                const blob = new Blob([buffer], {
+                    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                });
+
+                const today = new Date();
+                const dateStr = `${today.getDate().toString().padStart(2, '0')}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getFullYear()}`;
+                const fileName = `Giay_phep_KDVT_${dateStr}.xlsx`;
+
+                // Download file
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+
+                return true;
+            } catch (error) {
+                console.error('Lỗi xuất Excel:', error);
+                throw error;
+            }
         }
 
-        // Tạo sheet Giấy phép
-        function createLicenseSheet() {
+        // Tạo sheet dữ liệu chi tiết
+        async function createLicenseDetailSheet(workbook) {
+            const worksheet = workbook.addWorksheet('Dữ liệu chi tiết');
+
+            // Thiết lập độ rộng cột
+            worksheet.columns = [
+                { width: 5 },   // STT
+                { width: 20 },  // Số giấy phép
+                { width: 15 },  // Mã hồ sơ
+                { width: 30 },  // Tên đơn vị
+                { width: 40 },  // Địa chỉ
+                { width: 20 },  // Quận/Huyện
+                { width: 25 },  // Xã/Phường/Thị trấn
+                { width: 12 },  // Ngày cấp
+                { width: 15 },  // Loại cấp
+                { width: 25 },  // Loại hình vận tải
+                { width: 15 },  // Trạng thái
+                { width: 12 },  // Ngày thu hồi
+                { width: 25 },  // Lý do thu hồi
+                { width: 20 }   // Ghi chú
+            ];
+
+            // Header chính
+            worksheet.mergeCells('A1:N1');
+            const titleCell = worksheet.getCell('A1');
+            titleCell.value = 'DANH SÁCH GIẤY PHÉP KINH DOANH VẬN TẢI';
+            titleCell.font = { bold: true, size: 14 };
+            titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+
+            // Thông tin báo cáo
+            worksheet.mergeCells('A2:N2');
+            worksheet.getCell('A2').value = `Ngày xuất: ${new Date().toLocaleString('vi-VN')}`;
+            worksheet.getCell('A2').alignment = { horizontal: 'center' };
+
+            worksheet.mergeCells('A3:N3');
+            worksheet.getCell('A3').value = `Tổng số: ${filteredLicensesData.length} giấy phép`;
+            worksheet.getCell('A3').alignment = { horizontal: 'center' };
+
+            worksheet.mergeCells('A4:N4');
+            worksheet.getCell('A4').value = `Khoảng thời gian: ${formatDate(document.getElementById('startDate').value)} - ${formatDate(document.getElementById('endDate').value)}`;
+            worksheet.getCell('A4').alignment = { horizontal: 'center' };
+
+            // Headers cột
             const headers = [
-                'STT',
-                'Số giấy phép',
-                'Mã hồ sơ',
-                'Tên đơn vị',
-                'Địa chỉ',
-                'Quận/Huyện',
-                'Xã/Phường/Thị trấn',
-                'Ngày cấp',
-                'Loại cấp',
-                'Loại hình vận tải',
-                'Trạng thái',
-                'Ngày thu hồi',
-                'Lý do thu hồi',
-                'Ghi chú'
+                'STT', 'Số giấy phép', 'Mã hồ sơ', 'Tên đơn vị', 'Địa chỉ',
+                'Quận/Huyện', 'Xã/Phường/Thị trấn', 'Ngày cấp', 'Loại cấp',
+                'Loại hình vận tải', 'Trạng thái', 'Ngày thu hồi', 'Lý do thu hồi', 'Ghi chú'
             ];
 
-            const data = [
-                ['DANH SÁCH GIẤY PHÉP KINH DOANH VẬN TẢI'],
-                [`Ngày xuất: ${new Date().toLocaleString('vi-VN')}`],
-                [`Tổng số: ${filteredLicensesData.length} giấy phép`],
-                [`Khoảng thời gian: ${formatDate(document.getElementById('startDate').value)} - ${formatDate(document.getElementById('endDate').value)}`],
-                [],
-                headers
-            ];
+            const headerRow = worksheet.getRow(6);
+            headers.forEach((header, index) => {
+                const cell = headerRow.getCell(index + 1);
+                cell.value = header;
+                cell.font = { bold: true };
+                cell.alignment = { horizontal: 'center', vertical: 'middle' };
+                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0E0E0' } };
+                cell.border = {
+                    top: { style: 'thin' },
+                    bottom: { style: 'thin' },
+                    left: { style: 'thin' },
+                    right: { style: 'thin' }
+                };
+            });
 
+            // Dữ liệu
             filteredLicensesData.forEach((license, index) => {
+                const rowNum = 7 + index;
+                const row = worksheet.getRow(rowNum);
+
                 const transportTypes = Array.isArray(license.LoaiHinhVanTai)
                     ? license.LoaiHinhVanTai.join(', ')
                     : license.LoaiHinhVanTai || '';
 
-                // Lấy thông tin công ty với đúng reference
                 const companyInfo = getCompanyInfo(license.Ref_DoanhNghiep, 'GIAYPHEPKINHDOANHNOIDIA');
 
-                data.push([
+                const rowData = [
                     index + 1,
                     license.SoGiayPhep || '',
                     license.MaHoSo || '',
@@ -2363,78 +2442,267 @@
                     formatDate(license.NgayThuHoi),
                     license.LyDoThuHoi || '',
                     license.GhiChu || ''
-                ]);
+                ];
+
+                rowData.forEach((value, colIndex) => {
+                    const cell = row.getCell(colIndex + 1);
+                    cell.value = value;
+                    cell.border = {
+                        top: { style: 'thin' },
+                        bottom: { style: 'thin' },
+                        left: { style: 'thin' },
+                        right: { style: 'thin' }
+                    };
+                    cell.alignment = {
+                        horizontal: colIndex === 0 ? 'center' : 'left',
+                        vertical: 'middle'
+                    };
+                });
             });
-
-            const worksheet = XLSX.utils.aoa_to_sheet(data);
-
-            // Thiết lập độ rộng cột
-            const colWidths = [
-                { wch: 5 },   // STT
-                { wch: 20 },  // Số giấy phép
-                { wch: 15 },  // Mã hồ sơ
-                { wch: 30 },  // Tên đơn vị
-                { wch: 40 },  // Địa chỉ
-                { wch: 20 },  // Quận/Huyện
-                { wch: 25 },  // Xã/Phường/Thị trấn
-                { wch: 12 },  // Ngày cấp
-                { wch: 15 },  // Loại cấp
-                { wch: 25 },  // Loại hình vận tải
-                { wch: 15 },  // Trạng thái
-                { wch: 12 },  // Ngày thu hồi
-                { wch: 25 },  // Lý do thu hồi
-                { wch: 20 }   // Ghi chú
-            ];
-            worksheet['!cols'] = colWidths;
 
             return worksheet;
         }
 
-        // Xuất dữ liệu Phù hiệu
-        function exportEmblemsData() {
-            const workbook = XLSX.utils.book_new();
-            const sheet = createEmblemSheet();
-            XLSX.utils.book_append_sheet(workbook, sheet, 'Phù hiệu xe');
-            return workbook;
+        // Tạo sheet danh sách bàn giao
+        async function createLicenseHandoverSheet(workbook) {
+            const worksheet = workbook.addWorksheet('Danh sách GPKDVT bàn giao');
+
+            // Thiết lập độ rộng cột
+            worksheet.columns = [
+                { width: 6 },   // STT
+                { width: 26 },  // Số Giấy phép
+                { width: 48 },  // Tên đơn vị
+                { width: 18 },  // Ngày cấp
+                { width: 29 }   // Ghi chú
+            ];
+
+            // Header đơn vị
+            worksheet.mergeCells('A1:C1');
+            const headerCell1 = worksheet.getCell('A1');
+            headerCell1.value = '    SỞ XÂY DỰNG TỈNH BẮC NINH';
+            headerCell1.font = { size: 13, name: 'Times New Roman' };
+            headerCell1.alignment = { vertical: 'middle' };
+
+            worksheet.mergeCells('A2:C2');
+            const headerCell2 = worksheet.getCell('A2');
+            headerCell2.value = '    PHÒNG VẬN TẢI& ATGT';
+            headerCell2.font = { bold: true, size: 14, name: 'Times New Roman' };
+            headerCell2.alignment = { vertical: 'middle' };
+
+            // Tiêu đề chính
+            worksheet.mergeCells('A4:E4');
+            const titleCell = worksheet.getCell('A4');
+            titleCell.value = 'DANH SÁCH TRẢ KẾT QUẢ THỦ TỤC HÀNH CHÍNH CẤP GIẤY PHÉP KINH DOANH VẬN TẢI';
+            titleCell.font = { bold: true, size: 14, name: 'Times New Roman' };
+            titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+
+            // Headers bảng
+            const headers = ['STT', 'Số Giấy phép KDVT', 'Tên đơn vị', 'Ngày cấp', 'Ghi chú'];
+            const headerRow = worksheet.getRow(7);
+
+            headers.forEach((header, index) => {
+                const cell = headerRow.getCell(index + 1);
+                cell.value = header;
+                cell.font = { bold: true, size: 14, name: 'Times New Roman' };
+                cell.alignment = { horizontal: 'center', vertical: 'middle' };
+                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD9D9D9' } };
+                cell.border = {
+                    top: { style: 'thin' },
+                    bottom: { style: 'thin' },
+                    left: { style: 'thin' },
+                    right: { style: 'thin' }
+                };
+            });
+
+            // Dữ liệu giấy phép - HIỂN THỊ TẤT CẢ DỮ LIỆU
+            let currentRow = 8;
+            filteredLicensesData.forEach((license, index) => {
+                const row = worksheet.getRow(currentRow);
+
+                const rowData = [
+                    index + 1,
+                    license.SoGiayPhep || '',
+                    license.TenDonVi || '',
+                    formatDate(license.NgayCap),
+                    '' // Ghi chú để trống
+                ];
+
+                rowData.forEach((value, colIndex) => {
+                    const cell = row.getCell(colIndex + 1);
+                    cell.value = value;
+                    cell.font = { size: 14, name: 'Times New Roman' }; // THÊM FONT CHO DỮ LIỆU
+
+                    cell.border = {
+                        top: { style: 'thin' },
+                        bottom: { style: 'thin' },
+                        left: { style: 'thin' },
+                        right: { style: 'thin' }
+                    };
+                    cell.alignment = {
+                        horizontal: colIndex === 0 || colIndex === 3 ? 'center' : 'left',
+                        vertical: 'middle'
+                    };
+                });
+                currentRow++;
+            });
+
+            // Tính toán vị trí phần chữ ký (sau dữ liệu + 2 dòng trống)
+            const signatureStartRow = currentRow + 2;
+
+            // Phần chữ ký
+            // Ngày tháng năm
+            const dateCell = worksheet.getCell(signatureStartRow, 5); // Cột E
+            dateCell.value = 'Ngày     tháng     năm 2025';
+            dateCell.font = { bold: true, size: 14, name: 'Times New Roman' };
+            dateCell.alignment = { horizontal: 'center', vertical: 'middle' };
+
+            // Dòng chữ ký (dòng tiếp theo)
+            const signatureRow = worksheet.getRow(signatureStartRow + 1);
+
+            const personGiver = signatureRow.getCell(2); // Cột B
+            personGiver.value = 'Người giao';
+            personGiver.font = { bold: true, size: 14, name: 'Times New Roman' };
+            personGiver.alignment = { horizontal: 'center', vertical: 'middle' };
+
+            const center = signatureRow.getCell(3); // Cột C
+            center.value = 'Trung tâm Hành chính công tỉnh';
+            center.font = { bold: true, size: 14, name: 'Times New Roman' };
+            center.alignment = { horizontal: 'center', vertical: 'middle' };
+
+            const personReceiver = signatureRow.getCell(5); // Cột E
+            personReceiver.value = 'Người nhận';
+            personReceiver.font = { bold: true, size: 14, name: 'Times New Roman' };
+            personReceiver.alignment = { horizontal: 'center', vertical: 'middle' };
+
+            // Tên người ký (4 dòng sau chữ ký)
+            const nameCell = worksheet.getCell(signatureStartRow + 5, 2); // Cột B
+            nameCell.value = 'Hoàng Văn Quý';
+            nameCell.font = { bold: true, size: 14, name: 'Times New Roman' };
+            nameCell.alignment = { horizontal: 'center', vertical: 'middle' };
+
+            return worksheet;
         }
 
-        // Tạo sheet Phù hiệu
-        function createEmblemSheet() {
+        // Hàm xuất Excel cho tab Phù hiệu xe - SỬ DỤNG EXCELJS
+        async function exportEmblemsData() {
+            try {
+                const workbook = new ExcelJS.Workbook();
+
+                // Sheet 1: Dữ liệu chi tiết
+                const detailSheet = await createEmblemDetailSheet(workbook);
+
+                // Sheet 2: Danh sách bàn giao
+                const handoverSheet = await createEmblemHandoverSheet(workbook);
+
+                // Xuất file
+                const buffer = await workbook.xlsx.writeBuffer();
+                const blob = new Blob([buffer], {
+                    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                });
+
+                const today = new Date();
+                const dateStr = `${today.getDate().toString().padStart(2, '0')}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getFullYear()}`;
+                const fileName = `Phu_hieu_xe_${dateStr}.xlsx`;
+
+                // Download file
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+
+                return true;
+            } catch (error) {
+                console.error('Lỗi xuất Excel phù hiệu:', error);
+                throw error;
+            }
+        }
+
+        // Tạo sheet dữ liệu chi tiết cho Phù hiệu
+        async function createEmblemDetailSheet(workbook) {
+            const worksheet = workbook.addWorksheet('Dữ liệu chi tiết');
+
+            // Thiết lập độ rộng cột
+            worksheet.columns = [
+                { width: 5 },   // STT
+                { width: 20 },  // Số phù hiệu
+                { width: 15 },  // Biển số xe
+                { width: 30 },  // Tên đơn vị
+                { width: 40 },  // Địa chỉ
+                { width: 20 },  // Quận/Huyện
+                { width: 25 },  // Xã/Phường/Thị trấn
+                { width: 12 },  // Ngày cấp
+                { width: 12 },  // Ngày hết hạn
+                { width: 15 },  // Loại phù hiệu
+                { width: 12 },  // Màu phù hiệu
+                { width: 12 },  // Loại cấp
+                { width: 30 },  // Tuyến khai thác
+                { width: 15 },  // Trạng thái
+                { width: 12 },  // Ngày thu hồi
+                { width: 20 }   // Ghi chú
+            ];
+
+            // Header chính
+            worksheet.mergeCells('A1:P1');
+            const titleCell = worksheet.getCell('A1');
+            titleCell.value = 'DANH SÁCH PHÙ HIỆU XE';
+            titleCell.font = { bold: true, size: 14, name: 'Times New Roman' };
+            titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+
+            // Thông tin báo cáo
+            worksheet.mergeCells('A2:P2');
+            const infoCell2 = worksheet.getCell('A2');
+            infoCell2.value = `Ngày xuất: ${new Date().toLocaleString('vi-VN')}`;
+            infoCell2.font = { name: 'Times New Roman' };
+            infoCell2.alignment = { horizontal: 'center' };
+
+            worksheet.mergeCells('A3:P3');
+            const infoCell3 = worksheet.getCell('A3');
+            infoCell3.value = `Tổng số: ${filteredEmblemsData.length} phù hiệu`;
+            infoCell3.font = { name: 'Times New Roman' };
+            infoCell3.alignment = { horizontal: 'center' };
+
+            worksheet.mergeCells('A4:P4');
+            const infoCell4 = worksheet.getCell('A4');
+            infoCell4.value = `Khoảng thời gian: ${formatDate(document.getElementById('startDate').value)} - ${formatDate(document.getElementById('endDate').value)}`;
+            infoCell4.font = { name: 'Times New Roman' };
+            infoCell4.alignment = { horizontal: 'center' };
+
+            // Headers cột
             const headers = [
-                'STT',
-                'Số phù hiệu',
-                'Biển số xe',
-                'Tên đơn vị',
-                'Địa chỉ',
-                'Quận/Huyện',
-                'Xã/Phường/Thị trấn',
-                'Ngày cấp',
-                'Ngày hết hạn',
-                'Loại phù hiệu',
-                'Màu phù hiệu',
-                'Loại cấp',
-                'Tuyến khai thác',
-                'Trạng thái',
-                'Ngày thu hồi',
-                'Ghi chú'
+                'STT', 'Số phù hiệu', 'Biển số xe', 'Tên đơn vị', 'Địa chỉ',
+                'Quận/Huyện', 'Xã/Phường/Thị trấn', 'Ngày cấp', 'Ngày hết hạn',
+                'Loại phù hiệu', 'Màu phù hiệu', 'Loại cấp', 'Tuyến khai thác',
+                'Trạng thái', 'Ngày thu hồi', 'Ghi chú'
             ];
 
-            const data = [
-                ['DANH SÁCH PHÙ HIỆU XE'],
-                [`Ngày xuất: ${new Date().toLocaleString('vi-VN')}`],
-                [`Tổng số: ${filteredEmblemsData.length} phù hiệu`],
-                [`Khoảng thời gian: ${formatDate(document.getElementById('startDate').value)} - ${formatDate(document.getElementById('endDate').value)}`],
-                [],
-                headers
-            ];
+            const headerRow = worksheet.getRow(6);
+            headers.forEach((header, index) => {
+                const cell = headerRow.getCell(index + 1);
+                cell.value = header;
+                cell.font = { bold: true, name: 'Times New Roman' };
+                cell.alignment = { horizontal: 'center', vertical: 'middle' };
+                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0E0E0' } };
+                cell.border = {
+                    top: { style: 'thin' },
+                    bottom: { style: 'thin' },
+                    left: { style: 'thin' },
+                    right: { style: 'thin' }
+                };
+            });
 
+            // Dữ liệu
             filteredEmblemsData.forEach((emblem, index) => {
+                const rowNum = 7 + index;
+                const row = worksheet.getRow(rowNum);
+
+                const companyInfo = getCompanyInfo(emblem.Ref_DonViCapPhuHieu, 'PHUHIEUXE');
                 const actualStatus = isEmblemExpired(emblem.NgayHetHan) ? 'Hết hạn' : (emblem.TrangThai || '');
 
-                // Lấy thông tin công ty với đúng reference
-                const companyInfo = getCompanyInfo(emblem.Ref_DonViCapPhuHieu, 'PHUHIEUXE');
-
-                data.push([
+                const rowData = [
                     index + 1,
                     emblem.SoPhuHieu || '',
                     emblem.BienSo || '',
@@ -2451,31 +2719,145 @@
                     actualStatus,
                     formatDate(emblem.NgayThuHoi),
                     emblem.GhiChu || ''
-                ]);
+                ];
+
+                rowData.forEach((value, colIndex) => {
+                    const cell = row.getCell(colIndex + 1);
+                    cell.value = value;
+                    cell.font = { name: 'Times New Roman' };
+                    cell.border = {
+                        top: { style: 'thin' },
+                        bottom: { style: 'thin' },
+                        left: { style: 'thin' },
+                        right: { style: 'thin' }
+                    };
+                    cell.alignment = {
+                        horizontal: colIndex === 0 ? 'center' : 'left',
+                        vertical: 'middle'
+                    };
+                });
             });
 
-            const worksheet = XLSX.utils.aoa_to_sheet(data);
+            return worksheet;
+        }
 
-            // Thiết lập độ rộng cột tương tự...
-            const colWidths = [
-                { wch: 5 },   // STT
-                { wch: 20 },  // Số phù hiệu
-                { wch: 15 },  // Biển số xe
-                { wch: 30 },  // Tên đơn vị
-                { wch: 40 },  // Địa chỉ
-                { wch: 20 },  // Quận/Huyện
-                { wch: 25 },  // Xã/Phường/Thị trấn
-                { wch: 12 },  // Ngày cấp
-                { wch: 12 },  // Ngày hết hạn
-                { wch: 15 },  // Loại phù hiệu
-                { wch: 12 },  // Màu phù hiệu
-                { wch: 12 },  // Loại cấp
-                { wch: 30 },  // Tuyến khai thác
-                { wch: 15 },  // Trạng thái
-                { wch: 12 },  // Ngày thu hồi
-                { wch: 20 }   // Ghi chú
+        // Tạo sheet danh sách bàn giao cho Phù hiệu
+        async function createEmblemHandoverSheet(workbook) {
+            const worksheet = workbook.addWorksheet('Danh sách Phù hiệu bàn giao');
+
+            // Thiết lập độ rộng cột
+            worksheet.columns = [
+                { width: 6 },   // STT
+                { width: 26 },  // Số phù hiệu
+                { width: 20 },  // Biển số xe
+                { width: 35 },  // Tên đơn vị
+                { width: 18 },  // Ngày cấp
+                { width: 29 }   // Ghi chú
             ];
-            worksheet['!cols'] = colWidths;
+
+            // Header đơn vị
+            worksheet.mergeCells('A1:C1');
+            const headerCell1 = worksheet.getCell('A1');
+            headerCell1.value = '    SỞ XÂY DỰNG TỈNH BẮC NINH';
+            headerCell1.font = { size: 13, name: 'Times New Roman' };
+            headerCell1.alignment = { vertical: 'middle' };
+
+            worksheet.mergeCells('A2:C2');
+            const headerCell2 = worksheet.getCell('A2');
+            headerCell2.value = '    PHÒNG VẬN TẢI& ATGT';
+            headerCell2.font = { bold: true, size: 14, name: 'Times New Roman' };
+            headerCell2.alignment = { vertical: 'middle' };
+
+            // Tiêu đề chính
+            worksheet.mergeCells('A4:F4');
+            const titleCell = worksheet.getCell('A4');
+            titleCell.value = 'DANH SÁCH TRẢ KẾT QUẢ THỦ TỤC HÀNH CHÍNH CẤP PHÙ HIỆU XE';
+            titleCell.font = { bold: true, size: 14, name: 'Times New Roman' };
+            titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+
+            // Headers bảng
+            const headers = ['STT', 'Số phù hiệu', 'Biển số xe', 'Tên đơn vị', 'Ngày cấp', 'Ghi chú'];
+            const headerRow = worksheet.getRow(7);
+
+            headers.forEach((header, index) => {
+                const cell = headerRow.getCell(index + 1);
+                cell.value = header;
+                cell.font = { bold: true, size: 14, name: 'Times New Roman' };
+                cell.alignment = { horizontal: 'center', vertical: 'middle' };
+                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD9D9D9' } };
+                cell.border = {
+                    top: { style: 'thin' },
+                    bottom: { style: 'thin' },
+                    left: { style: 'thin' },
+                    right: { style: 'thin' }
+                };
+            });
+
+            // Dữ liệu phù hiệu - HIỂN THỊ TẤT CẢ DỮ LIỆU
+            let currentRow = 8;
+            filteredEmblemsData.forEach((emblem, index) => {
+                const row = worksheet.getRow(currentRow);
+
+                const rowData = [
+                    index + 1,
+                    emblem.SoPhuHieu || '',
+                    emblem.BienSo || '',
+                    emblem.Ten_don_vi || '',
+                    formatDate(emblem.NgayCap),
+                    '' // Ghi chú để trống
+                ];
+
+                rowData.forEach((value, colIndex) => {
+                    const cell = row.getCell(colIndex + 1);
+                    cell.value = value;
+                    cell.font = { size: 14, name: 'Times New Roman' };
+                    cell.border = {
+                        top: { style: 'thin' },
+                        bottom: { style: 'thin' },
+                        left: { style: 'thin' },
+                        right: { style: 'thin' }
+                    };
+                    cell.alignment = {
+                        horizontal: colIndex === 0 || colIndex === 4 ? 'center' : 'left',
+                        vertical: 'middle'
+                    };
+                });
+                currentRow++;
+            });
+
+            // Tính toán vị trí phần chữ ký (sau dữ liệu + 2 dòng trống)
+            const signatureStartRow = currentRow + 2;
+
+            // Phần chữ ký
+            // Ngày tháng năm
+            const dateCell = worksheet.getCell(signatureStartRow, 6); // Cột F
+            dateCell.value = 'Ngày     tháng     năm 2025';
+            dateCell.font = { bold: true, size: 14, name: 'Times New Roman' };
+            dateCell.alignment = { horizontal: 'center', vertical: 'middle' };
+
+            // Dòng chữ ký (dòng tiếp theo)
+            const signatureRow = worksheet.getRow(signatureStartRow + 1);
+
+            const personGiver = signatureRow.getCell(2); // Cột B
+            personGiver.value = 'Người giao';
+            personGiver.font = { bold: true, size: 14, name: 'Times New Roman' };
+            personGiver.alignment = { horizontal: 'center', vertical: 'middle' };
+
+            const center = signatureRow.getCell(4); // Cột D
+            center.value = 'Trung tâm Hành chính công tỉnh';
+            center.font = { bold: true, size: 14, name: 'Times New Roman' };
+            center.alignment = { horizontal: 'center', vertical: 'middle' };
+
+            const personReceiver = signatureRow.getCell(6); // Cột F
+            personReceiver.value = 'Người nhận';
+            personReceiver.font = { bold: true, size: 14, name: 'Times New Roman' };
+            personReceiver.alignment = { horizontal: 'center', vertical: 'middle' };
+
+            // Tên người ký (4 dòng sau chữ ký)
+            // const nameCell = worksheet.getCell(signatureStartRow + 5, 2); // Cột B
+            // nameCell.value = 'Hoàng Văn Quý';
+            // nameCell.font = { bold: true, size: 14, name: 'Times New Roman' };
+            // nameCell.alignment = { horizontal: 'center', vertical: 'middle' };
 
             return worksheet;
         }

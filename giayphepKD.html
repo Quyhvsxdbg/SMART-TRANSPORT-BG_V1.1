@@ -477,10 +477,7 @@
 
             // Construct full address
             let fullAddress = '';
-            if (doanhNghiepData.SoNha_TDP) fullAddress += doanhNghiepData.SoNha_TDP + ', ';
-            if (doanhNghiepData.XaPhuongThiTran) fullAddress += doanhNghiepData.XaPhuongThiTran + ', ';
-            if (doanhNghiepData.QuanHuyen) fullAddress += doanhNghiepData.QuanHuyen + ', ';
-            if (doanhNghiepData.TinhThanh) fullAddress += doanhNghiepData.TinhThanh;
+            if (doanhNghiepData.SoNha_TDP) fullAddress += doanhNghiepData.DiaChiSauSapNhap;
 
             if (fullAddress) {
                 document.getElementById('dia-chi').textContent = fullAddress;
@@ -492,12 +489,22 @@
 
             // Format and populate issue date
             if (doanhNghiepData.NgayCap) {
-                // Split the date string by '/' and parse directly
-                const [day, month, year] = doanhNghiepData.NgayCap.split('/');
+                try {
+                    // Tạo Date object từ chuỗi MM/DD/YYYY
+                    const issueDate = new Date(doanhNghiepData.NgayCap);
 
-                document.getElementById('ngay-cap').textContent = day;
-                document.getElementById('thang-cap').textContent = month;
-                document.getElementById('nam-cap').textContent = year;
+                    const day = issueDate.getDate().toString().padStart(2, '0');
+                    const month = (issueDate.getMonth() + 1).toString().padStart(2, '0');
+                    const year = issueDate.getFullYear();
+
+                    document.getElementById('ngay-cap').textContent = day;
+                    document.getElementById('thang-cap').textContent = month;
+                    document.getElementById('nam-cap').textContent = year;
+                } catch (error) {
+                    console.error('Error parsing date:', error);
+                    // Fallback: hiển thị nguyên chuỗi
+                    document.getElementById('ngay-cap').textContent = doanhNghiepData.NgayCap;
+                }
             }
 
             // Populate tax code and issuing authority
@@ -559,10 +566,7 @@
 
                 // Xử lý dữ liệu địa chỉ
                 let fullAddress = '';
-                if (doanhNghiep.SoNha_TDP) fullAddress += doanhNghiep.SoNha_TDP + ', ';
-                if (doanhNghiep.XaPhuongThiTran) fullAddress += doanhNghiep.XaPhuongThiTran + ', ';
-                if (doanhNghiep.QuanHuyen) fullAddress += doanhNghiep.QuanHuyen + ', ';
-                if (doanhNghiep.TinhThanh) fullAddress += doanhNghiep.TinhThanh;
+                if (doanhNghiep.SoNha_TDP) fullAddress += doanhNghiep.DiaChiSauSapNhap;
 
                 // Xử lý ngày cấp
                 let ngayCap = '', thangCap = '', namCap = '';
