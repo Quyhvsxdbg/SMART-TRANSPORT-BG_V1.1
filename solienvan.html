@@ -649,8 +649,8 @@
                 if (doanhNghiepData.TenDoanhNghiep) {
                     document.getElementById('ten-doanh-nghiep').textContent = doanhNghiepData.TenDoanhNghiep;
                 }
-                if (doanhNghiepData.DiachiDayDu) {
-                    document.getElementById('dia-chi').textContent = doanhNghiepData.DiachiDayDu;
+                if (doanhNghiepData.DiaChiSauSapNhap) {
+                    document.getElementById('dia-chi').textContent = doanhNghiepData.DiaChiSauSapNhap;
                 }
                 if (doanhNghiepData.SoDienThoai) {
                     document.getElementById('dien-thoai').textContent = doanhNghiepData.SoDienThoai;
@@ -725,7 +725,7 @@
 
                     // Trang 3 - Thông tin doanh nghiệp
                     ten_doanh_nghiep: doanhNghiep ? (doanhNghiep.TenDoanhNghiep || '') : '',
-                    dia_chi: doanhNghiep ? (doanhNghiep.DiachiDayDu || '') : '',
+                    dia_chi: doanhNghiep ? (doanhNghiep.DiaChiSauSapNhap || '') : '',
                     dien_thoai: doanhNghiep ? (doanhNghiep.SoDienThoai || '') : '',
                     mo_hinh_hoat_dong: soLienVan.MoHinhHoatDong || '',
                     so_gp_lien_van_qt: soLienVan.SoGPLienVanQT || '',
