@@ -968,9 +968,25 @@
             <!-- Main Filter Controls with enhanced design -->
             <div class="bg-white rounded-lg p-5 shadow-sm border border-gray-100 mb-6">
                 <div class="grid grid-cols-1 lg:grid-cols-7 gap-4 mb-4">
-                    <!-- Date Range -->
+                    <!-- Trong phần Date Range -->
                     <div class="lg:col-span-2">
-                        <div class="grid grid-cols-2 gap-3">
+                        <div class="grid grid-cols-3 gap-3"> <!-- Thay đổi từ grid-cols-2 thành grid-cols-3 -->
+                            <!-- Dropdown chọn loại ngày - THÊM MỚI -->
+                            <div class="relative">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-filter text-blue-500 mr-1"></i>
+                                    Lọc theo
+                                </label>
+                                <select id="dateFilterType"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md appearance-none">
+                                    <option value="NgayCap">Ngày cấp</option>
+                                    <option value="NgayThuHoi">Ngày thu hồi</option>
+                                    <option value="both">Cả hai</option>
+                                </select>
+                                <i
+                                    class="fas fa-chevron-down absolute right-3 top-11 text-gray-400 pointer-events-none"></i>
+                            </div>
+
                             <div class="relative">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     <i class="fas fa-calendar-week text-green-500 mr-1"></i>
@@ -3596,9 +3612,9 @@
         function updateXaPhuongFilter() {
             const selectedQuanHuyen = document.getElementById('quanHuyenFilter').value;
             const xaPhuongFilter = document.getElementById('xaPhuongFilter');
-            const xaPhuongSauSapNhapFilter = document.getElementById('xaPhuongSauSapNhapFilter'); // THÊM MỚI
+            const xaPhuongSauSapNhapFilter = document.getElementById('xaPhuongSauSapNhapFilter');
 
-            // Clear existing options except first one cho cả 2 dropdown
+            // Clear existing options except first one
             while (xaPhuongFilter.children.length > 1) {
                 xaPhuongFilter.removeChild(xaPhuongFilter.lastChild);
             }
@@ -3607,30 +3623,27 @@
             }
 
             if (!selectedQuanHuyen) {
-                // Nếu không chọn quận/huyện → hiển thị TẤT CẢ xã/phường
                 populateAllXaPhuong();
-                populateAllXaPhuongSauSapNhap(); // THÊM MỚI
+                populateAllXaPhuongSauSapNhap();
                 return;
             }
 
-            // Nếu có chọn quận/huyện → chỉ hiển thị xã/phường thuộc quận/huyện đó
+            // Lọc xã/phường theo quận/huyện đã chọn
             const xaPhuongSet = new Set();
-            const xaPhuongSauSapNhapSet = new Set(); // THÊM MỚI
+            const xaPhuongSauSapNhapSet = new Set();
 
             originalCompanyData.forEach(company => {
                 if (company.QuanHuyen === selectedQuanHuyen) {
-                    // Xã phường hiện tại
                     if (company.XaPhuongThiTran && company.XaPhuongThiTran.trim()) {
                         xaPhuongSet.add(company.XaPhuongThiTran.trim());
                     }
-                    // Xã phường sau sáp nhập - THÊM MỚI
                     if (company.XaPhuongSauSapNhap && company.XaPhuongSauSapNhap.trim()) {
                         xaPhuongSauSapNhapSet.add(company.XaPhuongSauSapNhap.trim());
                     }
                 }
             });
 
-            // Populate xã/phường hiện tại của quận/huyện đã chọn
+            // Populate options
             const sortedXaPhuong = Array.from(xaPhuongSet).sort();
             sortedXaPhuong.forEach(xaPhuong => {
                 const option = document.createElement('option');
@@ -3639,7 +3652,6 @@
                 xaPhuongFilter.appendChild(option);
             });
 
-            // Populate xã/phường sau sáp nhập của quận/huyện đã chọn - THÊM MỚI
             const sortedXaPhuongSauSapNhap = Array.from(xaPhuongSauSapNhapSet).sort();
             sortedXaPhuongSauSapNhap.forEach(xaPhuong => {
                 const option = document.createElement('option');
@@ -3858,8 +3870,6 @@
                 return;
             }
 
-            showNotification('Đang áp dụng bộ lọc...', 'info');
-
             // Bước 1: Lọc theo thời gian trước
             let tempLicenses = filterByDateRange(originalLicensesData, startDate, endDate, 'NgayCap');
             let tempEmblems = filterByDateRange(originalEmblemsData, startDate, endDate, 'NgayCap');
@@ -3924,7 +3934,17 @@
             const totalFiltered = filteredLicensesData.length + filteredEmblemsData.length +
                 filteredInternationalData.length + filteredIntEmblemsData.length +
                 filteredIntBooksData.length;
-            showNotification(`Đã lọc được ${totalFiltered} bản ghi!`, 'success');
+            // showNotification(`Đã lọc được ${totalFiltered} bản ghi!`, 'success');
+        }
+
+        // Hàm helper để hiển thị label
+        function getFilterTypeLabel(filterType) {
+            switch (filterType) {
+                case 'NgayCap': return 'ngày cấp';
+                case 'NgayThuHoi': return 'ngày thu hồi';
+                case 'both': return 'cả ngày cấp và ngày thu hồi';
+                default: return 'ngày cấp';
+            }
         }
 
         // Filter by Location - THÊM MỚI
@@ -3981,19 +4001,33 @@
             });
         }
 
-        // Lọc theo khoảng thời gian
+        // Hàm lọc theo ngày cải tiến
         function filterByDateRange(data, startDate, endDate, dateField) {
             if (!startDate || !endDate) return data;
 
             const start = new Date(startDate + 'T00:00:00');
             const end = new Date(endDate + 'T23:59:59');
+            const filterType = document.getElementById('dateFilterType').value;
 
             return data.filter(item => {
-                if (item[dateField]) {
-                    const itemDate = parseAppSheetDate(item[dateField]);
-                    return itemDate >= start && itemDate <= end;
+                if (filterType === 'both') {
+                    // Lọc cả ngày cấp và ngày thu hồi
+                    const ngayCap = item.NgayCap ? parseAppSheetDate(item.NgayCap) : null;
+                    const ngayThuHoi = item.NgayThuHoi ? parseAppSheetDate(item.NgayThuHoi) : null;
+
+                    const matchesNgayCap = ngayCap && ngayCap >= start && ngayCap <= end;
+                    const matchesNgayThuHoi = ngayThuHoi && ngayThuHoi >= start && ngayThuHoi <= end;
+
+                    return matchesNgayCap || matchesNgayThuHoi;
+                } else {
+                    // Lọc theo trường được chọn
+                    const fieldToFilter = filterType === 'NgayThuHoi' ? 'NgayThuHoi' : 'NgayCap';
+                    if (item[fieldToFilter]) {
+                        const itemDate = parseAppSheetDate(item[fieldToFilter]);
+                        return itemDate >= start && itemDate <= end;
+                    }
+                    return false;
                 }
-                return false;
             });
         }
 
@@ -6913,6 +6947,26 @@
             }, 3000);
         }
 
+        function updateTableHeader() {
+            const filterType = document.getElementById('dateFilterType').value;
+            const filterLabel = getFilterTypeLabel(filterType);
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            if (startDate && endDate) {
+                const tableInfo = document.querySelector('.table-info');
+                if (tableInfo) {
+                    tableInfo.innerHTML = `
+                <div class="text-sm text-gray-600 mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    Hiển thị dữ liệu được lọc theo <strong>${filterLabel}</strong> 
+                    từ <strong>${formatDate(startDate)}</strong> đến <strong>${formatDate(endDate)}</strong>
+                </div>
+            `;
+                }
+            }
+        }
+
         // Initialize application (CẬP NHẬT)
         async function initializeApp() {
             // Set default dates - 30 ngày gần nhất
@@ -6939,6 +6993,20 @@
             // THÊM MỚI: Add event listener cho xã phường sau sáp nhập filter
             document.getElementById('xaPhuongSauSapNhapFilter').addEventListener('change', function () {
                 // Có thể thêm logic xử lý nếu cần
+            });
+
+            // Thêm vào phần initializeApp
+            document.getElementById('dateFilterType').addEventListener('change', function () {
+                const filterType = this.value;
+                const label = getFilterTypeLabel(filterType);
+                showNotification(`Đã chuyển sang lọc theo ${label}`, 'info');
+
+                // Tự động áp dụng filter nếu đã có ngày được chọn
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                if (startDate && endDate) {
+                    applyFilters();
+                }
             });
 
             // Show loading notification
