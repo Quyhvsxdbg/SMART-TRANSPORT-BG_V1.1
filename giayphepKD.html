@@ -571,10 +571,10 @@
                 // Xử lý ngày cấp
                 let ngayCap = '', thangCap = '', namCap = '';
                 if (doanhNghiep.NgayCap) {
-                    const [day, month, year] = doanhNghiep.NgayCap.split('/');
-                    ngayCap = day;
-                    thangCap = month;
-                    namCap = year;
+                    const issueDate = new Date(doanhNghiep.NgayCap);
+                    ngayCap = issueDate.getDate().toString().padStart(2, '0');
+                    thangCap = (issueDate.getMonth() + 1).toString().padStart(2, '0');
+                    namCap = issueDate.getFullYear().toString();
                 }
 
                 // Xử lý ngày ký
