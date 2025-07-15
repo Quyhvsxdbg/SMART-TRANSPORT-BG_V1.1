@@ -27,7 +27,7 @@
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 1rem;
         }
 
@@ -859,7 +859,7 @@
                 gap: 1rem;
             }
 
-            .grid.grid-cols-2.gap-3 {
+            .grid.grid-cols-3.gap-3 {
                 grid-template-columns: 1fr;
                 gap: 0.75rem;
             }
@@ -969,7 +969,7 @@
             <div class="bg-white rounded-lg p-5 shadow-sm border border-gray-100 mb-6">
                 <div class="grid grid-cols-1 lg:grid-cols-7 gap-4 mb-4">
                     <!-- Trong phần Date Range -->
-                    <div class="lg:col-span-2">
+                    <div class="lg:col-span-3">
                         <div class="grid grid-cols-3 gap-3"> <!-- Thay đổi từ grid-cols-2 thành grid-cols-3 -->
                             <!-- Dropdown chọn loại ngày - THÊM MỚI -->
                             <div class="relative">
@@ -979,9 +979,9 @@
                                 </label>
                                 <select id="dateFilterType"
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md appearance-none">
+                                    <option value="both">Cả hai</option>
                                     <option value="NgayCap">Ngày cấp</option>
                                     <option value="NgayThuHoi">Ngày thu hồi</option>
-                                    <option value="both">Cả hai</option>
                                 </select>
                                 <i
                                     class="fas fa-chevron-down absolute right-3 top-11 text-gray-400 pointer-events-none"></i>
@@ -1051,20 +1051,20 @@
                     </div>
 
                     <!-- Action Buttons - UPDATED -->
-                    <div class="lg:col-span-2 flex flex-col justify-end">
+                    <div class="lg:col-span-1 flex flex-col justify-end">
                         <div class="grid grid-cols-3 gap-2">
                             <button onclick="applyFilters()"
-                                class="group bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 py-3 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                                class="group bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-2 py-2 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
                                 <i class="fas fa-search mr-1 group-hover:scale-110 transition-transform"></i>
                                 Lọc
                             </button>
                             <button onclick="clearAllFilters()"
-                                class="group bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white px-4 py-3 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                                class="group bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white px-1 py-2  rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
                                 <i class="fas fa-eraser mr-1 group-hover:scale-110 transition-transform"></i>
                                 Xóa
                             </button>
                             <button onclick="exportCurrentTabData()"
-                                class="group bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-4 py-3 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                                class="group bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-1 py-2  rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
                                 <i class="fas fa-download mr-1 group-hover:scale-110 transition-transform"></i>
                                 Excel
                             </button>
@@ -3931,10 +3931,29 @@
             // Bước 6: Cập nhật biểu đồ
             updateChartsWithFilteredData();
 
+            // Thêm vào cuối hàm applyFilters()
+            const dateFilterType = document.getElementById('dateFilterType').value;
             const totalFiltered = filteredLicensesData.length + filteredEmblemsData.length +
                 filteredInternationalData.length + filteredIntEmblemsData.length +
                 filteredIntBooksData.length;
-            // showNotification(`Đã lọc được ${totalFiltered} bản ghi!`, 'success');
+
+            let actionText = '';
+            switch (dateFilterType) {
+                case 'NgayCap':
+                    actionText = 'được cấp';
+                    break;
+                case 'NgayThuHoi':
+                    actionText = 'bị thu hồi';
+                    break;
+                case 'both':
+                    actionText = 'được cấp và thu hồi';
+                    break;
+                default:
+                    actionText = 'được lọc';
+            }
+
+            showNotification(`Đã lọc được ${totalFiltered} bản ghi ${actionText}!`, 'success');
+
         }
 
         // Hàm helper để hiển thị label
@@ -4420,19 +4439,51 @@
 
         // Update UI functions với dữ liệu đã lọc
         function updateLicensesUI() {
-            const activeLicenses = filteredLicensesData.filter(item =>
-                item.TrangThai !== 'Đã thu hồi' && item.TrangThai !== 'Hết hiệu lực'
-            );
-            const revokedLicenses = filteredLicensesData.filter(item =>
-                item.TrangThai === 'Đã thu hồi'
-            );
+            const dateFilterType = document.getElementById('dateFilterType').value;
 
-            // Update dashboard stats
-            document.getElementById('totalLicenses').textContent = filteredLicensesData.length;
-            document.getElementById('revokedLicenses').textContent = revokedLicenses.length;
-            document.getElementById('licensesIssued').textContent = filteredLicensesData.length;
-            document.getElementById('licensesRevoked').textContent = revokedLicenses.length;
-            document.getElementById('activeLicenses').textContent = activeLicenses.length;
+            if (dateFilterType === 'NgayThuHoi') {
+                // KHI LỌC THEO NGÀY THU HỒI
+                const revokedLicenses = filteredLicensesData.filter(item =>
+                    item.TrangThai === 'Đã thu hồi'
+                );
+
+                // Các card hiển thị: chỉ bị thu hồi, còn lại = 0
+                document.getElementById('totalLicenses').textContent = 0; // GPKD được cấp = 0
+                document.getElementById('revokedLicenses').textContent = revokedLicenses.length; // GP bị thu hồi
+                document.getElementById('licensesIssued').textContent = 0; // GPKD được cấp = 0
+                document.getElementById('licensesRevoked').textContent = revokedLicenses.length; // GPKD bị thu hồi
+                document.getElementById('activeLicenses').textContent = 0; // GPKD còn hiệu lực = 0
+
+            } else if (dateFilterType === 'NgayCap') {
+                // KHI LỌC THEO NGÀY CẤP
+                const activeLicenses = filteredLicensesData.filter(item =>
+                    item.TrangThai !== 'Đã thu hồi' && item.TrangThai !== 'Hết hiệu lực'
+                );
+
+                // Các card hiển thị: chỉ được cấp và còn hiệu lực, bị thu hồi = 0
+                document.getElementById('totalLicenses').textContent = filteredLicensesData.length; // GPKD được cấp
+                document.getElementById('revokedLicenses').textContent = 0; // GP bị thu hồi = 0
+                document.getElementById('licensesIssued').textContent = filteredLicensesData.length; // GPKD được cấp
+                document.getElementById('licensesRevoked').textContent = 0; // GPKD bị thu hồi = 0
+                document.getElementById('activeLicenses').textContent = activeLicenses.length; // GPKD còn hiệu lực
+
+            } else {
+                // KHI LỌC CẢ HAI - HIỂN THỊ ĐẦY ĐỦ
+                const activeLicenses = filteredLicensesData.filter(item =>
+                    item.TrangThai !== 'Đã thu hồi' && item.TrangThai !== 'Hết hiệu lực'
+                );
+                const revokedLicenses = filteredLicensesData.filter(item =>
+                    item.TrangThai === 'Đã thu hồi'
+                );
+
+                // Hiển thị đầy đủ tất cả số liệu thực tế
+                document.getElementById('totalLicenses').textContent = filteredLicensesData.length;
+                document.getElementById('revokedLicenses').textContent = revokedLicenses.length;
+                document.getElementById('licensesIssued').textContent = filteredLicensesData.length;
+                document.getElementById('licensesRevoked').textContent = revokedLicenses.length;
+                document.getElementById('activeLicenses').textContent = activeLicenses.length;
+            }
+
             document.getElementById('statsTotalLicenses').textContent = filteredLicensesData.length;
 
             // Update table
@@ -4440,35 +4491,94 @@
         }
 
         function updateEmblemsUI() {
-            // Phân loại theo trạng thái trong database
-            const activeEmblems = filteredEmblemsData.filter(item =>
-                item.TrangThai === 'Hiệu lực' || item.TrangThai === 'Còn hiệu lực'
-            );
+            const dateFilterType = document.getElementById('dateFilterType').value;
 
-            // Phù hiệu quá hạn: ngày hết hạn < hôm nay HOẶC trạng thái là "Hết hạn", "Hết hiệu lực", "Đã thu hồi"
-            const expiredEmblems = filteredEmblemsData.filter(item => {
-                const expiredByDate = isEmblemExpired(item.NgayHetHan);
-                const expiredByStatus = ['Hết hạn'].includes(item.TrangThai);
-                return expiredByDate || expiredByStatus;
-            });
+            if (dateFilterType === 'NgayThuHoi') {
+                // KHI LỌC THEO NGÀY THU HỒI
+                const revokedEmblems = filteredEmblemsData.filter(item =>
+                    item.TrangThai === 'Thu hồi' || item.TrangThai === 'Đã thu hồi'
+                );
 
-            const revokedEmblems = filteredEmblemsData.filter(item =>
-                item.TrangThai === 'Thu hồi' || item.TrangThai === 'Đã thu hồi'
-            );
+                const expiredEmblems = filteredEmblemsData.filter(item => {
+                    const expiredByDate = isEmblemExpired(item.NgayHetHan);
+                    const expiredByStatus = ['Hết hạn'].includes(item.TrangThai);
+                    return expiredByDate || expiredByStatus;
+                });
 
-            // THÊM MỚI: Hết hiệu lực
-            const invalidEmblems = filteredEmblemsData.filter(item =>
-                item.TrangThai === 'Hết hiệu lực'
-            );
+                const invalidEmblems = filteredEmblemsData.filter(item =>
+                    item.TrangThai === 'Hết hiệu lực'
+                );
 
-            // Update dashboard stats
-            document.getElementById('activeEmblems').textContent = activeEmblems.length;
-            document.getElementById('expiredEmblems').textContent = expiredEmblems.length;
-            document.getElementById('emblemsIssued').textContent = filteredEmblemsData.length;
-            document.getElementById('emblemsRevoked').textContent = revokedEmblems.length;
-            document.getElementById('emblemsExpired').textContent = expiredEmblems.length;
-            document.getElementById('emblemsActive').textContent = activeEmblems.length;
-            document.getElementById('emblemsInvalid').textContent = invalidEmblems.length; // THÊM MỚI
+                // Dashboard stats - chỉ hiển thị thu hồi
+                document.getElementById('activeEmblems').textContent = 0; // Còn hiệu lực = 0
+                document.getElementById('expiredEmblems').textContent = expiredEmblems.length; // Quá hạn (nếu có)
+
+                // Tab emblems stats - chỉ hiển thị thu hồi
+                document.getElementById('emblemsIssued').textContent = 0; // Được cấp = 0
+                document.getElementById('emblemsRevoked').textContent = revokedEmblems.length; // Bị thu hồi
+                document.getElementById('emblemsExpired').textContent = expiredEmblems.length; // Quá hạn
+                document.getElementById('emblemsActive').textContent = 0; // Còn hiệu lực = 0
+                document.getElementById('emblemsInvalid').textContent = invalidEmblems.length; // Hết hiệu lực
+
+            } else if (dateFilterType === 'NgayCap') {
+                // KHI LỌC THEO NGÀY CẤP
+                const activeEmblems = filteredEmblemsData.filter(item =>
+                    item.TrangThai === 'Hiệu lực' || item.TrangThai === 'Còn hiệu lực'
+                );
+
+                const expiredEmblems = filteredEmblemsData.filter(item => {
+                    const expiredByDate = isEmblemExpired(item.NgayHetHan);
+                    const expiredByStatus = ['Hết hạn'].includes(item.TrangThai);
+                    return expiredByDate || expiredByStatus;
+                });
+
+                const invalidEmblems = filteredEmblemsData.filter(item =>
+                    item.TrangThai === 'Hết hiệu lực'
+                );
+
+                // Dashboard stats - chỉ hiển thị cấp
+                document.getElementById('activeEmblems').textContent = activeEmblems.length; // Còn hiệu lực
+                document.getElementById('expiredEmblems').textContent = expiredEmblems.length; // Quá hạn
+
+                // Tab emblems stats - chỉ hiển thị cấp
+                document.getElementById('emblemsIssued').textContent = filteredEmblemsData.length; // Được cấp
+                document.getElementById('emblemsRevoked').textContent = 0; // Bị thu hồi = 0
+                document.getElementById('emblemsExpired').textContent = expiredEmblems.length; // Quá hạn
+                document.getElementById('emblemsActive').textContent = activeEmblems.length; // Còn hiệu lực
+                document.getElementById('emblemsInvalid').textContent = invalidEmblems.length; // Hết hiệu lực
+
+            } else {
+                // KHI LỌC CẢ HAI - HIỂN THỊ ĐẦY ĐỦ
+                const activeEmblems = filteredEmblemsData.filter(item =>
+                    item.TrangThai === 'Hiệu lực' || item.TrangThai === 'Còn hiệu lực'
+                );
+
+                const expiredEmblems = filteredEmblemsData.filter(item => {
+                    const expiredByDate = isEmblemExpired(item.NgayHetHan);
+                    const expiredByStatus = ['Hết hạn'].includes(item.TrangThai);
+                    return expiredByDate || expiredByStatus;
+                });
+
+                const revokedEmblems = filteredEmblemsData.filter(item =>
+                    item.TrangThai === 'Thu hồi' || item.TrangThai === 'Đã thu hồi'
+                );
+
+                const invalidEmblems = filteredEmblemsData.filter(item =>
+                    item.TrangThai === 'Hết hiệu lực'
+                );
+
+                // Dashboard stats - hiển thị đầy đủ
+                document.getElementById('activeEmblems').textContent = activeEmblems.length;
+                document.getElementById('expiredEmblems').textContent = expiredEmblems.length;
+
+                // Tab emblems stats - hiển thị đầy đủ
+                document.getElementById('emblemsIssued').textContent = filteredEmblemsData.length;
+                document.getElementById('emblemsRevoked').textContent = revokedEmblems.length;
+                document.getElementById('emblemsExpired').textContent = expiredEmblems.length;
+                document.getElementById('emblemsActive').textContent = activeEmblems.length;
+                document.getElementById('emblemsInvalid').textContent = invalidEmblems.length;
+            }
+
             document.getElementById('statsTotalEmblems').textContent = filteredEmblemsData.length;
 
             // Update table
@@ -4476,22 +4586,60 @@
         }
 
         function updateInternationalUI() {
-            const activeInternational = filteredInternationalData.filter(item =>
-                item.TrangThaiHoatDong === 'Đang hoạt động'
-            );
-            const suspendedInternational = filteredInternationalData.filter(item =>
-                item.TrangThaiHoatDong === 'Ngừng tạm thời'
-            );
-            const revokedInternational = filteredInternationalData.filter(item =>
-                item.TrangThaiHoatDong === 'Bị thu hồi GPKD'
-            );
+            const dateFilterType = document.getElementById('dateFilterType').value;
 
-            // Update dashboard stats
-            document.getElementById('totalInternational').textContent = filteredInternationalData.length;
-            document.getElementById('internationalIssued').textContent = filteredInternationalData.length;
-            document.getElementById('internationalActive').textContent = activeInternational.length;
-            document.getElementById('internationalSuspended').textContent = suspendedInternational.length;
-            document.getElementById('internationalRevoked').textContent = revokedInternational.length;
+            if (dateFilterType === 'NgayThuHoi') {
+                // KHI LỌC THEO NGÀY THU HỒI
+                const revokedInternational = filteredInternationalData.filter(item =>
+                    item.TrangThaiHoatDong === 'Bị thu hồi GPKD'
+                );
+                const suspendedInternational = filteredInternationalData.filter(item =>
+                    item.TrangThaiHoatDong === 'Ngừng tạm thời'
+                );
+
+                // Chỉ hiển thị thu hồi và tạm ngừng
+                document.getElementById('totalInternational').textContent = 0; // GP được cấp = 0
+                document.getElementById('internationalIssued').textContent = 0; // GP được cấp = 0
+                document.getElementById('internationalActive').textContent = 0; // Đang hoạt động = 0
+                document.getElementById('internationalSuspended').textContent = suspendedInternational.length;
+                document.getElementById('internationalRevoked').textContent = revokedInternational.length;
+
+            } else if (dateFilterType === 'NgayCap') {
+                // KHI LỌC THEO NGÀY CẤP
+                const activeInternational = filteredInternationalData.filter(item =>
+                    item.TrangThaiHoatDong === 'Đang hoạt động'
+                );
+                const suspendedInternational = filteredInternationalData.filter(item =>
+                    item.TrangThaiHoatDong === 'Ngừng tạm thời'
+                );
+
+                // Chỉ hiển thị cấp và hoạt động
+                document.getElementById('totalInternational').textContent = filteredInternationalData.length;
+                document.getElementById('internationalIssued').textContent = filteredInternationalData.length;
+                document.getElementById('internationalActive').textContent = activeInternational.length;
+                document.getElementById('internationalSuspended').textContent = suspendedInternational.length;
+                document.getElementById('internationalRevoked').textContent = 0; // Bị thu hồi = 0
+
+            } else {
+                // KHI LỌC CẢ HAI - HIỂN THỊ ĐẦY ĐỦ
+                const activeInternational = filteredInternationalData.filter(item =>
+                    item.TrangThaiHoatDong === 'Đang hoạt động'
+                );
+                const suspendedInternational = filteredInternationalData.filter(item =>
+                    item.TrangThaiHoatDong === 'Ngừng tạm thời'
+                );
+                const revokedInternational = filteredInternationalData.filter(item =>
+                    item.TrangThaiHoatDong === 'Bị thu hồi GPKD'
+                );
+
+                // Hiển thị đầy đủ
+                document.getElementById('totalInternational').textContent = filteredInternationalData.length;
+                document.getElementById('internationalIssued').textContent = filteredInternationalData.length;
+                document.getElementById('internationalActive').textContent = activeInternational.length;
+                document.getElementById('internationalSuspended').textContent = suspendedInternational.length;
+                document.getElementById('internationalRevoked').textContent = revokedInternational.length;
+            }
+
             document.getElementById('statsTotalInternational').textContent = filteredInternationalData.length;
 
             // Update table
@@ -4499,37 +4647,90 @@
         }
 
         function updateIntEmblemsUI() {
-            const activeIntEmblems = filteredIntEmblemsData.filter(item => {
-                const today = new Date();
-                if (item.NgayHetHan) {
-                    const expireDate = parseAppSheetDate(item.NgayHetHan);
-                    return expireDate >= today && item.TrangThai !== 'Đã thu hồi';
-                }
-                return item.TrangThai !== 'Đã thu hồi';
-            });
+            const dateFilterType = document.getElementById('dateFilterType').value;
 
-            const expiringIntEmblems = filteredIntEmblemsData.filter(item =>
-                item.HieuLuc === 'Sắp đến hạn'
-            );
+            if (dateFilterType === 'NgayThuHoi') {
+                // KHI LỌC THEO NGÀY THU HỒI
+                const expiredIntEmblems = filteredIntEmblemsData.filter(item => {
+                    const today = new Date();
+                    if (item.NgayHetHan) {
+                        const expireDate = parseAppSheetDate(item.NgayHetHan);
+                        return expireDate < today || item.TrangThai === 'Đã thu hồi';
+                    }
+                    return item.TrangThai === 'Đã thu hồi';
+                });
 
-            const expiredIntEmblems = filteredIntEmblemsData.filter(item => {
-                const today = new Date();
-                if (item.NgayHetHan) {
-                    const expireDate = parseAppSheetDate(item.NgayHetHan);
-                    return expireDate < today || item.TrangThai === 'Đã thu hồi';
-                }
-                return item.TrangThai === 'Đã thu hồi';
-            });
+                const expiringIntEmblems = filteredIntEmblemsData.filter(item =>
+                    item.HieuLuc === 'Sắp đến hạn'
+                );
 
-            // Update dashboard stats
-            document.getElementById('totalIntEmblems').textContent = filteredIntEmblemsData.length;
-            document.getElementById('intEmblemsIssued').textContent = filteredIntEmblemsData.length;
-            document.getElementById('intEmblemsActive').textContent = activeIntEmblems.length;
-            document.getElementById('intEmblemsExpiring').textContent = expiringIntEmblems.length;
-            document.getElementById('intEmblemsExpired').textContent = expiredIntEmblems.length;
+                // Chỉ hiển thị thu hồi
+                document.getElementById('totalIntEmblems').textContent = 0; // Được cấp = 0
+                document.getElementById('intEmblemsIssued').textContent = 0; // Được cấp = 0
+                document.getElementById('intEmblemsActive').textContent = 0; // Còn hiệu lực = 0
+                document.getElementById('intEmblemsExpiring').textContent = expiringIntEmblems.length;
+                document.getElementById('intEmblemsExpired').textContent = expiredIntEmblems.length;
+
+            } else if (dateFilterType === 'NgayCap') {
+                // KHI LỌC THEO NGÀY CẤP
+                const activeIntEmblems = filteredIntEmblemsData.filter(item => {
+                    const today = new Date();
+                    if (item.NgayHetHan) {
+                        const expireDate = parseAppSheetDate(item.NgayHetHan);
+                        return expireDate >= today && item.TrangThai !== 'Đã thu hồi';
+                    }
+                    return item.TrangThai !== 'Đã thu hồi';
+                });
+
+                const expiringIntEmblems = filteredIntEmblemsData.filter(item =>
+                    item.HieuLuc === 'Sắp đến hạn'
+                );
+
+                // Chỉ hiển thị cấp
+                document.getElementById('totalIntEmblems').textContent = filteredIntEmblemsData.length;
+                document.getElementById('intEmblemsIssued').textContent = filteredIntEmblemsData.length;
+                document.getElementById('intEmblemsActive').textContent = activeIntEmblems.length;
+                document.getElementById('intEmblemsExpiring').textContent = expiringIntEmblems.length;
+                document.getElementById('intEmblemsExpired').textContent = 0; // Hết hạn/Thu hồi = 0
+
+            } else {
+                // KHI LỌC CẢ HAI - HIỂN THỊ ĐẦY ĐỦ
+                const activeIntEmblems = filteredIntEmblemsData.filter(item => {
+                    const today = new Date();
+                    if (item.NgayHetHan) {
+                        const expireDate = parseAppSheetDate(item.NgayHetHan);
+                        return expireDate >= today && item.TrangThai !== 'Đã thu hồi';
+                    }
+                    return item.TrangThai !== 'Đã thu hồi';
+                });
+
+                const expiringIntEmblems = filteredIntEmblemsData.filter(item =>
+                    item.HieuLuc === 'Sắp đến hạn'
+                );
+
+                const expiredIntEmblems = filteredIntEmblemsData.filter(item => {
+                    const today = new Date();
+                    if (item.NgayHetHan) {
+                        const expireDate = parseAppSheetDate(item.NgayHetHan);
+                        return expireDate < today || item.TrangThai === 'Đã thu hồi';
+                    }
+                    return item.TrangThai === 'Đã thu hồi';
+                });
+
+                // Hiển thị đầy đủ
+                document.getElementById('totalIntEmblems').textContent = filteredIntEmblemsData.length;
+                document.getElementById('intEmblemsIssued').textContent = filteredIntEmblemsData.length;
+                document.getElementById('intEmblemsActive').textContent = activeIntEmblems.length;
+                document.getElementById('intEmblemsExpiring').textContent = expiringIntEmblems.length;
+                document.getElementById('intEmblemsExpired').textContent = expiredIntEmblems.length;
+            }
+
             document.getElementById('statsTotalIntEmblems').textContent = filteredIntEmblemsData.length;
 
             // Show warning banner if there are expiring items
+            const expiringIntEmblems = filteredIntEmblemsData.filter(item =>
+                item.HieuLuc === 'Sắp đến hạn'
+            );
             const warningBanner = document.getElementById('intEmblemWarningBanner');
             const warningCount = document.getElementById('intEmblemWarningCount');
             if (expiringIntEmblems.length > 0) {
@@ -4544,37 +4745,90 @@
         }
 
         function updateIntBooksUI() {
-            const activeIntBooks = filteredIntBooksData.filter(item => {
-                const today = new Date();
-                if (item.NgayHetHan) {
-                    const expireDate = parseAppSheetDate(item.NgayHetHan);
-                    return expireDate >= today && item.TrangThai !== 'Đã thu hồi';
-                }
-                return item.TrangThai !== 'Đã thu hồi';
-            });
+            const dateFilterType = document.getElementById('dateFilterType').value;
 
-            const expiringIntBooks = filteredIntBooksData.filter(item =>
-                item.HieuLuc === 'Sắp đến hạn'
-            );
+            if (dateFilterType === 'NgayThuHoi') {
+                // KHI LỌC THEO NGÀY THU HỒI
+                const expiredIntBooks = filteredIntBooksData.filter(item => {
+                    const today = new Date();
+                    if (item.NgayHetHan) {
+                        const expireDate = parseAppSheetDate(item.NgayHetHan);
+                        return expireDate < today || item.TrangThai === 'Đã thu hồi';
+                    }
+                    return item.TrangThai === 'Đã thu hồi';
+                });
 
-            const expiredIntBooks = filteredIntBooksData.filter(item => {
-                const today = new Date();
-                if (item.NgayHetHan) {
-                    const expireDate = parseAppSheetDate(item.NgayHetHan);
-                    return expireDate < today || item.TrangThai === 'Đã thu hồi';
-                }
-                return item.TrangThai === 'Đã thu hồi';
-            });
+                const expiringIntBooks = filteredIntBooksData.filter(item =>
+                    item.HieuLuc === 'Sắp đến hạn'
+                );
 
-            // Update dashboard stats
-            document.getElementById('totalIntBooks').textContent = filteredIntBooksData.length;
-            document.getElementById('intBooksIssued').textContent = filteredIntBooksData.length;
-            document.getElementById('intBooksActive').textContent = activeIntBooks.length;
-            document.getElementById('intBooksExpiring').textContent = expiringIntBooks.length;
-            document.getElementById('intBooksExpired').textContent = expiredIntBooks.length;
+                // Chỉ hiển thị thu hồi
+                document.getElementById('totalIntBooks').textContent = 0; // Được cấp = 0
+                document.getElementById('intBooksIssued').textContent = 0; // Được cấp = 0
+                document.getElementById('intBooksActive').textContent = 0; // Còn hiệu lực = 0
+                document.getElementById('intBooksExpiring').textContent = expiringIntBooks.length;
+                document.getElementById('intBooksExpired').textContent = expiredIntBooks.length;
+
+            } else if (dateFilterType === 'NgayCap') {
+                // KHI LỌC THEO NGÀY CẤP
+                const activeIntBooks = filteredIntBooksData.filter(item => {
+                    const today = new Date();
+                    if (item.NgayHetHan) {
+                        const expireDate = parseAppSheetDate(item.NgayHetHan);
+                        return expireDate >= today && item.TrangThai !== 'Đã thu hồi';
+                    }
+                    return item.TrangThai !== 'Đã thu hồi';
+                });
+
+                const expiringIntBooks = filteredIntBooksData.filter(item =>
+                    item.HieuLuc === 'Sắp đến hạn'
+                );
+
+                // Chỉ hiển thị cấp
+                document.getElementById('totalIntBooks').textContent = filteredIntBooksData.length;
+                document.getElementById('intBooksIssued').textContent = filteredIntBooksData.length;
+                document.getElementById('intBooksActive').textContent = activeIntBooks.length;
+                document.getElementById('intBooksExpiring').textContent = expiringIntBooks.length;
+                document.getElementById('intBooksExpired').textContent = 0; // Hết hạn/Thu hồi = 0
+
+            } else {
+                // KHI LỌC CẢ HAI - HIỂN THỊ ĐẦY ĐỦ
+                const activeIntBooks = filteredIntBooksData.filter(item => {
+                    const today = new Date();
+                    if (item.NgayHetHan) {
+                        const expireDate = parseAppSheetDate(item.NgayHetHan);
+                        return expireDate >= today && item.TrangThai !== 'Đã thu hồi';
+                    }
+                    return item.TrangThai !== 'Đã thu hồi';
+                });
+
+                const expiringIntBooks = filteredIntBooksData.filter(item =>
+                    item.HieuLuc === 'Sắp đến hạn'
+                );
+
+                const expiredIntBooks = filteredIntBooksData.filter(item => {
+                    const today = new Date();
+                    if (item.NgayHetHan) {
+                        const expireDate = parseAppSheetDate(item.NgayHetHan);
+                        return expireDate < today || item.TrangThai === 'Đã thu hồi';
+                    }
+                    return item.TrangThai === 'Đã thu hồi';
+                });
+
+                // Hiển thị đầy đủ
+                document.getElementById('totalIntBooks').textContent = filteredIntBooksData.length;
+                document.getElementById('intBooksIssued').textContent = filteredIntBooksData.length;
+                document.getElementById('intBooksActive').textContent = activeIntBooks.length;
+                document.getElementById('intBooksExpiring').textContent = expiringIntBooks.length;
+                document.getElementById('intBooksExpired').textContent = expiredIntBooks.length;
+            }
+
             document.getElementById('statsTotalIntBooks').textContent = filteredIntBooksData.length;
 
             // Show warning banner if there are expiring items
+            const expiringIntBooks = filteredIntBooksData.filter(item =>
+                item.HieuLuc === 'Sắp đến hạn'
+            );
             const warningBanner = document.getElementById('intBookWarningBanner');
             const warningCount = document.getElementById('intBookWarningCount');
             if (expiringIntBooks.length > 0) {
@@ -5427,7 +5681,7 @@
             const companyInfo = getCompanyInfo(license.Ref_DoanhNghiep, 'GIAYPHEPKINHDOANHNOIDIA');
             const modalContent = `
         <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="licenseModal">
-            <div class="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
+            <div class="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 overflow-y-auto">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-bold">Chi tiết Giấy phép</h3>
                     <button onclick="closeModal('licenseModal')" class="text-gray-500 hover:text-gray-700">
@@ -5475,7 +5729,7 @@
             const companyInfo = getCompanyInfo(emblem.Ref_DonViCapPhuHieu, 'PHUHIEUXE');
             const modalContent = `
      <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="emblemModal">
-         <div class="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
+         <div class="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 overflow-y-auto">
              <div class="flex justify-between items-center mb-4">
                  <h3 class="text-lg font-bold">Chi tiết Phù hiệu</h3>
                  <button onclick="closeModal('emblemModal')" class="text-gray-500 hover:text-gray-700">
