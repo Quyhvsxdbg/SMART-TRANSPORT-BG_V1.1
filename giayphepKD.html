@@ -412,8 +412,8 @@
                     callAPI('ThongTin', `Filter(ThongTin, [Ngay_hieu_luc] <= "${currentDate}")`)
                 ];
 
-                // Execute first batch of API calls
-                console.log("Bắt đầu gọi API đầu tiên...");
+                // Execute API calls
+                console.log("Bắt đầu gọi API...");
                 const [giayPhepResult, tinhResult] = await Promise.all(apiCalls);
 
                 console.log("Giấy phép data:", giayPhepResult);
@@ -426,36 +426,14 @@
                     return;
                 }
 
-                // Get Ref_DoanhNghiep from giay phep data
-                const refDoanhNghiep = giayPhepResult[0].Ref_DoanhNghiep;
-                if (!refDoanhNghiep) {
-                    hideLoadingMessage();
-                    alert('Không tìm thấy thông tin doanh nghiệp liên kết.');
-                    return;
-                }
-
-                // Make the third API call for doanh nghiep data
-                console.log("Gọi API doanh nghiệp với ID:", refDoanhNghiep);
-                const doanhNghiepResult = await callAPI('THONGTINDONVIVANTAI', `Filter(THONGTINDONVIVANTAI, [IDDoanhNghiep] = "${refDoanhNghiep}")`);
-
-                console.log("Doanh nghiệp data:", doanhNghiepResult);
-
-                // Validate doanh nghiep data
-                if (!doanhNghiepResult || doanhNghiepResult.length === 0) {
-                    hideLoadingMessage();
-                    alert('Không tìm thấy thông tin doanh nghiệp với ID: ' + refDoanhNghiep);
-                    return;
-                }
-
                 // Lưu dữ liệu vào biến toàn cục
                 globalLicenseData = {
                     giayPhep: giayPhepResult[0],
-                    doanhNghiep: doanhNghiepResult[0],
                     tinh: tinhResult
                 };
 
                 // Process and populate all data
-                populateData(giayPhepResult[0], doanhNghiepResult[0], tinhResult);
+                populateData(giayPhepResult[0], tinhResult);
 
                 // Hide loading message
                 hideLoadingMessage();
@@ -469,20 +447,15 @@
         }
 
         // Populate all data into HTML elements
-        function populateData(giayPhepData, doanhNghiepData, tinhData) {
+        function populateData(giayPhepData, tinhData) {
             // Update header with Tinh data
             if (tinhData && tinhData.length > 0) {
                 const sortedTinhData = tinhData.sort((a, b) =>
                     new Date(b.Ngay_hieu_luc) - new Date(a.Ngay_hieu_luc)
                 );
                 document.querySelector('.header').textContent = (sortedTinhData[0].Tinh || 'BẮC GIANG').toUpperCase();
-            }
-
-            // Thêm vào hàm populateData
-            if (tinhData && tinhData.length > 0) {
-                const sortedTinhData = tinhData.sort((a, b) =>
-                    new Date(b.Ngay_hieu_luc) - new Date(a.Ngay_hieu_luc)
-                );
+                
+                // Cập nhật tên tỉnh cho footer
                 const tenTinh = sortedTinhData[0].Tinh || 'Bắc Giang';
                 document.getElementById('tinh-footer').textContent = tenTinh;
             }
@@ -492,50 +465,47 @@
                 document.getElementById('so-giay-phep').textContent = giayPhepData.SoGiayPhep;
             }
 
-            // Populate company information
-            if (doanhNghiepData.TenDoanhNghiep) {
-                document.getElementById('ten-doanh-nghiep').textContent = doanhNghiepData.TenDoanhNghiep;
+            // Populate company information từ bảng GIAYPHEPKINHDOANHNOIDIA
+            if (giayPhepData.TenDonVi) {
+                document.getElementById('ten-doanh-nghiep').textContent = giayPhepData.TenDonVi;
             }
 
-            // Construct full address
-            let fullAddress = '';
-            if (doanhNghiepData.SoNha_TDP) fullAddress += doanhNghiepData.DiaChiSauSapNhap;
-
-            if (fullAddress) {
-                document.getElementById('dia-chi').textContent = fullAddress;
+            // Sử dụng địa chỉ mới
+            if (giayPhepData.DiaChiMoi) {
+                document.getElementById('dia-chi').textContent = giayPhepData.DiaChiMoi;
             }
 
-            if (doanhNghiepData.SoDienThoai) {
-                document.getElementById('so-dien-thoai').textContent = doanhNghiepData.SoDienThoai;
+            if (giayPhepData.SoDienThoai) {
+                document.getElementById('so-dien-thoai').textContent = giayPhepData.SoDienThoai;
             }
 
-            // Format and populate issue date
-            if (doanhNghiepData.NgayCap) {
+            // Format and populate issue date - SỬ DỤNG NgayCapRef_DoanhNghiep
+            if (giayPhepData.NgayCapRef_DoanhNghiep) {
                 try {
-                    const issueDate = new Date(doanhNghiepData.NgayCap);
+                    const issueDate = new Date(giayPhepData.NgayCapRef_DoanhNghiep);
                     const formattedDate = formatDate(issueDate);
 
                     document.getElementById('ngay-cap').textContent = formattedDate.day;
                     document.getElementById('thang-cap').textContent = formattedDate.month;
                     document.getElementById('nam-cap').textContent = formattedDate.year;
                 } catch (error) {
-                    console.error('Error parsing date:', error);
+                    console.error('Error parsing NgayCapRef_DoanhNghiep:', error);
                     // Fallback: hiển thị nguyên chuỗi
-                    document.getElementById('ngay-cap').textContent = doanhNghiepData.NgayCap;
+                    document.getElementById('ngay-cap').textContent = giayPhepData.NgayCapRef_DoanhNghiep;
                 }
             }
 
             // Populate tax code and issuing authority
-            if (doanhNghiepData.SoDKKD) {
-                document.getElementById('so-DKKD').textContent = doanhNghiepData.SoDKKD || '';
+            if (giayPhepData.SoDKKD) {
+                document.getElementById('so-DKKD').textContent = giayPhepData.SoDKKD || '';
             }
-            if (doanhNghiepData.CQCapDKKD) {
-                document.getElementById('co-quan-cap').textContent = doanhNghiepData.CQCapDKKD;
+            if (giayPhepData.CQCapDKKD) {
+                document.getElementById('co-quan-cap').textContent = giayPhepData.CQCapDKKD;
             }
 
             // Populate representative name
-            if (doanhNghiepData.NguoiDaiDienTheoPhapLuat) {
-                document.getElementById('nguoi-dai-dien').textContent = doanhNghiepData.NguoiDaiDienTheoPhapLuat;
+            if (giayPhepData.NguoiDaiDienTheoPhapLuat) {
+                document.getElementById('nguoi-dai-dien').textContent = giayPhepData.NguoiDaiDienTheoPhapLuat;
             }
 
             // Populate business activity
@@ -556,7 +526,7 @@
                 document.getElementById('loai-hinh-van-tai').textContent = fullDescriptions;
             }
 
-            // Populate signature date - changed to use giayPhepData.NgayCap
+            // Populate signature date - SỬ DỤNG NgayCap (khác với ngày cấp ở trên)
             if (giayPhepData.NgayCap) {
                 const signDate = new Date(giayPhepData.NgayCap);
                 const formattedSignDate = formatDate(signDate);
@@ -578,23 +548,19 @@
                 document.getElementById('loading-message').style.display = 'block';
                 document.getElementById('loading-message').textContent = 'Đang xuất file Word...';
 
-                const { giayPhep, doanhNghiep, tinh } = globalLicenseData;
+                const { giayPhep, tinh } = globalLicenseData;
 
-                // Xử lý dữ liệu địa chỉ
-                let fullAddress = '';
-                if (doanhNghiep.SoNha_TDP) fullAddress += doanhNghiep.DiaChiSauSapNhap;
-
-                // Xử lý ngày cấp
+                // Xử lý ngày cấp từ NgayCapRef_DoanhNghiep
                 let ngayCap = '', thangCap = '', namCap = '';
-                if (doanhNghiep.NgayCap) {
-                    const issueDate = new Date(doanhNghiep.NgayCap);
+                if (giayPhep.NgayCapRef_DoanhNghiep) {
+                    const issueDate = new Date(giayPhep.NgayCapRef_DoanhNghiep);
                     const formattedDate = formatDate(issueDate);
                     ngayCap = formattedDate.day;
                     thangCap = formattedDate.month;
                     namCap = formattedDate.year;
                 }
 
-                // Xử lý ngày ký
+                // Xử lý ngày ký từ NgayCap
                 let ngayKy = '', thangKy = '', namKy = '';
                 if (giayPhep.NgayCap) {
                     const signDate = new Date(giayPhep.NgayCap);
@@ -622,14 +588,12 @@
                 }
 
                 // Xử lý tên tỉnh
-                let tenTinh = 'Bắc Giang'; // Giá trị mặc định với chữ in thường
+                let tenTinh = 'Bắc Giang'; // Giá trị mặc định
                 if (tinh && tinh.length > 0) {
                     const sortedTinhData = tinh.sort((a, b) =>
                         new Date(b.Ngay_hieu_luc) - new Date(a.Ngay_hieu_luc)
                     );
-                    // Lấy tên tỉnh mới nhất và đảm bảo chữ cái đầu viết hoa
                     tenTinh = sortedTinhData[0].Tinh || 'Bắc Giang';
-                    // Chuyển đổi chuỗi để có dạng "Xxx Xxx"
                     tenTinh = tenTinh.toLowerCase().split(' ')
                         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
                         .join(' ');
@@ -651,22 +615,22 @@
 
                 // Đặt dữ liệu vào template
                 const data = {
-                    tinh_header: tenTinh.toUpperCase(), // Chữ in hoa cho header
+                    tinh_header: tenTinh.toUpperCase(),
                     tinh: tenTinh,
                     so_giay_phep: giayPhep.SoGiayPhep || '',
-                    ten_doanh_nghiep: doanhNghiep.TenDoanhNghiep || '',
-                    dia_chi: fullAddress,
-                    so_dien_thoai: doanhNghiep.SoDienThoai || '',
-                    ngay_cap: ngayCap,
-                    thang_cap: thangCap,
-                    nam_cap: namCap,
-                    so_dkkd: doanhNghiep.SoDKKD || '',
-                    co_quan_cap: doanhNghiep.CQCapDKKD || '',
-                    nguoi_dai_dien: doanhNghiep.NguoiDaiDienTheoPhapLuat || '',
+                    ten_doanh_nghiep: giayPhep.TenDonVi || '',
+                    dia_chi: giayPhep.DiaChiMoi || '',
+                    so_dien_thoai: giayPhep.SoDienThoai || '',
+                    ngay_cap: ngayCap,        // Từ NgayCapRef_DoanhNghiep
+                    thang_cap: thangCap,      // Từ NgayCapRef_DoanhNghiep
+                    nam_cap: namCap,          // Từ NgayCapRef_DoanhNghiep
+                    so_dkkd: giayPhep.SoDKKD || '',
+                    co_quan_cap: giayPhep.CQCapDKKD || '',
+                    nguoi_dai_dien: giayPhep.NguoiDaiDienTheoPhapLuat || '',
                     loai_hinh_van_tai: loaiHinhVanTai,
-                    ngay_ky: ngayKy,
-                    thang_ky: thangKy,
-                    nam_ky: namKy,
+                    ngay_ky: ngayKy,          // Từ NgayCap
+                    thang_ky: thangKy,        // Từ NgayCap
+                    nam_ky: namKy,            // Từ NgayCap
                     ten_nguoi_ky: 'Nguyễn Quốc Ân'
                 };
 
