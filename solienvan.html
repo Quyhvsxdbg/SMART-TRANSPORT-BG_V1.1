@@ -548,19 +548,9 @@
                     return;
                 }
 
-                // Get related data
-                const refDoanhNghiep = soLienVanResult[0].IDDoanhNghiep;
+                // Get xe data
                 const refXe = soLienVanResult[0].IDXe;
-
-                // Fetch related data
-                let doanhNghiepResult = null;
                 let xeResult = null;
-
-                if (refDoanhNghiep) {
-                    console.log("Gọi API doanh nghiệp với ID:", refDoanhNghiep);
-                    doanhNghiepResult = await callAPI('THONGTINDONVIVANTAI', `Filter(THONGTINDONVIVANTAI, [IDDoanhNghiep] = "${refDoanhNghiep}")`);
-                    console.log("Doanh nghiệp data:", doanhNghiepResult);
-                }
 
                 if (refXe) {
                     console.log("Gọi API xe với ID:", refXe);
@@ -571,12 +561,11 @@
                 // Lưu dữ liệu vào biến toàn cục
                 globalSoLienVanData = {
                     soLienVan: soLienVanResult[0],
-                    doanhNghiep: doanhNghiepResult ? doanhNghiepResult[0] : null,
                     xe: xeResult ? xeResult[0] : null
                 };
 
                 // Process and populate all data
-                populateData(soLienVanResult[0], doanhNghiepResult ? doanhNghiepResult[0] : null, xeResult ? xeResult[0] : null);
+                populateData(soLienVanResult[0], xeResult ? xeResult[0] : null);
 
                 // Hide loading message
                 hideLoadingMessage();
@@ -590,7 +579,7 @@
         }
 
         // Populate all data into HTML elements
-        function populateData(soLienVanData, doanhNghiepData, xeData) {
+        function populateData(soLienVanData, xeData) {
             // Populate số giấy phép
             if (soLienVanData.SoSoLienVan) {
                 document.getElementById('so-giay-phep').textContent = soLienVanData.SoSoLienVan;
@@ -644,17 +633,15 @@
                 }
             }
 
-            // Populate company data
-            if (doanhNghiepData) {
-                if (doanhNghiepData.TenDoanhNghiep) {
-                    document.getElementById('ten-doanh-nghiep').textContent = doanhNghiepData.TenDoanhNghiep;
-                }
-                if (doanhNghiepData.DiaChiSauSapNhap) {
-                    document.getElementById('dia-chi').textContent = doanhNghiepData.DiaChiSauSapNhap;
-                }
-                if (doanhNghiepData.SoDienThoai) {
-                    document.getElementById('dien-thoai').textContent = doanhNghiepData.SoDienThoai;
-                }
+            // Populate company data từ SoLienVan
+            if (soLienVanData.TenDoanhNghiep) {
+                document.getElementById('ten-doanh-nghiep').textContent = soLienVanData.TenDoanhNghiep;
+            }
+            if (soLienVanData.DiaChiSauSapNhap) {
+                document.getElementById('dia-chi').textContent = soLienVanData.DiaChiSauSapNhap;
+            }
+            if (soLienVanData.SoDienThoai) {
+                document.getElementById('dien-thoai').textContent = soLienVanData.SoDienThoai;
             }
 
             // Populate SoLienVan specific data
@@ -691,7 +678,7 @@
                 document.getElementById('loading-message').style.display = 'block';
                 document.getElementById('loading-message').textContent = 'Đang xuất file Word...';
 
-                const { soLienVan, doanhNghiep, xe } = globalSoLienVanData;
+                const { soLienVan, xe } = globalSoLienVanData;
 
                 // Lấy template từ server
                 const response = await fetch('https://hoangmv.github.io/templates/so_lien_van_template.docx');
@@ -723,10 +710,10 @@
                     so_cho: xe ? (xe.SoCho || '') : '',
                     tai_trong: xe ? (xe.TaiTrong || '') : '',
 
-                    // Trang 3 - Thông tin doanh nghiệp
-                    ten_doanh_nghiep: doanhNghiep ? (doanhNghiep.TenDoanhNghiep || '') : '',
-                    dia_chi: doanhNghiep ? (doanhNghiep.DiaChiSauSapNhap || '') : '',
-                    dien_thoai: doanhNghiep ? (doanhNghiep.SoDienThoai || '') : '',
+                    // Trang 3 - Thông tin doanh nghiệp từ SoLienVan
+                    ten_doanh_nghiep: soLienVan.TenDoanhNghiep || '',
+                    dia_chi: soLienVan.DiaChiSauSapNhap || '',
+                    dien_thoai: soLienVan.SoDienThoai || '',
                     mo_hinh_hoat_dong: soLienVan.MoHinhHoatDong || '',
                     so_gp_lien_van_qt: soLienVan.SoGPLienVanQT || '',
                     ngay_cap_gp: soLienVan.NgayCap_SoGPLienVanQT ? formatDate(soLienVan.NgayCap_SoGPLienVanQT) : '',
