@@ -688,7 +688,7 @@
                 }
 
                 // TẠO LOCATION KEY CHỈ VỚI XÃ PHƯỜNG
-                const locationKey = `Xã (phường) ${xaPhuong}`;
+                const locationKey = `${xaPhuong}`;
 
                 if (!grouped[locationKey]) {
                     grouped[locationKey] = [];
@@ -911,7 +911,7 @@
                         <td class="text-left">${item['Tuyến buýt'] || ''}</td>
                         <td class="text-left">${item.tenDoanhNghiep || ''}</td>
                         <td class="text-left">${item.diaChiDoanhNghiep || ''}</td>
-                        <td class="text-left">${item['Văn bản ngừng'] || ''}</td>
+                        <td class="text-left"></td>
                     </tr>`;
                         break;
                     case 'gpkdThuHoi':
@@ -1321,7 +1321,7 @@
                                 tuyen_buyt: item['Tuyến buýt'] || '',
                                 ten_don_vi: item.tenDoanhNghiep || '',
                                 dia_chi: item.diaChiDoanhNghiep || '',
-                                van_ban_ngung: item['Văn bản ngừng'] || ''
+                                van_ban_ngung: ''
                             }));
                         }
 
