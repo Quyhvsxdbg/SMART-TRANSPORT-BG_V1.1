@@ -751,6 +751,13 @@
             return { tenTinh, nguoiKy };
         }
 
+        function extractNumber(value) {
+            if (!value) return '';
+            // Extract first number found
+            const match = value.toString().match(/\d+/);
+            return match ? match[0] : '';
+        }
+
         // Function to create table for specific data type
         function createTableByType(data, tableType, subIndex) {
             if (!data || data.length === 0) {
@@ -876,8 +883,8 @@
                     <tr>
                         <td>${index + 1}</td>
                         <td>${item.BienSo || ''}</td>
-                        <td>${item['Số ghế'] || ''}</td>
-                        <td>${item['Tải trọng'] || ''}</td>
+                        <td>${extractNumber(item['Số ghế']) || '-'}</td>
+                        <td>${extractNumber(item['Tải trọng']) || '-'}</td>
                         <td>${item.SoPhuHieu || ''}</td>
                         <td>${item.LoaiPH || ''}</td>
                         <td>${formatDate(item.NgayHetHan)}</td>
@@ -1268,8 +1275,8 @@
                             locationData.phuHieuGrouped = sortedPhuHieu.map((item, index) => ({
                                 stt: (index + 1).toString(),
                                 bien_so: item.BienSo || '',
-                                so_ghe: item['Số ghế'] || '',
-                                tai_trong: item['Tải trọng'] || '',
+                                so_ghe: extractNumber(item['Số ghế']) || '-',
+                                tai_trong: extractNumber(item['Tải trọng']) || '-',
                                 so_phu_hieu: item.SoPhuHieu || '',
                                 loai_phu_hieu: item.LoaiPH || '',
                                 co_gia_tri_den: formatDate(item.NgayHetHan),
