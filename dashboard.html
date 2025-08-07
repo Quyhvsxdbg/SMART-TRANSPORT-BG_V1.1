@@ -2078,6 +2078,7 @@
                                     <th class="px-4 py-2 text-center">Công suất/ngày</th>
                                     <th class="px-4 py-2 text-center">Số tuyến KT</th>
                                     <th class="px-4 py-2 text-center">Đơn vị quản lý</th>
+                                    <th class="px-4 py-2 text-center">Bản đồ</th>
                                     <th class="px-4 py-2 text-center">Thao tác</th>
                                 </tr>
                             </thead>
@@ -2186,6 +2187,7 @@
         let filteredFixedRoutesData = [];
         let filteredBusRoutesData = [];
         let filteredRegistrationCentersData = [];
+        let chartInstances = {};
 
         // CHỨC NĂNG XUẤT EXCEL MỚI - SỬ DỤNG SHEETJS
         async function exportCurrentTabData() {
@@ -5137,7 +5139,14 @@
             </td>
             <td class="px-4 py-2 text-center font-medium">${capacity.toLocaleString()}</td>
             <td class="px-4 py-2 text-center">${station.SoTuyenKhaiThac || 0}</td>
-            <td class="px-4 py-2 text-center">${station.DonViQuanLy || ''}</td>
+            <td class="px-4 py-2">${station.DonViQuanLy || ''}</td>
+            <td class="px-4 py-2 text-center">
+                    ${station.LinkMap ? `
+                        <a href="${station.LinkMap}" target="_blank" class="text-green-600 hover:text-green-800">
+                            <i class="fas fa-map-marker-alt"></i> Bản đồ
+                        </a>
+                    ` : ''}
+            </td>
             <td class="px-4 py-2 text-center">
                 <button class="text-blue-600 hover:text-blue-800" onclick="viewBusStationDetail('${station.IDBen}')">
                     Chi tiết
@@ -6131,9 +6140,14 @@
         function initTransportTypeChart() {
             const ctx = document.getElementById('transportTypeChart');
             if (ctx && filteredLicensesData.length > 0) {
+                // THÊM 3 DÒNG NÀY:
+                if (chartInstances.transportTypeChart) {
+                    chartInstances.transportTypeChart.destroy();
+                }
+
                 const transportData = groupLicensesByTransportType(filteredLicensesData);
 
-                new Chart(ctx, {
+                chartInstances.transportTypeChart = new Chart(ctx, {
                     type: 'pie',
                     data: {
                         labels: transportData.labels,
@@ -6164,9 +6178,14 @@
         function initStatusChart() {
             const ctx = document.getElementById('statusChart');
             if (ctx && (filteredLicensesData.length > 0 || filteredEmblemsData.length > 0 || filteredIntEmblemsData.length > 0 || filteredIntBooksData.length > 0)) {
+                // THÊM 3 DÒNG NÀY:
+                if (chartInstances.statusChart) {
+                    chartInstances.statusChart.destroy();
+                }
+
                 const statusData = getStatusStatistics(filteredLicensesData, filteredEmblemsData, filteredInternationalData, filteredIntEmblemsData, filteredIntBooksData);
 
-                new Chart(ctx, {
+                chartInstances.statusChart = new Chart(ctx, {
                     type: 'bar',
                     data: {
                         labels: ['GPKD', 'Phù hiệu', 'GP Liên vận QT', 'PH Liên vận', 'Sổ LV'],
@@ -6238,9 +6257,14 @@
         function initLicenseTrendChart() {
             const ctx = document.getElementById('licenseTrendChart');
             if (ctx && filteredLicensesData.length > 0) {
+                // THÊM 3 DÒNG NÀY:
+                if (chartInstances.licenseTrendChart) {
+                    chartInstances.licenseTrendChart.destroy();
+                }
+
                 const trendData = getLicenseTrendData(filteredLicensesData);
 
-                new Chart(ctx, {
+                chartInstances.licenseTrendChart = new Chart(ctx, {
                     type: 'line',
                     data: {
                         labels: trendData.labels,
@@ -6273,9 +6297,14 @@
         function initEmblemTrendChart() {
             const ctx = document.getElementById('emblemTrendChart');
             if (ctx && filteredEmblemsData.length > 0) {
+                // THÊM 3 DÒNG NÀY:
+                if (chartInstances.emblemTrendChart) {
+                    chartInstances.emblemTrendChart.destroy();
+                }
+
                 const trendData = getEmblemTrendData(filteredEmblemsData);
 
-                new Chart(ctx, {
+                chartInstances.emblemTrendChart = new Chart(ctx, {
                     type: 'bar',
                     data: {
                         labels: trendData.labels,
@@ -6438,6 +6467,11 @@
             const ctx = document.getElementById('stationCapacityChart');
             if (!ctx || !filteredBusStationsData.length) return;
 
+            // THÊM 3 DÒNG NÀY:
+            if (chartInstances.stationCapacityChart) {
+                chartInstances.stationCapacityChart.destroy();
+            }
+
             // Get top 10 stations by capacity
             const sortedStations = filteredBusStationsData
                 .map(station => ({
@@ -6447,8 +6481,8 @@
                 .sort((a, b) => b.capacity - a.capacity)
                 .slice(0, 10);
 
-            new Chart(ctx, {
-                type: 'horizontalBar',
+            chartInstances.stationCapacityChart = new Chart(ctx, {
+                type: 'bar', // THAY ĐỔI TỪ 'horizontalBar' THÀNH 'bar'
                 data: {
                     labels: sortedStations.map(s => s.name.length > 20 ? s.name.substring(0, 20) + '...' : s.name),
                     datasets: [{
@@ -6462,13 +6496,15 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    // THÊM DÒNG NÀY ĐỂ HIỂN THỊ NGANG:
+                    indexAxis: 'y',
                     plugins: {
                         legend: {
                             display: false
                         }
                     },
                     scales: {
-                        x: {
+                        x: { // THAY ĐỔI TỪ 'x' VÀ 'y'
                             beginAtZero: true,
                             ticks: {
                                 callback: function (value) {
@@ -6746,75 +6782,88 @@
         }
 
         function getLicenseTrendData(dataToUse = filteredLicensesData) {
+            // Kiểm tra nhanh
+            if (!dataToUse || dataToUse.length === 0) {
+                return { labels: [], values: [] };
+            }
+
             const last12Months = [];
             const today = new Date();
 
+            // Tạo 12 tháng - tối ưu
             for (let i = 11; i >= 0; i--) {
                 const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
                 last12Months.push(date.toLocaleDateString('vi-VN', { year: 'numeric', month: 'short' }));
             }
 
-            const counts = last12Months.map(month => {
-                return dataToUse.filter(license => {
-                    if (license.NgayCap) {
-                        const issueDate = parseAppSheetDate(license.NgayCap);
-                        if (issueDate) {
-                            const licenseMonth = issueDate.toLocaleDateString('vi-VN', {
-                                year: 'numeric',
-                                month: 'short'
-                            });
-                            return licenseMonth === month;
+            // Đếm nhanh - chỉ loop 1 lần
+            const monthCounts = new Array(12).fill(0);
+
+            dataToUse.forEach(license => {
+                if (license.NgayCap) {
+                    const issueDate = parseAppSheetDate(license.NgayCap);
+                    if (issueDate) {
+                        const monthDiff = (today.getFullYear() - issueDate.getFullYear()) * 12 +
+                            (today.getMonth() - issueDate.getMonth());
+                        const index = 11 - monthDiff;
+                        if (index >= 0 && index < 12) {
+                            monthCounts[index]++;
                         }
                     }
-                    return false;
-                }).length;
+                }
             });
 
             return {
                 labels: last12Months,
-                values: counts
+                values: monthCounts
             };
         }
 
         function getEmblemTrendData(dataToUse = filteredEmblemsData) {
+            // Kiểm tra nhanh
+            if (!dataToUse || dataToUse.length === 0) {
+                return { labels: [], issued: [], revoked: [] };
+            }
+
             const last12Months = [];
             const today = new Date();
 
+            // Tạo 12 tháng
             for (let i = 11; i >= 0; i--) {
                 const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
                 last12Months.push(date.toLocaleDateString('vi-VN', { year: 'numeric', month: 'short' }));
             }
 
-            const issuedCounts = last12Months.map(month => {
-                return dataToUse.filter(emblem => {
-                    if (emblem.NgayCap) {
-                        const issueDate = parseAppSheetDate(emblem.NgayCap);
-                        if (issueDate) {
-                            const emblemMonth = issueDate.toLocaleDateString('vi-VN', {
-                                year: 'numeric',
-                                month: 'short'
-                            });
-                            return emblemMonth === month;
-                        }
-                    }
-                    return false;
-                }).length;
-            });
+            // Đếm nhanh
+            const issuedCounts = new Array(12).fill(0);
+            const revokedCounts = new Array(12).fill(0);
 
-            const revokedCounts = last12Months.map(month => {
-                return dataToUse.filter(emblem => {
-                    if (emblem.NgayThuHoi) {
-                        const revokeDate = parseAppSheetDate(emblem.NgayThuHoi);
-                        if (revokeDate) {
-                            const revokeMonth = revokeDate.toLocaleDateString('vi-VN', {
-                                year: 'numeric',
-                                month: 'short'
-                            });
-                            return revokeMonth === month;
+            dataToUse.forEach(emblem => {
+                // Đếm issued
+                if (emblem.NgayCap) {
+                    const issueDate = parseAppSheetDate(emblem.NgayCap);
+                    if (issueDate) {
+                        const monthDiff = (today.getFullYear() - issueDate.getFullYear()) * 12 +
+                            (today.getMonth() - issueDate.getMonth());
+                        const index = 11 - monthDiff;
+                        if (index >= 0 && index < 12) {
+                            issuedCounts[index]++;
                         }
                     }
-                    return false;
-                }).length;
+                }
+
+                // Đếm revoked
+                if (emblem.NgayThuHoi) {
+                    const revokeDate = parseAppSheetDate(emblem.NgayThuHoi);
+                    if (revokeDate) {
+                        const monthDiff = (today.getFullYear() - revokeDate.getFullYear()) * 12 +
+                            (today.getMonth() - revokeDate.getMonth());
+                        const index = 11 - monthDiff;
+                        if (index >= 0 && index < 12) {
+                            revokedCounts[index]++;
+                        }
+                    }
+                }
             });
 
             return {
