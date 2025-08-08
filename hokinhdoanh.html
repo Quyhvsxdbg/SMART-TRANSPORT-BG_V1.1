@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xuất Tài Liệu Hộ Kinh Doanh</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.37.11/docxtemplater.js"></script>
+    <script src="https://unpkg.com/pizzip@3.1.4/dist/pizzip.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .export-button {
+            background-color: #2b579a;
+            color: white;
+        }
+
+        .export-button:hover {
+            background-color: #1e3f6f;
+        }
+
+        .info-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .param-item {
+            margin-bottom: 10px;
+            padding: 8px;
+            background-color: #f8f9fa;
+            border-left: 4px solid #007bff;
+        }
+
+        #loading-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            z-index: 2000;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Loading Message -->
+    <div id="loading-message">Đang xuất file Word...</div>
+
+    <div class="button-container">
+        <button class="button export-button" onclick="exportToWordTemplate()">
+            <i class="fas fa-file-word"></i> Xuất File Word
+        </button>
+    </div>
+
+    <div class="info-box">
+        <h3>Thông tin từ URL:</h3>
+        <div id="param-display"></div>
+    </div>
+
+    <script>
+        // Biến toàn cục để lưu dữ liệu
+        let globalData = null;
+
+        // Function to get parameters from URL
+        function getParametersFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const params = {};
+
+            for (const [key, value] of urlParams) {
+                params[key.toLowerCase()] = decodeURIComponent(value);
+            }
+
+            return params;
+        }
+
+        // Parse date từ định dạng dd/mm/yyyy
+        function parseDate(dateString) {
+            if (!dateString) return new Date();
+
+            // Nếu là định dạng dd/mm/yyyy
+            if (dateString.includes('/')) {
+                const parts = dateString.split('/');
+                if (parts.length === 3) {
+                    const day = parseInt(parts[0]);
+                    const month = parseInt(parts[1]) - 1; // JavaScript month bắt đầu từ 0
+                    const year = parseInt(parts[2]);
+                    return new Date(year, month, day);
+                }
+            }
+
+            // Fallback cho các định dạng khác
+            return new Date(dateString);
+        }
+
+        // Format ngày tháng ngắn (dd/mm/yyyy với quy tắc đặc biệt)
+        function formatDate(dateString) {
+            if (!dateString) return new Date().toLocaleDateString('vi-VN');
+
+            const date = parseDate(dateString);
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = date.getMonth() + 1;
+            const year = date.getFullYear();
+
+            // Áp dụng quy tắc đặc biệt cho tháng
+            const monthStr = (month === 1 || month === 2) ? month.toString().padStart(2, '0') : month.toString();
+
+            return `${day}/${monthStr}/${year}`;
+        }
+
+        function formatDateLong(dateString) {
+            if (!dateString) {
+                const today = new Date();
+                const day = today.getDate().toString().padStart(2, '0');
+                const month = today.getMonth() + 1;
+                const year = today.getFullYear();
+
+                const monthStr = (month === 1 || month === 2) ? month.toString().padStart(2, '0') : month.toString();
+                return `ngày ${day} tháng ${monthStr} năm ${year}`;
+            }
+
+            const date = parseDate(dateString);
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = date.getMonth() + 1;
+            const year = date.getFullYear();
+
+            // Áp dụng quy tắc đặc biệt cho tháng
+            const monthStr = (month === 1 || month === 2) ? month.toString().padStart(2, '0') : month.toString();
+
+            return `ngày ${day} tháng ${monthStr} năm ${year}`;
+        }
+
+        // Load data from URL
+        function loadData() {
+            const params = getParametersFromURL();
+            console.log("Parameters from URL:", params);
+
+            // Lưu dữ liệu vào biến toàn cục với tên giống template
+            globalData = {
+                upper_TenDoanhNghiep: (params.tendoanhnghiep || '').toUpperCase(),
+                TenDoanhNghiep: params.tendoanhnghiep || '',
+                ngay_tao_dai: formatDateLong(params.ngaycap || ''),
+                ngay_tao_ngan: formatDate(params.ngaycap || ''),
+                BophanAT_TruongBP: params.bophanat_truongbp || '',
+                BophanAT_Thanhvien: params.bophanat_thanhvien || '',
+                NgayCap: formatDate(params.ngaycap || '') // ÁP DỤNG ĐỊNH DẠNG CHO NgayCap
+            };
+
+            // Hiển thị dữ liệu
+            displayParameters();
+        }
+
+        // Display parameters
+        function displayParameters() {
+            const paramDisplay = document.getElementById('param-display');
+
+            if (Object.keys(globalData).length > 0) {
+                paramDisplay.innerHTML = '';
+
+                Object.entries(globalData).forEach(([key, value]) => {
+                    const paramItem = document.createElement('div');
+                    paramItem.className = 'param-item';
+                    paramItem.innerHTML = `<strong>${key}:</strong> ${value}`;
+                    paramDisplay.appendChild(paramItem);
+                });
+            } else {
+                paramDisplay.innerHTML = '<p>Không có dữ liệu từ URL</p>';
+            }
+        }
+
+        // Export to Word using template
+        async function exportToWordTemplate() {
+            try {
+                if (!globalData) {
+                    alert('Dữ liệu chưa được tải.');
+                    return;
+                }
+
+                document.getElementById('loading-message').style.display = 'block';
+
+                // URL template - thay đổi URL này thành link thực tế của template
+                const templateUrl = 'https://hoangmv.github.io/templates/hokinhdoanh_template.docx';
+
+                // Thử tải template từ URL
+                let response;
+                try {
+                    response = await fetch(templateUrl);
+                } catch (error) {
+                    // Nếu không tải được template, tạo file Word đơn giản
+                    console.warn('Không thể tải template, sẽ tạo file Word đơn giản');
+                    await createSimpleWordFile();
+                    return;
+                }
+
+                if (!response.ok) {
+                    throw new Error('Không thể tải template Word');
+                }
+
+                const templateContent = await response.arrayBuffer();
+                const zip = new PizZip(templateContent);
+                const doc = new window.docxtemplater(zip, {
+                    paragraphLoop: true,
+                    linebreaks: true
+                });
+
+                // Set data cho template
+                doc.setData(globalData);
+                doc.render();
+
+                const blob = doc.getZip().generate({
+                    type: "blob",
+                    mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                });
+
+                const fileName = `Tai_lieu_${globalData.TenDoanhNghiep.replace(/\s+/g, '_')}_${new Date().getTime()}.docx`;
+                saveAs(blob, fileName);
+
+                document.getElementById('loading-message').style.display = 'none';
+
+            } catch (error) {
+                console.error('Error exporting to Word:', error);
+            }
+        }
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', loadData);
+    </script>
+</body>
+
+</html>
