@@ -262,8 +262,13 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         .loading-text {
@@ -312,7 +317,8 @@
                 padding: 1rem;
             }
 
-            .action-panel, .info-panel {
+            .action-panel,
+            .info-panel {
                 padding: 1.5rem 1rem;
             }
 
@@ -352,13 +358,15 @@
                 opacity: 0;
                 transform: translateY(30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
 
-        .action-panel, .info-panel {
+        .action-panel,
+        .info-panel {
             animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
@@ -368,10 +376,12 @@
 
         /* Print styles */
         @media print {
-            .header, .action-panel {
+
+            .header,
+            .action-panel {
                 display: none;
             }
-            
+
             .info-panel {
                 box-shadow: none;
                 border: 1px solid #ccc;
@@ -419,7 +429,7 @@
                 <i class="fas fa-info-circle"></i>
                 <h2>Thông Tin Hồ Sơ</h2>
             </div>
-            
+
             <div id="param-display">
                 <div class="empty-state">
                     <i class="fas fa-folder-open"></i>
@@ -502,19 +512,103 @@
         }
 
         // Load data from URL
+        // Load data from URL
         function loadData() {
             const params = getParametersFromURL();
             console.log("Parameters from URL:", params);
 
-            // Lưu dữ liệu vào biến toàn cục với tên giống template
+            // Function to format business name
+            function formatBusinessName(name) {
+                if (!name) return '';
+
+                // Convert to lowercase first for easier processing
+                const lowerName = name.toLowerCase();
+
+                // Check if contains "hộ kinh doanh"
+                if (lowerName.includes('hộ kinh doanh')) {
+                    // Split by "hộ kinh doanh" and process each part
+                    const parts = lowerName.split('hộ kinh doanh');
+                    if (parts.length >= 2) {
+                        const beforePart = parts[0].trim();
+                        const afterPart = parts[1].trim();
+
+                        // Capitalize each word in the name part
+                        const capitalizedAfter = afterPart.split(' ')
+                            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                            .join(' ');
+
+                        return beforePart + 'Hộ kinh doanh ' + capitalizedAfter;
+                    }
+                } else {
+                    // If no "hộ kinh doanh", just capitalize each word
+                    return name.split(' ')
+                        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                        .join(' ');
+                }
+
+                return name;
+            }
+
+            // Function to format person name (capitalize each word)
+            function formatPersonName(name) {
+                if (!name) return '';
+
+                return name.split(' ')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                    .join(' ');
+            }
+
+            // Function để xử lý tên doanh nghiệp cho trường upper
+            function formatUpperBusinessName(name) {
+                if (!name) return '';
+
+                const lowerName = name.toLowerCase();
+
+                if (lowerName.includes('hộ kinh doanh')) {
+                    const parts = name.split(/hộ kinh doanh/i);
+                    if (parts.length >= 2) {
+                        const specificName = parts[1].trim();
+                        return `HỘ KINH DOANH\n${specificName.toUpperCase()}`;
+                    }
+                    return 'HỘ KINH DOANH';
+                }
+
+                return name.toUpperCase();
+            }
+
+            // Function để lấy phần tên cụ thể
+            function getBusinessSpecificName(name) {
+                if (!name) return '';
+
+                const lowerName = name.toLowerCase();
+
+                // Nếu có "hộ kinh doanh" thì lấy phần sau
+                if (lowerName.includes('hộ kinh doanh')) {
+                    const parts = name.split(/hộ kinh doanh/i); // i flag để ignore case
+                    if (parts.length >= 2) {
+                        const specificName = parts[1].trim();
+                        return specificName.split(' ')
+                            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                            .join(' ');
+                    }
+                }
+
+                // Nếu không có "hộ kinh doanh" thì trả về chuỗi rỗng
+                return '';
+            }
+
+            // Cập nhật globalData:
             globalData = {
-                upper_TenDoanhNghiep: (params.tendoanhnghiep || '').toUpperCase(),
-                TenDoanhNghiep: params.tendoanhnghiep || '',
+                upper_TenDoanhNghiep: params.tendoanhnghiep || '',
+                TenDoanhNghiep: formatBusinessName(params.tendoanhnghiep || ''),
+                TenDoanhNghiep_ChiTen: getBusinessSpecificName(params.tendoanhnghiep || ''),
                 ngay_tao_dai: formatDateLong(params.ngaycap || ''),
                 ngay_tao_ngan: formatDate(params.ngaycap || ''),
                 BophanAT_TruongBP: params.bophanat_truongbp || '',
                 BophanAT_Thanhvien: params.bophanat_thanhvien || '',
-                NgayCap: formatDate(params.ngaycap || '') // ÁP DỤNG ĐỊNH DẠNG CHO NgayCap
+                NgayCap: formatDate(params.ngaycap || ''),
+                NguoiDaiDienTheoPhapLuat: formatPersonName(params.nguoidaidien || ''),
+                upperxg_TenDoanhNghiep: formatUpperBusinessName(params.tendoanhnghiep || '')
             };
 
             // Hiển thị dữ liệu
@@ -536,7 +630,9 @@
                     'ngay_tao_ngan': 'Ngày Tạo (Định Dạng Ngắn)',
                     'BophanAT_TruongBP': 'Trưởng Bộ Phận An Toàn',
                     'BophanAT_Thanhvien': 'Thành Viên Bộ Phận An Toàn',
-                    'NgayCap': 'Ngày Cấp'
+                    'NgayCap': 'Ngày Cấp',
+                    'NguoiDaiDienTheoPhapLuat': 'Người Đại Diện Theo Pháp Luật', // THÊM LABEL
+                    'upperxg_TenDoanhNghiep': 'Tên Doanh Nghiệp (In Hoa)'
                 };
 
                 Object.entries(globalData).forEach(([key, value]) => {
@@ -575,6 +671,7 @@
                 document.getElementById('loading-overlay').style.display = 'flex';
 
                 // URL template
+                // const templateUrl = 'templates/hokinhdoanh_template.docx';
                 const templateUrl = 'https://hoangmv.github.io/templates/hokinhdoanh_template.docx';
 
                 let response;
@@ -606,7 +703,7 @@
                     mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 });
 
-                const fileName = `HoKinhDoanh_${globalData.TenDoanhNghiep ? globalData.TenDoanhNghiep.replace(/\s+/g, '_') : 'Document'}_${new Date().getTime()}.docx`;
+                const fileName = `HoKinhDoanh_${globalData.TenDoanhNghiep ? globalData.TenDoanhNghiep.replace(/\s+/g, '_') : 'Document'}.docx`;
                 saveAs(blob, fileName);
 
             } catch (error) {
@@ -619,7 +716,7 @@
         }
 
         // Load data when page loads
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Add slight delay for better UX
             setTimeout(() => {
                 loadData();
