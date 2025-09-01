@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Xuất Tài Liệu Hộ Kinh Doanh</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.37.11/docxtemplater.js"></script>
+    <script src="https://unpkg.com/pizzip@3.1.4/dist/pizzip.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 4px 20px rgba(30, 64, 175, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23ffffff" opacity="0.05"/><circle cx="75" cy="75" r="1" fill="%23ffffff" opacity="0.05"/><circle cx="50" cy="50" r="0.5" fill="%23ffffff" opacity="0.03"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.1;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-title {
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-title h1 {
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-subtitle {
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            opacity: 0.9;
+            font-weight: 400;
+            text-align: center;
+        }
+
+        .emblem {
+            position: absolute;
+            left: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3rem;
+            opacity: 0.2;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        /* Action Panel */
+        .action-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .panel-header i {
+            font-size: 1.5rem;
+            color: #1e40af;
+            margin-right: 1rem;
+        }
+
+        .panel-header h2 {
+            color: #1e293b;
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .action-button {
+            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .action-button:hover::before {
+            left: 100%;
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(30, 64, 175, 0.3);
+        }
+
+        .action-button:active {
+            transform: translateY(0);
+        }
+
+        .action-button i {
+            font-size: 1.1rem;
+        }
+
+        /* Info Panel */
+        .info-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        .info-grid {
+            display: grid;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .info-item {
+            background: #f8fafc;
+            padding: 1rem 1.25rem;
+            border-radius: 8px;
+            border-left: 4px solid #1e40af;
+            transition: all 0.3s ease;
+        }
+
+        .info-item:hover {
+            background: #f1f5f9;
+            transform: translateX(4px);
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #1e40af;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .info-value {
+            color: #334155;
+            font-weight: 500;
+            word-break: break-word;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #64748b;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        /* Loading overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading-content {
+            background: white;
+            padding: 2rem 3rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            max-width: 90%;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #e2e8f0;
+            border-top: 3px solid #1e40af;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-text {
+            color: #1e293b;
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+
+        /* Status indicator */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-top: 0.5rem;
+        }
+
+        .status-ready {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-empty {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-indicator i {
+            font-size: 0.75rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                padding: 0 1rem;
+            }
+
+            .emblem {
+                display: none;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .action-panel,
+            .info-panel {
+                padding: 1.5rem 1rem;
+            }
+
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+
+            .panel-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .panel-header i {
+                margin-right: 0;
+            }
+
+            .loading-content {
+                padding: 1.5rem 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .action-button {
+                padding: 0.875rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .info-item {
+                padding: 0.875rem 1rem;
+            }
+        }
+
+        /* Animation for page load */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .action-panel,
+        .info-panel {
+            animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .info-panel {
+            animation-delay: 0.1s;
+        }
+
+        /* Print styles */
+        @media print {
+
+            .header,
+            .action-panel {
+                display: none;
+            }
+
+            .info-panel {
+                box-shadow: none;
+                border: 1px solid #ccc;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Đang xử lý và xuất tài liệu...</div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="emblem">
+            <i class="fas fa-file-export"></i>
+        </div>
+        <div class="header-content">
+            <div class="header-title">
+                <h1>Xuất Tài Liệu Hộ Kinh Doanh</h1>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Action Panel -->
+        <div class="action-panel">
+            <div class="button-group">
+                <button class="action-button" onclick="exportToWordTemplate()">
+                    <i class="fas fa-file-word"></i>
+                    <span>Xuất File Word</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Info Panel -->
+        <div class="info-panel">
+            <div class="panel-header">
+                <i class="fas fa-info-circle"></i>
+                <h2>Thông Tin Hồ Sơ</h2>
+            </div>
+
+            <div id="param-display">
+                <div class="empty-state">
+                    <i class="fas fa-folder-open"></i>
+                    <p>Đang tải thông tin hồ sơ...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Biến toàn cục để lưu dữ liệu
+        let globalData = null;
+
+        // Function to get parameters from URL
+        function getParametersFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const params = {};
+
+            for (const [key, value] of urlParams) {
+                params[key.toLowerCase()] = decodeURIComponent(value);
+            }
+
+            return params;
+        }
+
+        // Parse date từ định dạng dd/mm/yyyy
+        function parseDate(dateString) {
+            if (!dateString) return new Date();
+
+            // Nếu là định dạng dd/mm/yyyy
+            if (dateString.includes('/')) {
+                const parts = dateString.split('/');
+                if (parts.length === 3) {
+                    const day = parseInt(parts[0]);
+                    const month = parseInt(parts[1]) - 1; // JavaScript month bắt đầu từ 0
+                    const year = parseInt(parts[2]);
+                    return new Date(year, month, day);
+                }
+            }
+
+            // Fallback cho các định dạng khác
+            return new Date(dateString);
+        }
+
+        // Format ngày tháng ngắn (dd/mm/yyyy với quy tắc đặc biệt)
+        function formatDate(dateString) {
+            if (!dateString) return new Date().toLocaleDateString('vi-VN');
+
+            const date = parseDate(dateString);
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = date.getMonth() + 1;
+            const year = date.getFullYear();
+
+            // Áp dụng quy tắc đặc biệt cho tháng
+            const monthStr = (month === 1 || month === 2) ? month.toString().padStart(2, '0') : month.toString();
+
+            return `${day}/${monthStr}/${year}`;
+        }
+
+        function formatDateLong(dateString) {
+            if (!dateString) {
+                const today = new Date();
+                const day = today.getDate().toString().padStart(2, '0');
+                const month = today.getMonth() + 1;
+                const year = today.getFullYear();
+
+                const monthStr = (month === 1 || month === 2) ? month.toString().padStart(2, '0') : month.toString();
+                return `ngày ${day} tháng ${monthStr} năm ${year}`;
+            }
+
+            const date = parseDate(dateString);
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = date.getMonth() + 1;
+            const year = date.getFullYear();
+
+            // Áp dụng quy tắc đặc biệt cho tháng
+            const monthStr = (month === 1 || month === 2) ? month.toString().padStart(2, '0') : month.toString();
+
+            return `ngày ${day} tháng ${monthStr} năm ${year}`;
+        }
+
+        // Load data from URL
+        // Load data from URL
+        function loadData() {
+            const params = getParametersFromURL();
+            console.log("Parameters from URL:", params);
+
+            // Function to format business name
+            function formatBusinessName(name) {
+                if (!name) return '';
+
+                // Convert to lowercase first for easier processing
+                const lowerName = name.toLowerCase();
+
+                // Check if contains "hộ kinh doanh"
+                if (lowerName.includes('hộ kinh doanh')) {
+                    // Split by "hộ kinh doanh" and process each part
+                    const parts = lowerName.split('hộ kinh doanh');
+                    if (parts.length >= 2) {
+                        const beforePart = parts[0].trim();
+                        const afterPart = parts[1].trim();
+
+                        // Capitalize each word in the name part
+                        const capitalizedAfter = afterPart.split(' ')
+                            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                            .join(' ');
+
+                        return beforePart + 'Hộ kinh doanh ' + capitalizedAfter;
+                    }
+                } else {
+                    // If no "hộ kinh doanh", just capitalize each word
+                    return name.split(' ')
+                        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                        .join(' ');
+                }
+
+                return name;
+            }
+
+            // Function to format person name (capitalize each word)
+            function formatPersonName(name) {
+                if (!name) return '';
+
+                return name.split(' ')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                    .join(' ');
+            }
+
+            // Function để xử lý tên doanh nghiệp cho trường upper
+            function formatUpperBusinessName(name) {
+                if (!name) return '';
+
+                const lowerName = name.toLowerCase();
+
+                if (lowerName.includes('hộ kinh doanh')) {
+                    const parts = name.split(/hộ kinh doanh/i);
+                    if (parts.length >= 2) {
+                        const specificName = parts[1].trim();
+                        return `HỘ KINH DOANH\n${specificName.toUpperCase()}`;
+                    }
+                    return 'HỘ KINH DOANH';
+                }
+
+                return name.toUpperCase();
+            }
+
+            // Function để lấy phần tên cụ thể
+            function getBusinessSpecificName(name) {
+                if (!name) return '';
+
+                const lowerName = name.toLowerCase();
+
+                // Nếu có "hộ kinh doanh" thì lấy phần sau
+                if (lowerName.includes('hộ kinh doanh')) {
+                    const parts = name.split(/hộ kinh doanh/i); // i flag để ignore case
+                    if (parts.length >= 2) {
+                        const specificName = parts[1].trim();
+                        return specificName.split(' ')
+                            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                            .join(' ');
+                    }
+                }
+
+                // Nếu không có "hộ kinh doanh" thì trả về chuỗi rỗng
+                return '';
+            }
+
+            // Cập nhật globalData:
+            globalData = {
+                upper_TenDoanhNghiep: params.tendoanhnghiep || '',
+                TenDoanhNghiep: formatBusinessName(params.tendoanhnghiep || ''),
+                TenDoanhNghiep_ChiTen: getBusinessSpecificName(params.tendoanhnghiep || ''),
+                ngay_tao_dai: formatDateLong(params.ngaycap || ''),
+                ngay_tao_ngan: formatDate(params.ngaycap || ''),
+                BophanAT_TruongBP: params.bophanat_truongbp || '',
+                BophanAT_Thanhvien: params.bophanat_thanhvien || '',
+                NgayCap: formatDate(params.ngaycap || ''),
+                NguoiDaiDienTheoPhapLuat: formatPersonName(params.nguoidaidien || ''),
+                upperxg_TenDoanhNghiep: formatUpperBusinessName(params.tendoanhnghiep || '')
+            };
+
+            // Hiển thị dữ liệu
+            displayParameters();
+        }
+
+        // Display parameters
+        function displayParameters() {
+            const paramDisplay = document.getElementById('param-display');
+
+            if (Object.keys(globalData).some(key => globalData[key])) {
+                const infoGrid = document.createElement('div');
+                infoGrid.className = 'info-grid';
+
+                const fieldNames = {
+                    'upper_TenDoanhNghiep': 'Tên Doanh Nghiệp (In Hoa)',
+                    'TenDoanhNghiep': 'Tên Doanh Nghiệp',
+                    'ngay_tao_dai': 'Ngày Tạo (Định Dạng Dài)',
+                    'ngay_tao_ngan': 'Ngày Tạo (Định Dạng Ngắn)',
+                    'BophanAT_TruongBP': 'Trưởng Bộ Phận An Toàn',
+                    'BophanAT_Thanhvien': 'Thành Viên Bộ Phận An Toàn',
+                    'NgayCap': 'Ngày Cấp',
+                    'NguoiDaiDienTheoPhapLuat': 'Người Đại Diện Theo Pháp Luật', // THÊM LABEL
+                    'upperxg_TenDoanhNghiep': 'Tên Doanh Nghiệp (In Hoa)'
+                };
+
+                Object.entries(globalData).forEach(([key, value]) => {
+                    if (value) { // Only show non-empty values
+                        const infoItem = document.createElement('div');
+                        infoItem.className = 'info-item';
+                        infoItem.innerHTML = `
+                            <div class="info-label">${fieldNames[key] || key}</div>
+                            <div class="info-value">${value}</div>
+                        `;
+                        infoGrid.appendChild(infoItem);
+                    }
+                });
+
+                paramDisplay.innerHTML = '';
+                paramDisplay.appendChild(infoGrid);
+            } else {
+                paramDisplay.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Không có dữ liệu từ URL hoặc dữ liệu không hợp lệ</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Export to Word using template
+        async function exportToWordTemplate() {
+            try {
+                if (!globalData || !Object.keys(globalData).some(key => globalData[key])) {
+                    alert('Không có dữ liệu để xuất. Vui lòng kiểm tra lại URL.');
+                    return;
+                }
+
+                // Show loading
+                document.getElementById('loading-overlay').style.display = 'flex';
+
+                // URL template
+                // const templateUrl = 'templates/hokinhdoanh_template.docx';
+                const templateUrl = 'https://hoangmv.github.io/templates/hokinhdoanh_template.docx';
+
+                let response;
+                try {
+                    response = await fetch(templateUrl);
+                } catch (error) {
+                    console.warn('Không thể tải template, sẽ tạo file Word đơn giản');
+                    await createSimpleWordFile();
+                    return;
+                }
+
+                if (!response.ok) {
+                    throw new Error('Không thể tải template Word');
+                }
+
+                const templateContent = await response.arrayBuffer();
+                const zip = new PizZip(templateContent);
+                const doc = new window.docxtemplater(zip, {
+                    paragraphLoop: true,
+                    linebreaks: true
+                });
+
+                // Set data cho template
+                doc.setData(globalData);
+                doc.render();
+
+                const blob = doc.getZip().generate({
+                    type: "blob",
+                    mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                });
+
+                const fileName = `HoKinhDoanh_${globalData.TenDoanhNghiep ? globalData.TenDoanhNghiep.replace(/\s+/g, '_') : 'Document'}.docx`;
+                saveAs(blob, fileName);
+
+            } catch (error) {
+                console.error('Lỗi xuất file Word:', error);
+                alert('Có lỗi xảy ra khi xuất file Word. Vui lòng thử lại sau.');
+            } finally {
+                // Hide loading
+                document.getElementById('loading-overlay').style.display = 'none';
+            }
+        }
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', function () {
+            // Add slight delay for better UX
+            setTimeout(() => {
+                loadData();
+            }, 300);
+        });
+    </script>
+</body>
+
+</html>

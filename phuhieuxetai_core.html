@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phù hiệu xe tải</title>
+
+    <!-- Thêm các thư viện cần thiết cho xuất Word -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.37.11/docxtemplater.js"></script>
+    <script src="https://unpkg.com/pizzip@3.1.4/dist/pizzip.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            line-height: 1.2;
+            background: white;
+            width: 210mm;
+            height: 297mm;
+            margin: 0 auto;
+            padding: 15mm;
+            min-height: 297mm;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .license-number {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 15mm;
+            letter-spacing: 2px;
+        }
+
+        .company-info {
+            margin-bottom: 8mm;
+        }
+
+        .company-name {
+            font-size: 18px;
+            font-weight: normal;
+            margin-bottom: 12mm;
+            line-height: 1.2;
+            font-weight: bold;
+        }
+
+        .company-address {
+            font-size: 18px;
+            margin-bottom: 8mm;
+            line-height: 1.2;
+            font-weight: bold;
+        }
+
+        .vehicle-info {
+            margin-bottom: 15mm;
+        }
+
+        .vehicle-number {
+            font-size: 16px;
+            margin-bottom: 5mm;
+        }
+
+        .vehicle-date {
+            font-size: 18px;
+            margin-bottom: 15mm;
+            font-weight: bold;
+        }
+
+        .large-date {
+            font-size: 55px;
+            font-weight: bold;
+            margin-bottom: 25mm;
+            letter-spacing: 8px;
+        }
+
+        .qr-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 10mm;
+        }
+
+        .qr-placeholder {
+            width: 60px;
+            height: 60px;
+            border: 2px solid #000;
+            background: white;
+            position: relative;
+        }
+
+        .qr-placeholder::before {
+            content: '';
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            width: 12px;
+            height: 12px;
+            background: #000;
+        }
+
+        .qr-placeholder::after {
+            content: '';
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 12px;
+            height: 12px;
+            background: #000;
+        }
+
+        /* Button styles */
+        .button-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-family: Arial, sans-serif;
+        }
+
+        .print-button {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .print-button:hover {
+            background-color: #45a049;
+        }
+
+        .export-button {
+            background-color: #2b579a;
+            color: white;
+        }
+
+        .export-button:hover {
+            background-color: #1e3f6f;
+        }
+
+        #loading-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            z-index: 2000;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media print {
+            body {
+                width: 210mm;
+                height: 297mm;
+                margin: 0;
+                padding: 15mm;
+            }
+
+            .button-container {
+                display: none;
+            }
+        }
+
+        @media screen {
+            body {
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                margin: 20px auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Button Container -->
+    <div class="button-container">
+        <button class="button print-button" onclick="window.print()">
+            <i class="fas fa-print"></i> In Tài Liệu
+        </button>
+        <button class="button export-button" onclick="exportToWordTemplate()">
+            <i class="fas fa-file-word"></i> Xuất Word
+        </button>
+    </div>
+
+    <!-- Loading Message -->
+    <div id="loading-message">Đang tải dữ liệu...</div>
+
+    <div class="container">
+        <div class="license-number" id="so-phu-hieu">XT2425001836</div>
+
+        <div class="company-info">
+            <div class="company-name" id="ten-don-vi">
+                Công ty cổ phần tiếp vận<br>
+                Quốc Tế CMC
+            </div>
+            <div class="company-address" id="bien-so">98C12830</div>
+        </div>
+
+        <div class="vehicle-info">
+            <div class="vehicle-date" id="ngay-het-han">23/7/2026</div>
+        </div>
+
+        <div class="large-date" id="ngay-cap-display">07/26</div>
+
+        <div class="qr-container">
+            <div class="qr-placeholder"></div>
+        </div>
+    </div>
+
+    <script>
+        // Constants for AppSheet connection
+        const appId = 'd22767b5-f711-42f8-bbbd-4cf04b26ef3d';
+        const accessKey = 'V2-Qcjpo-7Ybu9-g87XI-TFLes-kJGWn-btYR5-cLMmk-FjrRj';
+        const region = 'www';
+
+        // Biến toàn cục để lưu dữ liệu
+        let globalVehicleData = null;
+
+        // Function to get parameters from URL
+        function getParametersFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return {
+                SoPhuHieu: urlParams.get('SoPhuHieu'),
+                NgayCap: urlParams.get('NgayCap'),
+                NgayHetHan: urlParams.get('NgayHetHan'),
+                Ten_don_vi: urlParams.get('Ten_don_vi'),
+                BienSo: urlParams.get('BienSo')
+            };
+        }
+
+        // Function to parse date from Vietnamese format (dd/mm/yyyy)
+        function parseVietnameseDate(dateString) {
+            if (!dateString) return null;
+
+            // Kiểm tra xem đã là Date object chưa
+            if (dateString instanceof Date) return dateString;
+
+            // Xử lý format dd/mm/yyyy từ URL
+            const parts = dateString.split('/');
+            if (parts.length === 3) {
+                const day = parseInt(parts[0], 10);
+                const month = parseInt(parts[1], 10);
+                const year = parseInt(parts[2], 10);
+
+                // Tạo Date object với format đúng (year, month-1, day)
+                return new Date(year, month - 1, day);
+            }
+
+            // Fallback cho các format khác
+            return new Date(dateString);
+        }
+
+
+        // Function to format date to MM/YY (cho phần hiển thị lớn)
+        function formatDateToMMYY(dateString) {
+            if (!dateString) return '';
+
+            try {
+                const date = parseVietnameseDate(dateString);
+                if (!date || isNaN(date.getTime())) {
+                    console.error('Invalid date:', dateString);
+                    return dateString;
+                }
+
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                const year = date.getFullYear().toString().slice(-2);
+                return `${month}/${year}`;
+            } catch (error) {
+                console.error('Error formatting date:', error);
+                return dateString;
+            }
+        }
+
+        // Function to format full date theo quy tắc mới
+        function formatFullDate(dateString) {
+            if (!dateString) return '';
+
+            try {
+                const date = parseVietnameseDate(dateString);
+                if (!date || isNaN(date.getTime())) {
+                    console.error('Invalid date:', dateString);
+                    return dateString;
+                }
+
+                const day = date.getDate().toString().padStart(2, '0'); // Luôn có 2 chữ số
+                const month = date.getMonth() + 1;
+                const year = date.getFullYear(); // Đầy đủ 4 chữ số
+
+                // Định dạng tháng theo quy tắc:
+                // - Tháng 1, 2: có số 0 đằng trước (01, 02)
+                // - Tháng 3-12: không có số 0 đằng trước (3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
+                let monthFormatted;
+                if (month === 1 || month === 2) {
+                    monthFormatted = month.toString().padStart(2, '0');
+                } else {
+                    monthFormatted = month.toString();
+                }
+
+                return `${day}/${monthFormatted}/${year}`;
+            } catch (error) {
+                console.error('Error formatting full date:', error);
+                return dateString;
+            }
+        }
+
+        // Generic function to make API calls
+        async function callAPI(tableName, selector) {
+            const response = await fetch(`https://${region}.appsheet.com/api/v2/apps/${appId}/tables/${tableName}/Action`, {
+                method: 'POST',
+                headers: {
+                    'ApplicationAccessKey': accessKey,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    Action: 'Find',
+                    Properties: {
+                        Selector: selector
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status} for table: ${tableName}`);
+            }
+
+            return await response.json();
+        }
+
+        // Main function to load data
+        async function loadData() {
+            const params = getParametersFromURL();
+            console.log("Parameters from URL:", params);
+
+            // Nếu có đầy đủ dữ liệu từ URL, sử dụng trực tiếp
+            if (params.SoPhuHieu && params.NgayCap && params.NgayHetHan && params.Ten_don_vi && params.BienSo) {
+                globalVehicleData = params;
+                populateDataFromURL(params);
+                hideLoadingMessage();
+                return;
+            }
+
+            // Nếu không có đủ dữ liệu, có thể gọi API
+            hideLoadingMessage();
+            alert('Thiếu thông tin từ URL. Vui lòng kiểm tra các tham số: SoPhuHieu, NgayCap, NgayHetHan, Ten_don_vi, BienSo');
+        }
+
+        // Populate data from URL parameters
+        function populateDataFromURL(params) {
+            // Số phù hiệu
+            if (params.SoPhuHieu) {
+                document.getElementById('so-phu-hieu').textContent = params.SoPhuHieu;
+            }
+
+            // Tên đơn vị (có thể có xuống dòng)
+            if (params.Ten_don_vi) {
+                const tenDonVi = decodeURIComponent(params.Ten_don_vi).replace(/\\n/g, '\n');
+                document.getElementById('ten-don-vi').innerHTML = tenDonVi.replace(/\n/g, '<br>');
+            }
+
+            // Biển số
+            if (params.BienSo) {
+                document.getElementById('bien-so').textContent = decodeURIComponent(params.BienSo);
+            }
+
+            // Ngày hết hạn (sử dụng định dạng mới)
+            if (params.NgayHetHan) {
+                document.getElementById('ngay-het-han').textContent = formatFullDate(params.NgayHetHan);
+            }
+
+            // Ngày cấp (định dạng MM/YY)
+            if (params.NgayCap) {
+                document.getElementById('ngay-cap-display').textContent = formatDateToMMYY(params.NgayCap);
+            }
+        }
+
+        // Export to Word function
+        async function exportToWordTemplate() {
+            try {
+                if (!globalVehicleData) {
+                    alert('Dữ liệu chưa được tải. Vui lòng đợi dữ liệu tải xong.');
+                    return;
+                }
+
+                document.getElementById('loading-message').style.display = 'block';
+                document.getElementById('loading-message').textContent = 'Đang xuất file Word...';
+
+                // Tạo template Word đơn giản
+                const templateUrl = 'https://hoangmv.github.io/templates/phuhieu_template.docx';
+
+                const response = await fetch(templateUrl);
+                if (!response.ok) {
+                    throw new Error('Không thể tải template Word');
+                }
+                const templateContent = await response.arrayBuffer();
+
+                const zip = new PizZip(templateContent);
+                const doc = new window.docxtemplater(zip, {
+                    paragraphLoop: true,
+                    linebreaks: true
+                });
+
+                const data = {
+                    so_phu_hieu: globalVehicleData.SoPhuHieu || '',
+                    ten_don_vi: decodeURIComponent(globalVehicleData.Ten_don_vi || '').replace(/\\n/g, '\n'),
+                    bien_so: decodeURIComponent(globalVehicleData.BienSo || ''),
+                    ngay_het_han: formatFullDate(globalVehicleData.NgayHetHan),
+                    ngay_cap_mmyy: formatDateToMMYY(globalVehicleData.NgayCap)
+                };
+
+                doc.setData(data);
+                doc.render();
+
+                const blob = doc.getZip().generate({
+                    type: "blob",
+                    mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                });
+
+                const fileName = `Phu_hieu_xe_${globalVehicleData.SoPhuHieu || 'unknown'}.docx`;
+                saveAs(blob, fileName);
+
+                hideLoadingMessage();
+
+            } catch (error) {
+                console.error('Error exporting to Word:', error);
+                alert('Có lỗi khi xuất file Word: ' + error.message);
+                hideLoadingMessage();
+            }
+        }
+
+        // Hide loading message
+        function hideLoadingMessage() {
+            document.getElementById('loading-message').classList.add('hidden');
+        }
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', loadData);
+
+        // Disable right-click and developer tools (commented out for development)
+        document.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+        }, false);
+
+        document.onkeydown = function (e) {
+            if (e.keyCode == 123) {
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) {
+                return false;
+            }
+        };
+    </script>
+</body>
+
+</html>

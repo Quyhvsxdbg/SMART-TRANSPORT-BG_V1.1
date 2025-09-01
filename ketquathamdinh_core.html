@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kết Quả Thẩm Định Giấy Phép Liên Vận Việt Nam-Lào</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', serif;
+            margin: 0;
+            padding: 30px;
+            max-width: 800px;
+            margin: 0 auto;
+            font-size: 14pt;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .header-left {
+            text-align: center;
+            width: 40%;
+            font-size: 13pt;
+        }
+
+        #ngay-tham-dinh,
+        .document-number {
+            font-weight: normal !important;
+        }
+
+        #ngay-tham-dinh {
+            font-style: italic;
+        }
+
+        .header-right {
+            text-align: center;
+            width: 60%;
+            font-weight: bold;
+        }
+
+        .document-number {
+            margin-top: 4.5px;
+        }
+
+        .title {
+            text-align: center;
+            font-weight: bold;
+            margin: 25px 0 35px 0;
+            line-height: 1.5;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-weight: bold;
+            margin: 25px 0 35px 0;
+            line-height: 1.5;
+            font-size: 18px;
+            text-transform: uppercase;
+        }
+
+        .content {
+            text-align: justify;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            text-indent: 30px;
+        }
+
+        .section-title {
+            margin: 15px 0 5px 0;
+            text-indent: 30px;
+            line-height: 1.5;
+        }
+
+        .section-content {
+            text-indent: 30px;
+            margin-left: 0;
+        }
+
+        .signatures {
+            display: flex;
+            justify-content: space-between;
+            text-align: center;
+        }
+
+        .signature-left {
+            width: 33%;
+            text-align: center;
+        }
+
+        .signature-center {
+            width: 33%;
+            text-align: center;
+        }
+
+        .signature-right {
+            width: 33%;
+            text-align: center;
+        }
+
+        .signature-title {
+            font-weight: bold;
+            margin-bottom: 80px;
+        }
+
+        .signature-name {
+            font-weight: bold;
+        }
+
+        .detail-section {
+            margin-top: 30px;
+        }
+
+        .company-info {
+            margin-bottom: 15px;
+        }
+
+        /* Add page break style */
+        .page {
+            page-break-after: always;
+            margin-bottom: 40px;
+            border-bottom: 1px dashed #ccc;
+            padding-bottom: 40px;
+        }
+
+        /* Remove page break for the last page */
+        .page:last-child {
+            page-break-after: auto;
+            border-bottom: none;
+        }
+
+        /* Enhanced page break control */
+        #page1 {
+            page-break-after: always !important;
+        }
+
+        #page2 {
+            page-break-before: always !important;
+            break-before: page !important;
+            /* Modern syntax */
+        }
+
+        @page {
+            size: A4;
+            margin: 1.5cm 1cm 1.5cm 2.5cm;
+        }
+
+        @media print {
+
+            html,
+            body {
+                height: auto !important;
+                overflow: visible !important;
+            }
+
+            .page {
+                page-break-after: auto;
+                margin-bottom: 0;
+                padding-bottom: 0;
+                border-bottom: none;
+            }
+
+            .page:last-child {
+                page-break-after: avoid !important;
+            }
+
+            /* Make sure no extra space is added at the end of document */
+            #page2:after {
+                content: none !important;
+            }
+
+            #page1 {
+                page-break-after: always !important;
+                break-after: page !important;
+                /* Modern syntax */
+            }
+
+            #page2 {
+                page-break-before: always !important;
+                break-before: page !important;
+                /* Modern syntax */
+            }
+
+            .page {
+                display: block;
+                width: 100%;
+                height: auto;
+                margin: 0;
+            }
+
+            /* Clear any conflicting properties */
+            #page1:after {
+                content: "";
+                display: block;
+                height: 0;
+                page-break-after: always;
+                break-after: page;
+            }
+
+            /* Hide elements not needed for printing */
+            .print-button,
+            #loading-message {
+                display: none !important;
+            }
+        }
+
+        /* Print button styling */
+        .print-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .print-button:hover {
+            background-color: #45a049;
+        }
+
+        #loading-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            z-index: 2000;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Điều chỉnh khoảng cách chính xác như mẫu */
+        .indent-text {
+            text-indent: 30px;
+        }
+
+        .result-item {
+            margin: 8px 0;
+            text-indent: 30px;
+        }
+
+        .note-text {
+            text-align: center;
+            font-style: italic;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .closing-text {
+            text-indent: 30px;
+            margin: 20px 0 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid black;
+        }
+
+        th,
+        td {
+            padding: 8px;
+            text-align: center;
+        }
+
+        /* Styles for hierarchical display */
+        .company-section {
+            margin-top: 30px;
+            margin-bottom: 10px;
+        }
+
+        .hoso-info {
+            margin-left: 20px;
+            margin-bottom: 10px;
+        }
+
+        .vehicle-section {
+            margin-left: 40px;
+            margin-bottom: 15px;
+        }
+
+        .section-header {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .separator {
+            padding: 1px 0;
+        }
+
+        .underline-title,
+        .underline-title-full {
+            display: inline-block;
+            /* Để căn chỉnh đúng kích thước nội dung */
+            position: relative;
+            font-weight: bold;
+        }
+
+        .underline-title::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            /* Đặt điểm bắt đầu ở giữa */
+            bottom: -5px;
+            /* Khoảng cách từ chữ đến đường ngang */
+            transform: translateX(-50%);
+            /* Dịch chuyển để căn giữa */
+            width: 50%;
+            /* Độ dài của đường ngang (50% chiều rộng của nội dung) */
+            height: 1.5px;
+            /* Độ dày của đường ngang */
+            background-color: black;
+            /* Màu sắc của đường ngang */
+        }
+
+        .underline-title-full::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            /* Đặt điểm bắt đầu ở giữa */
+            bottom: -5px;
+            /* Khoảng cách từ chữ đến đường ngang */
+            transform: translateX(-50%);
+            /* Dịch chuyển để căn giữa */
+            width: 100%;
+            /* Độ dài của đường ngang (50% chiều rộng của nội dung) */
+            height: 1.5px;
+            /* Độ dày của đường ngang */
+            background-color: black;
+            /* Màu sắc của đường ngang */
+        }
+
+        .title {
+            /* Để căn chỉnh đúng kích thước nội dung */
+            position: relative;
+            font-weight: bold;
+        }
+
+        .title::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            /* Đặt điểm bắt đầu ở giữa */
+            bottom: -5px;
+            /* Khoảng cách từ chữ đến đường ngang */
+            transform: translateX(-50%);
+            /* Dịch chuyển để căn giữa */
+            width: 30%;
+            /* Độ dài của đường ngang (50% chiều rộng của nội dung) */
+            height: 1.5px;
+            /* Độ dày của đường ngang */
+            background-color: black;
+            /* Màu sắc của đường ngang */
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Print Button -->
+    <button class="print-button" onclick="window.print()">In Tài Liệu</button>
+
+    <!-- Loading Message -->
+    <div id="loading-message">Đang tải dữ liệu...</div>
+
+    <!-- Page 1: Main Report -->
+    <div class="page" id="page1">
+        <div class="header">
+            <div class="header-left">
+                <div>SỞ XÂY DỰNG <span id="tinh-header">BẮC GIANG</span></div>
+                <div class="underline-title">PHÒNG VẬN TẢI& ATGT</div> <br> <br>
+                <div class="document-number">Số: <span id="so-bien-ban"></span></div>
+            </div>
+            <div class="header-right">
+                <div style="font-size: 13pt;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+                <div class="underline-title-full">Độc lập - Tự do - Hạnh phúc</div><br><br>
+                <div id="ngay-tham-dinh"><span id="tinh-footer">Bắc Giang</span>, ngày tháng năm </div>
+            </div>
+        </div>
+
+        <div class="title">
+            BÁO CÁO KẾT QUẢ THẨM ĐỊNH<br>
+            HỒ SƠ ĐỀ NGHỊ CẤP GIẤY PHÉP LIÊN VẬN VIỆT NAM- LÀO
+        </div>
+
+        <div class="content">
+            Phòng Vận tải và An toàn giao thông- Sở Xây dựng tỉnh <span id="tinh-content">Bắc Giang</span> nhận được Hồ
+            sơ đề nghị cấp Giấy phép liên
+            vận Việt Nam-Lào của các tổ chức, cá nhân trên địa bàn tỉnh. Thực hiện chức năng, nhiệm vụ được giao, Phòng
+            Vận tải và An toàn giao thông báo cáo kết quả thẩm định hồ sơ như sau:
+        </div>
+
+        <div class="section-title"><strong>1. Thông tin hồ sơ đề nghị:</strong> Chi tiết theo phụ lục kèm theo.</div>
+
+        <div class="section-title"><strong>2. Căn cứ thẩm định hồ sơ:</strong> Nghị định số 158/2024/NĐ-CP ngày
+            18/12/2024 của Chính phủ Quy định về hoạt động vận tải đường bộ.</div>
+
+        <div class="section-title"><strong>3. Kết quả thẩm định</strong></div>
+
+        <div class="section-content">
+        </div>
+
+        <div class="result-item">
+            <strong style="font-style: italic;">a) Số xe đủ điều kiện cấp phép:</strong> <span id="so-xe-du-dk">00
+                (xe);</span>
+        </div>
+
+        <div class="result-item">
+            <strong style="font-style: italic;">b) Số xe không đủ điều kiện cấp phép:</strong> <span
+                id="so-xe-ko-du-dk">00 (xe).</span>
+        </div>
+
+        <div class="note-text">(Chi tiết tại phụ lục kèm theo)</div>
+
+        <div class="closing-text">
+            Phòng Vận tải và An toàn giao thông báo cáo kết quả thẩm định hồ sơ, trình Lãnh đạo Sở xem xét ký duyệt./.
+        </div>
+
+        <div class="signatures">
+            <div class="signature-left">
+                <div class="signature-title">CÁN BỘ THẨM ĐỊNH</div>
+                <div class="signature-name" id="can-bo-tham-dinh"></div>
+            </div>
+            <div class="signature-center">
+                <div class="signature-title">LÃNH ĐẠO PHÒNG</div>
+                <div class="signature-name" id="lanh-dao-phong"></div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <div class="signature-title">LÃNH ĐẠO SỞ KÝ DUYỆT</div>
+            <div class="signature-name" id="lanh-dao-so" style="margin-top: 80px;"></div>
+        </div>
+    </div>
+
+    <!-- Page 2: Detailed Results - With forced page break -->
+    <div class="page" id="page2" style="page-break-before: always;">
+        <div class="subtitle">KẾT QUẢ THẨM ĐỊNH CHI TIẾT</div>
+
+        <div id="ho-so-container">
+            <!-- Dữ liệu hồ sơ sẽ được điền vào đây bằng JavaScript -->
+        </div>
+    </div>
+    <script>
+        // Constants for AppSheet connection
+        const appId = 'd22767b5-f711-42f8-bbbd-4cf04b26ef3d';
+        const accessKey = 'V2-Qcjpo-7Ybu9-g87XI-TFLes-kJGWn-btYR5-cLMmk-FjrRj';
+        const region = 'www';
+
+        // Biến toàn cục để lưu dữ liệu tỉnh
+        let globalTinhData = null;
+
+        // Function to get ID from URL parameter
+        function getIDThamDinhFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('IDThamDinh');
+        }
+
+        // Generic function to make API calls
+        async function callAPI(tableName, selector) {
+            const response = await fetch(`https://${region}.appsheet.com/api/v2/apps/${appId}/tables/${tableName}/Action`, {
+                method: 'POST',
+                headers: {
+                    'ApplicationAccessKey': accessKey,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    Action: 'Find',
+                    Properties: {
+                        Selector: selector
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status} for table: ${tableName}`);
+            }
+
+            return await response.json();
+        }
+
+        // Main function to fetch data
+        async function fetchData() {
+            const idThamDinh = getIDThamDinhFromURL();
+            console.log("ID from URL:", idThamDinh);
+
+            if (!idThamDinh) {
+                hideLoadingMessage();
+                alert('Không tìm thấy IDThamDinh trong URL.');
+                return;
+            }
+
+            try {
+                // Prepare API calls
+                const currentDate = new Date().toISOString();
+
+                const apiCalls = [
+                    // 1. Fetch ThamDinhHoSo data
+                    fetchThamDinhData(idThamDinh),
+
+                    // 2. Get ThongTin data (for tinh)
+                    callAPI('ThongTin', `Filter(ThongTin, [Ngay_hieu_luc] <= "${currentDate}")`)
+                ];
+
+                // Execute API calls
+                console.log("Bắt đầu gọi API...");
+                const [thamDinhData, tinhResult] = await Promise.all(apiCalls);
+
+                console.log("ThamDinh data:", thamDinhData);
+                console.log("Tinh data:", tinhResult);
+
+                // Validate tham dinh data
+                if (!thamDinhData || thamDinhData.length === 0) {
+                    hideLoadingMessage();
+                    alert('Không tìm thấy dữ liệu thẩm định với ID: ' + idThamDinh);
+                    return;
+                }
+
+                // Lưu dữ liệu tỉnh vào biến toàn cục
+                globalTinhData = tinhResult;
+
+                // Populate header information với tên tỉnh
+                populateThamDinhData(thamDinhData[0], tinhResult);
+
+                // 2. Fetch HoSoCapPhep data
+                const hoSoData = await fetchHoSoCapPhepData(idThamDinh);
+
+                if (!hoSoData || hoSoData.length === 0) {
+                    hideLoadingMessage();
+                    alert('Không tìm thấy dữ liệu hồ sơ cấp phép cho ID thẩm định: ' + idThamDinh);
+                    return;
+                }
+
+                // Group HoSoCapPhep by company
+                const groupedByCompany = await groupHoSoByCompany(hoSoData);
+
+                // Process each company's data
+                await processCompanyData(groupedByCompany);
+
+                // Calculate and update totals after all data is processed
+                updateVehicleTotals();
+
+                // Hide loading message
+                hideLoadingMessage();
+
+            } catch (error) {
+                console.error('Lỗi:', error);
+                hideLoadingMessage();
+                alert('Đã xảy ra lỗi khi lấy dữ liệu: ' + error.message);
+            }
+        }
+
+        // Group HoSo by company
+        async function groupHoSoByCompany(hoSoData) {
+            const companyMap = new Map();
+
+            for (const hoSo of hoSoData) {
+                // Get company info
+                let companyId, companyName;
+
+                if (typeof hoSo.IDDoanhNghiep === 'object' && hoSo.IDDoanhNghiep) {
+                    companyId = hoSo.IDDoanhNghiep.id || hoSo.IDDoanhNghiep._id;
+                    companyName = hoSo.IDDoanhNghiep.TenDoanhNghiep || '';
+                } else {
+                    companyId = hoSo.TenDoanhNghiep;
+                    companyName = hoSo.TenDoanhNghiep;
+                }
+
+                if (!companyMap.has(companyId)) {
+                    companyMap.set(companyId, {
+                        companyName: companyName,
+                        hoSoList: []
+                    });
+                }
+
+                companyMap.get(companyId).hoSoList.push(hoSo);
+            }
+
+            return companyMap;
+        }
+
+        // Process each company's data
+        async function processCompanyData(companyMap) {
+            const container = document.getElementById('ho-so-container');
+            container.innerHTML = ''; // Clear existing content
+
+            // Track total passed and failed vehicles
+            window.totalPassedVehicles = 0;
+            window.totalFailedVehicles = 0;
+
+            for (const [companyId, companyData] of companyMap.entries()) {
+                // Process each HoSo for this company
+                await processHoSoForCompany(companyData.hoSoList, container, companyData.companyName, companyId);
+
+                // Add separator
+                const separator = document.createElement('div');
+                separator.className = 'separator';
+                container.appendChild(separator);
+            }
+        }
+
+        // Process HoSo for a specific company
+        async function processHoSoForCompany(hoSoList, container, companyName, companyId) {
+            for (let hoSoIndex = 0; hoSoIndex < hoSoList.length; hoSoIndex++) {
+                const hoSo = hoSoList[hoSoIndex];
+
+                // Company name section
+                const companyNameDiv = document.createElement('div');
+                companyNameDiv.innerHTML = `<p class="indent-text"><strong>Đơn vị đề nghị:</strong> ${companyName};</p>`;
+                container.appendChild(companyNameDiv);
+
+                // File code section
+                const fileCodeDiv = document.createElement('div');
+                fileCodeDiv.innerHTML = `<p class="indent-text"><strong>Mã hồ sơ:</strong> ${hoSo.MaHoSoCongDan || ''};</p>`;
+                container.appendChild(fileCodeDiv);
+
+                // Submission date section
+                let ngayNop = '';
+                if (hoSo.NgayNop) {
+                    const date = new Date(hoSo.NgayNop);
+                    ngayNop = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+                }
+                const submissionDateDiv = document.createElement('div');
+                submissionDateDiv.innerHTML = `<p class="indent-text"><strong>Ngày nộp hồ sơ:</strong> ${ngayNop}</p>`;
+                container.appendChild(submissionDateDiv);
+
+                // Fetch and process vehicle data for this HoSo
+                const vehicleData = await fetchXeTrongHoSoData(hoSo.IDHoSo);
+
+                if (vehicleData && vehicleData.length > 0) {
+                    // Filter vehicles to only show those belonging to this company
+                    const companyVehicles = vehicleData.filter(vehicle => {
+                        let vehicleCompanyId;
+                        if (typeof vehicle.IDDoanhNghiep === 'object' && vehicle.IDDoanhNghiep) {
+                            vehicleCompanyId = vehicle.IDDoanhNghiep.id || vehicle.IDDoanhNghiep._id;
+                        } else {
+                            vehicleCompanyId = vehicle.IDDoanhNghiep;
+                        }
+                        return vehicleCompanyId === companyId;
+                    });
+
+                    // Split vehicles into passed and failed categories
+                    const passedVehicles = companyVehicles.filter(xe => xe.KetQuaThamDinh === "Đủ điều kiện");
+                    const failedVehicles = companyVehicles.filter(xe => xe.KetQuaThamDinh === "Không đủ điều kiện");
+
+                    // Update running totals
+                    window.totalPassedVehicles += passedVehicles.length;
+                    window.totalFailedVehicles += failedVehicles.length;
+
+                    // Add passed vehicles section if any
+                    if (passedVehicles.length > 0) {
+                        const passedHeader = document.createElement('div');
+                        passedHeader.innerHTML = `<p class="indent-text"><strong>1. Danh sách xe đủ điều kiện cấp Giấy phép liên vận VN- Lào</strong></p>`;
+                        container.appendChild(passedHeader);
+
+                        // Create table for passed vehicles
+                        const passedTable = createUpdatedVehicleTable(passedVehicles, true);
+                        container.appendChild(passedTable);
+                    }
+
+                    // Add failed vehicles section if any
+                    if (failedVehicles.length > 0) {
+                        const failedHeader = document.createElement('div');
+                        failedHeader.innerHTML = `<p class="indent-text"><strong>2. Danh sách xe không đủ điều kiện cấp Giấy phép liên vận VN- Lào</strong></p>`;
+                        container.appendChild(failedHeader);
+
+                        // Create table for failed vehicles
+                        const failedTable = createUpdatedVehicleTable(failedVehicles, false);
+                        container.appendChild(failedTable);
+                    }
+                }
+            }
+        }
+
+        // Create updated vehicle table with STT but without IDDoanhNghiep
+        function createUpdatedVehicleTable(vehicles, isPassed) {
+            const table = document.createElement('table');
+
+            // Table header
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+
+            // Add STT header
+            const sttHeader = document.createElement('th');
+            sttHeader.textContent = 'STT';
+            headerRow.appendChild(sttHeader);
+
+            // Add remaining headers
+            const otherHeaders = isPassed
+                ? ['Biển số', 'Số phù hiệu', 'Thời hạn', 'Số Sổ LV', 'Thời hạn']
+                : ['Biển số', 'Lý do không đạt'];
+
+            otherHeaders.forEach(headerText => {
+                const th = document.createElement('th');
+                th.textContent = headerText;
+                headerRow.appendChild(th);
+            });
+
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+
+            // Table body
+            const tbody = document.createElement('tbody');
+
+            vehicles.forEach((vehicle, index) => {
+                const row = document.createElement('tr');
+
+                // Add STT cell (index + 1)
+                const sttCell = document.createElement('td');
+                sttCell.textContent = index + 1;
+                row.appendChild(sttCell);
+
+                // Add Biển số cell
+                const bienSoCell = document.createElement('td');
+                bienSoCell.textContent = vehicle.BienSo;
+                row.appendChild(bienSoCell);
+
+                if (isPassed) {
+                    // Format dates
+                    let ngayHetHanPH = '';
+                    if (vehicle.NgayHetHanPH) {
+                        const date = new Date(vehicle.NgayHetHanPH);
+                        ngayHetHanPH = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+                    }
+
+                    let ngayHetHanSoLV = '';
+                    if (vehicle.NgayHetHanSoLV) {
+                        const date = new Date(vehicle.NgayHetHanSoLV);
+                        ngayHetHanSoLV = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+                    }
+
+                    // Add cells for passed vehicles
+                    const additionalCells = [
+                        { text: vehicle.SoPH || '' },
+                        { text: ngayHetHanPH },
+                        { text: vehicle.SoSoLV || '' },
+                        { text: ngayHetHanSoLV }
+                    ];
+
+                    additionalCells.forEach(cell => {
+                        const td = document.createElement('td');
+                        td.textContent = cell.text;
+                        row.appendChild(td);
+                    });
+                } else {
+                    // Add cell for failed vehicles
+                    const reasonCell = document.createElement('td');
+                    reasonCell.textContent = vehicle.LyDoKhongDu || '';
+                    row.appendChild(reasonCell);
+                }
+
+                tbody.appendChild(row);
+            });
+
+            table.appendChild(tbody);
+            return table;
+        }
+
+        // Fetch ThamDinhHoSo data - UPDATED TO NEW FORMAT
+        async function fetchThamDinhData(idThamDinh) {
+            try {
+                const response = await fetch(`https://${region}.appsheet.com/api/v2/apps/${appId}/tables/ThamDinhHoSo/Action`, {
+                    method: 'POST',
+                    headers: {
+                        'ApplicationAccessKey': accessKey,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        Action: 'Find',
+                        Properties: {
+                            Selector: `Filter(ThamDinhHoSo, [IDThamDinh] = "${idThamDinh}")`
+                        }
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                console.error('Lỗi khi gửi dữ liệu đến bảng ThamDinhHoSo:', error);
+                throw error;
+            }
+        }
+
+        // Fetch HoSoCapPhep data - UPDATED TO NEW FORMAT
+        async function fetchHoSoCapPhepData(idThamDinh) {
+            try {
+                const response = await fetch(`https://${region}.appsheet.com/api/v2/apps/${appId}/tables/HoSoCapPhep/Action`, {
+                    method: 'POST',
+                    headers: {
+                        'ApplicationAccessKey': accessKey,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        Action: 'Find',
+                        Properties: {
+                            Selector: `Filter(HoSoCapPhep, [IDThamDinh] = "${idThamDinh}")`
+                        }
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                console.error('Lỗi khi gửi dữ liệu đến bảng HoSoCapPhep:', error);
+                throw error;
+            }
+        }
+
+        // Fetch XeTrongHoSo data - UPDATED TO NEW FORMAT
+        async function fetchXeTrongHoSoData(idHoSo) {
+            try {
+                const response = await fetch(`https://${region}.appsheet.com/api/v2/apps/${appId}/tables/XeTrongHoSo/Action`, {
+                    method: 'POST',
+                    headers: {
+                        'ApplicationAccessKey': accessKey,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        Action: 'Find',
+                        Properties: {
+                            Selector: `Filter(XeTrongHoSo, [IDHoSo] = "${idHoSo}")`
+                        }
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                console.error('Lỗi khi gửi dữ liệu đến bảng XeTrongHoSo:', error);
+                throw error;
+            }
+        }
+
+        // Update vehicle totals in the main report
+        function updateVehicleTotals() {
+            const formattedPassed = String(window.totalPassedVehicles).padStart(2, '0');
+            const formattedFailed = String(window.totalFailedVehicles).padStart(2, '0');
+
+            document.getElementById('so-xe-du-dk').textContent = `${formattedPassed} (xe);`;
+            document.getElementById('so-xe-ko-du-dk').textContent = `${formattedFailed} (xe).`;
+        }
+
+        // Populate ThamDinhHoSo data với tên tỉnh
+        function populateThamDinhData(data, tinhData) {
+            // Xử lý tên tỉnh
+            let tenTinh = 'Bắc Giang'; // Giá trị mặc định
+            if (tinhData && tinhData.length > 0) {
+                const sortedTinhData = tinhData.sort((a, b) =>
+                    new Date(b.Ngay_hieu_luc) - new Date(a.Ngay_hieu_luc)
+                );
+                tenTinh = sortedTinhData[0].Tinh || 'Bắc Giang';
+            }
+
+            // Cập nhật tên tỉnh ở các vị trí khác nhau
+            document.getElementById('tinh-header').textContent = tenTinh.toUpperCase();
+            document.getElementById('tinh-footer').textContent = tenTinh;
+            document.getElementById('tinh-content').textContent = tenTinh;
+
+            // Update SoBienBan
+            document.getElementById('so-bien-ban').textContent = data.SoBienBan || '';
+
+            // Format date (DD/MM/YYYY)
+            if (data.NgayThamDinh) {
+                const date = new Date(data.NgayThamDinh);
+                const day = date.getDate().toString().padStart(2, '0');
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                const year = date.getFullYear();
+                document.getElementById('ngay-tham-dinh').textContent =
+                    `${tenTinh}, ngày ${day} tháng ${month} năm ${year}`;
+            }
+
+            // Update signatures
+            if (data.NguoiThamDinh) {
+                document.getElementById('can-bo-tham-dinh').textContent = data.HoTenNguoiThamDinh;
+            }
+
+            if (data.LanhDaoPhong) {
+                document.getElementById('lanh-dao-phong').textContent = data.HoTenLanhDaoPhong;
+            }
+
+            if (data.LanhDaoSo) {
+                document.getElementById('lanh-dao-so').textContent = data.HoTenLanhDaoSo;
+            }
+        }
+
+        // Hide loading message
+        function hideLoadingMessage() {
+            document.getElementById('loading-message').classList.add('hidden');
+        }
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', fetchData);
+
+        document.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+        }, false);
+
+        document.onkeydown = function (e) {
+            if (e.keyCode == 123) {
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) {
+                return false;
+            }
+        };
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông Báo Phù Hiệu Sắp Hết Hạn</title>
+    <!-- Thêm các thư viện cần thiết -->
+    <script src="https://unpkg.com/html-docx-js/dist/html-docx.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.37.11/docxtemplater.js"></script>
+    <script src="https://unpkg.com/pizzip@3.1.4/dist/pizzip.js"></script>
+    <style>
+        @page {
+            size: A4;
+            margin: 1.5cm 1.5cm 1.5cm 2.5cm;
+        }
+
+        @page landscape {
+            size: A4 landscape;
+            margin: 1cm 1.5cm 1cm 2cm;
+        }
+
+        body {
+            font-family: 'Times New Roman', serif;
+            font-size: 14pt;
+            line-height: 1.3;
+            margin: 0;
+            padding: 0;
+        }
+
+        .page {
+            box-sizing: border-box;
+            padding: 0;
+            position: relative;
+            width: 21cm;
+            height: 29.7cm;
+            margin: 0 auto;
+            background-color: white;
+        }
+
+        .landscape-page {
+            width: 31.7cm;
+            height: 21cm;
+            page: landscape;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0;
+            align-items: flex-start;
+        }
+
+        .header-left {
+            text-align: center;
+            width: 40%;
+        }
+
+        .header-right {
+            text-align: center;
+            width: 60%;
+            font-weight: bold;
+        }
+
+        .document-number {
+            margin-top: 10px;
+        }
+
+        .title {
+            text-align: center;
+            font-weight: bold;
+            margin: 20px 0;
+            position: relative;
+            font-weight: bold;
+        }
+
+        .title::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: -5px;
+            transform: translateX(-50%);
+            width: 30%;
+            height: 1.5px;
+            background-color: black;
+        }
+
+        .underline-title,
+        .underline-title-full {
+            display: inline-block;
+            position: relative;
+            font-weight: bold;
+        }
+
+        .underline-title::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: -5px;
+            transform: translateX(-50%);
+            width: 50%;
+            height: 1.5px;
+            background-color: black;
+        }
+
+        .underline-title-full::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: -5px;
+            transform: translateX(-50%);
+            width: 100%;
+            height: 1.5px;
+            background-color: black;
+        }
+
+        .italic-text {
+            font-style: italic;
+            text-align: justify;
+            margin: 10px 0;
+        }
+
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .footer-left {
+            width: 60%;
+        }
+
+        .footer-right {
+            width: 40%;
+            text-align: center;
+        }
+
+        .signature-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .signature-name {
+            font-weight: bold;
+            margin-top: 100px;
+        }
+
+        .recipient-list {
+            list-style-type: none;
+            padding-left: 0;
+            margin-top: 5px;
+        }
+
+        .recipient-item {
+            margin: 1px 0;
+        }
+
+        .print-button {
+            position: fixed;
+            top: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            z-index: 1000;
+        }
+
+        .print-button:hover {
+            background-color: #45a049;
+        }
+
+        @media print {
+            .print-button {
+                display: none;
+            }
+
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            .page {
+                margin: 0;
+                padding: 0;
+                border: none;
+            }
+
+            .page-break {
+                page-break-after: always;
+            }
+        }
+
+        .text-block {
+            text-align: justify;
+            text-indent: 30px;
+        }
+
+        .table-container {
+            width: 100%;
+            margin: 20px auto;
+        }
+
+        .table-title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 16pt;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid black;
+        }
+
+        th,
+        td {
+            border: 1px solid black;
+            padding: 5px;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 12pt;
+        }
+
+        th {
+            font-weight: bold;
+            background-color: #f2f2f2;
+        }
+
+        .text-left {
+            text-align: left;
+        }
+
+        #loading-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            z-index: 2000;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Print Button -->
+    <button class="print-button" onclick="window.print()" style="right: 150px;">In Tài Liệu</button>
+    <button class="print-button" onclick="exportToWordTemplate()" style="right: 20px;">Xuất Word</button>
+
+    <!-- Loading Message -->
+    <div id="loading-message">Đang tải dữ liệu...</div>
+
+    <!-- First page in portrait orientation -->
+    <div class="page">
+        <div class="document-container">
+            <div class="header">
+                <div class="header-left">
+                    <div style="margin-bottom: 5px;">UBND TỈNH <span id="tinh-header">BẮC GIANG</span></div>
+                    <div class="underline-title"><strong>SỞ XÂY DỰNG</strong></div>
+                    <div class="document-number">Số: <span>______</span>/TB-SXD</div>
+                </div>
+                <div class="header-right">
+                    <div style="margin-bottom: 5px;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+                    <div class="underline-title-full"><span class="underline-text">Độc lập – Tự do – Hạnh phúc</span>
+                    </div>
+                    <div style="font-style: italic; font-weight: normal; margin-top: 10px; text-align: center;"
+                        id="ngay-thang"><span id="tinh-footer">Bắc Giang</span>, ngày &nbsp;&nbsp;&nbsp; tháng &nbsp;&nbsp;&nbsp; <span>năm 2025</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="title">
+                THÔNG BÁO<br>
+                <span id="title-thang">Danh sách các phương tiện sẽ hết hạn phù hiệu trong tháng</span>
+            </div>
+
+            <div class="text-block">
+                Căn cứ điểm d khoản 9 Điều 23 Nghị định số 158/2024/NĐ-CP ngày 18/12/2024 của Chính phủ Quy định về hoạt
+                động vận tải đường bộ.
+            </div>
+
+            <div class="text-block">
+                Sở Xây dựng tỉnh <span id="tinh-content">Bắc Giang</span> thông báo danh sách các phương tiện sẽ hết hạn phù hiệu vào <span
+                    id="thang-thong-bao">tháng</span> <i>(chi
+                    tiết theo phụ lục đính kèm).</i>
+            </div>
+
+            <div class="text-block">
+                Định kỳ 05 ngày làm việc cuối hằng tháng, Sở Xây dựng tỉnh <span id="tinh-content-2">Bắc Giang</span> thông báo bằng văn bản danh sách
+                các xe sẽ hết hạn phù hiệu của tháng tiếp theo và đăng tải thông tin trên Website có địa chỉ
+                https://sgtvt.bacgiang.gov.vn/) và trên Trang Zalo Official Account "Sở Xây dựng tỉnh <span id="tinh-content-3">Bắc Giang</span>" (tại
+                mục: <strong>Tin tức- Phù hiệu đến hạn</strong>).
+            </div>
+
+            <div class="text-block">
+                Sở Xây dựng tỉnh <span id="tinh-content-4">Bắc Giang</span> thông báo nội dung trên đến các tổ chức, cá nhân để phối hợp quản lý, kiểm
+                tra, giám sát./.
+            </div>
+
+            <div class="footer">
+                <div class="footer-left">
+                    <div><strong>Nơi nhận:</strong></div>
+                    <div class="recipient-item">- Sở Xây dựng các tỉnh TP;</div>
+                    <div class="recipient-item">- Công an tỉnh;</div>
+                    <div class="recipient-item">- UBND các huyện, TX, TP và &nbsp; (p/h)</div>
+                    <div class="recipient-item"> các xã, phường, thị trấn nơi </div>
+                    <div class="recipient-item"> đơn vị vận tải đặt trụ sở; </div>
+                    <div class="recipient-item">- Giám đốc Sở (b/c);</div>
+                    <div class="recipient-item">- Các đơn vị vận tải;</div>
+                    <div class="recipient-item">- Thanh tra Sở;</div>
+                    <div class="recipient-item">- Lưu: VT, VTATGT.</div>
+                </div>
+                <div class="footer-right">
+                    <div class="signature-title">KT. GIÁM ĐỐC</div>
+                    <div class="signature-title">PHÓ GIÁM ĐỐC</div>
+                    <div style="margin-top: 195px;"></div>
+                    <div class="signature-name" id="signature-name">Hoàng Văn Hải</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page break between pages -->
+    <div class="page-break"></div>
+
+    <!-- Second page in landscape orientation -->
+    <div class="page landscape-page">
+        <div class="landscape-container">
+            <div class="table-container">
+                <div class="table-title">
+                    <span id="table-title-thang">DANH SÁCH CÁC PHƯƠNG TIỆN SẼ HẾT HẠN PHÙ HIỆU VẬN TẢI TRONG
+                        THÁNG</span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 5%;">STT</th>
+                            <th style="width: 10%;">Biển số</th>
+                            <th style="width: 10%;">Số Phù hiệu</th>
+                            <th style="width: 10%;">Loại PH</th>
+                            <th style="width: 10%;">Ngày cấp</th>
+                            <th style="width: 10%;">Hạn Phù hiệu</th>
+                            <th style="width: 22%;">Tên đơn vị</th>
+                            <th style="width: 23%;">Địa chỉ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        <!-- Table rows will be dynamically populated from PH_SAP_HET_HAN -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Constants for AppSheet connection
+        const appId = 'd22767b5-f711-42f8-bbbd-4cf04b26ef3d';
+        const accessKey = 'V2-Qcjpo-7Ybu9-g87XI-TFLes-kJGWn-btYR5-cLMmk-FjrRj';
+        const region = 'www';
+
+        // Biến toàn cục để lưu dữ liệu
+        let globalTinhData = null;
+        let globalPhSapHetHanData = null;
+
+        // Function to get next month and year
+        function getNextMonth() {
+            const today = new Date();
+            const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+            const month = nextMonth.getMonth() + 1; // getMonth() returns 0-11
+            const year = nextMonth.getFullYear();
+            return { month, year };
+        }
+
+        // Generic function to make API calls
+        async function callAPI(tableName, selector) {
+            const response = await fetch(`https://${region}.appsheet.com/api/v2/apps/${appId}/tables/${tableName}/Action`, {
+                method: 'POST',
+                headers: {
+                    'ApplicationAccessKey': accessKey,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    Action: 'Find',
+                    Properties: {
+                        Selector: selector
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status} for table: ${tableName}`);
+            }
+
+            return await response.json();
+        }
+
+        // Main function to fetch data
+        async function fetchData() {
+            try {
+                // Get next month
+                const { month, year } = getNextMonth();
+
+                // Prepare API calls
+                const currentDate = new Date().toISOString();
+
+                const apiCalls = [
+                    // 1. Fetch PH_SAP_HET_HAN data
+                    callAPI('PH_SAP_HET_HAN', 'Select(PH_SAP_HET_HAN[ID_PhuHieu], true)'),
+                    
+                    // 2. Get ThongTin data (for tinh)
+                    callAPI('ThongTin', `Filter(ThongTin, [Ngay_hieu_luc] <= "${currentDate}")`)
+                ];
+
+                // Execute API calls
+                console.log("Bắt đầu gọi API...");
+                const [phSapHetHanData, tinhResult] = await Promise.all(apiCalls);
+
+                console.log("PH_SAP_HET_HAN data:", phSapHetHanData);
+                console.log("Tinh data:", tinhResult);
+
+                // Store data globally
+                globalPhSapHetHanData = phSapHetHanData;
+                globalTinhData = tinhResult;
+
+                if (!phSapHetHanData || phSapHetHanData.length === 0) {
+                    hideLoadingMessage();
+                    alert('Không tìm thấy dữ liệu phù hiệu sắp hết hạn.');
+                    return;
+                }
+
+                // Update page 1 content with next month and tinh data
+                updatePage1Content(month, year, tinhResult);
+
+                // Populate page 2 with data
+                populateTableData(phSapHetHanData);
+
+                // Hide loading message
+                hideLoadingMessage();
+
+            } catch (error) {
+                console.error('Lỗi:', error);
+                hideLoadingMessage();
+                alert('Đã xảy ra lỗi khi lấy dữ liệu: ' + error.message);
+            }
+        }
+
+        // Format dates as dd/mm/yyyy with proper administrative formatting
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            const day = date.getDate().toString().padStart(2, '0'); // Always pad day with zero
+            const month = date.getMonth() + 1;
+            // Only pad months 1 and 2 with zero
+            const formattedMonth = month <= 2 ?
+                month.toString().padStart(2, '0') :
+                month.toString();
+            return `${day}/${formattedMonth}/${date.getFullYear()}`;
+        }
+
+        // Update page 1 content with proper administrative date formatting and tinh data
+        function updatePage1Content(month, year, tinhData) {
+            // Xử lý tên tỉnh
+            let tenTinh = 'Bắc Giang'; // Default value
+            if (tinhData && tinhData.length > 0) {
+                const sortedTinhData = tinhData.sort((a, b) =>
+                    new Date(b.Ngay_hieu_luc) - new Date(a.Ngay_hieu_luc)
+                );
+                tenTinh = sortedTinhData[0].Tinh || 'Bắc Giang';
+            }
+
+            // Update all tinh references
+            document.getElementById('tinh-header').textContent = tenTinh.toUpperCase();
+            document.getElementById('tinh-footer').textContent = tenTinh;
+            document.getElementById('tinh-content').textContent = tenTinh;
+            document.getElementById('tinh-content-2').textContent = tenTinh;
+            document.getElementById('tinh-content-3').textContent = tenTinh;
+            document.getElementById('tinh-content-4').textContent = tenTinh;
+
+            const today = new Date();
+            const day = today.getDate().toString().padStart(2, '0');
+            const currentMonth = today.getMonth() + 1;
+            // Only pad current month if it's 1 or 2
+            const formattedCurrentMonth = currentMonth <= 2 ?
+                currentMonth.toString().padStart(2, '0') :
+                currentMonth.toString();
+
+            // Only pad next month if it's 1 or 2
+            const formattedNextMonth = month <= 2 ?
+                month.toString().padStart(2, '0') :
+                month.toString();
+
+            // Update date
+            document.getElementById('ngay-thang').innerHTML =
+                `<span id="tinh-footer">${tenTinh}</span>, ngày ${day} tháng ${formattedCurrentMonth} năm ${year}`;
+
+            // Update title with next month
+            document.getElementById('title-thang').textContent =
+                `Danh sách các phương tiện sẽ hết hạn phù hiệu trong tháng ${formattedNextMonth}/${year}`;
+
+            document.getElementById('thang-thong-bao').textContent =
+                `tháng ${formattedNextMonth}/${year}`;
+
+            document.getElementById('table-title-thang').textContent =
+                `DANH SÁCH CÁC PHƯƠNG TIỆN SẼ HẾT HẠN PHÙ HIỆU VẬN TẢI TRONG THÁNG ${formattedNextMonth}/${year}`;
+        }
+
+        // Populate table data for page 2
+        function populateTableData(data) {
+            const tableBody = document.getElementById('table-body');
+            tableBody.innerHTML = '';
+
+            data.forEach((item, index) => {
+                const row = document.createElement('tr');
+
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${item.BienSo || ''}</td>
+                    <td>${item.SoPhuHieu || ''}</td>
+                    <td>${item.LoaiPH || ''}</td>
+                    <td>${formatDate(item.NgayCap)}</td>
+                    <td>${formatDate(item.NgayHetHan)}</td>
+                    <td class="text-left">${item.Ten_don_vi || ''}</td>
+                    <td class="text-left">${item['Địa chỉ'] || ''}</td>
+                `;
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Hide loading message
+        function hideLoadingMessage() {
+            document.getElementById('loading-message').classList.add('hidden');
+        }
+
+        // Function to export to Word using template
+        async function exportToWordTemplate() {
+            try {
+                document.getElementById('loading-message').classList.remove('hidden');
+
+                // Check if we have data
+                if (!globalPhSapHetHanData || !globalTinhData) {
+                    alert('Dữ liệu chưa được tải. Vui lòng đợi dữ liệu tải xong.');
+                    document.getElementById('loading-message').classList.add('hidden');
+                    return;
+                }
+
+                // Get next month info
+                const { month, year } = getNextMonth();
+                const today = new Date();
+
+                // Xử lý tên tỉnh cho Word export
+                let tenTinh = 'Bắc Giang';
+                if (globalTinhData && globalTinhData.length > 0) {
+                    const sortedTinhData = globalTinhData.sort((a, b) =>
+                        new Date(b.Ngay_hieu_luc) - new Date(a.Ngay_hieu_luc)
+                    );
+                    tenTinh = sortedTinhData[0].Tinh || 'Bắc Giang';
+                }
+
+                // Prepare data for Word template
+                const donViList = globalPhSapHetHanData.map((item, index) => {
+                    return {
+                        stt: (index + 1).toString(),
+                        bien_so: item.BienSo || '',
+                        so_phu_hieu: item.SoPhuHieu || '',
+                        loai_phu_hieu: item.LoaiPH || '',
+                        ngay_cap: formatDate(item.NgayCap),
+                        ngay_het_han: formatDate(item.NgayHetHan),
+                        ten_don_vi: item.Ten_don_vi || '',
+                        dia_chi: item['Địa chỉ'] || ''
+                    };
+                });
+
+                const response = await fetch('https://hoangmv.github.io/templates/thong_bao_phu_hieu_sap_het_han_template.docx');
+                if (!response.ok) {
+                    throw new Error('Không thể tải template Word');
+                }
+                const templateContent = await response.arrayBuffer();
+
+                const zip = new PizZip(templateContent);
+                const doc = new window.docxtemplater(zip, {
+                    paragraphLoop: true,
+                    linebreaks: true
+                });
+
+                // Xử lý ngày tháng theo quy tắc hành chính
+                const ngayKy = today.getDate().toString().padStart(2, '0');  // Luôn thêm số 0 cho ngày 1-9
+                const thangKy = today.getMonth() + 1;
+                const formattedThangKy = thangKy <= 2 ?
+                    thangKy.toString().padStart(2, '0') :
+                    thangKy.toString();
+
+                // Xử lý tháng hết hạn theo quy tắc
+                const thang_het_han = month <= 2 ?
+                    month.toString().padStart(2, '0') :
+                    month.toString();
+
+                // Set data for template với định dạng ngày tháng mới và tên tỉnh
+                const data = {
+                    tinh: tenTinh,
+                    tinh_upper: tenTinh.toUpperCase(),
+                    ngayKy: ngayKy,
+                    thangKy: formattedThangKy, // Chỉ pad zero cho tháng 1 và 2
+                    nam: today.getFullYear(),
+                    thang_het_han: thang_het_han, // Chỉ pad zero cho tháng 1 và 2
+                    nam_het_han: year,
+                    don_vi_list: donViList
+                };
+
+                // Render template
+                doc.setData(data);
+                doc.render();
+
+                // Generate and download file
+                const blob = doc.getZip().generate({
+                    type: "blob",
+                    mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                });
+
+                const fileName = `Thong_bao_phu_hieu_sap_het_han_${thang_het_han}_${year}.docx`;
+                saveAs(blob, fileName);
+
+            } catch (error) {
+                console.error('Lỗi khi xuất file Word:', error);
+                if (error.properties && error.properties.errors) {
+                    console.log('Template Error details:', error.properties.errors);
+                }
+                alert('Có lỗi khi xuất file Word: ' + error.message);
+            } finally {
+                document.getElementById('loading-message').classList.add('hidden');
+            }
+        }
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', fetchData);
+
+        document.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+        }, false);
+
+        document.onkeydown = function (e) {
+            if (e.keyCode == 123) {
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) {
+                return false;
+            }
+        };
+    </script>
+</body>
+
+</html>
