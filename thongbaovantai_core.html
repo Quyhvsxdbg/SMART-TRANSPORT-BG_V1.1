@@ -1031,7 +1031,7 @@
                     // Main data fetches
                     fetchTableDataWithFilter('PHUHIEUXE', 'ID_PhuHieu', 'NgayCap', month, year),
                     fetchTableDataWithFilter('GIAYPHEPKINHDOANHNOIDIA', 'ID_GPKD', 'NgayCap', month, year),
-                    fetchTableDataWithFilter('PHUHIEU_THUHOI_CHITIET', 'ID_Row', 'Ngày hết hạn phù hiệu', month, year),
+                    fetchTableDataWithFilter('PHUHIEU_THUHOI_CHITIET', 'ID_Row', 'Văn bản ngừng', month, year),
                     fetchTableDataWithFilter('GPKD_THUHOI_CHITIET', 'ID_Row', 'Ngày thu hồi', month, year),
 
                     // Company lookup and ThongTin data
@@ -1188,7 +1188,7 @@
                 const apiCalls = [
                     fetchTableDataWithFilter('PHUHIEUXE', 'ID_PhuHieu', 'NgayCap', month, year),
                     fetchTableDataWithFilter('GIAYPHEPKINHDOANHNOIDIA', 'ID_GPKD', 'NgayCap', month, year),
-                    fetchTableDataWithFilter('PHUHIEU_THUHOI_CHITIET', 'ID_Row', 'Ngày hết hạn phù hiệu', month, year),
+                    fetchTableDataWithFilter('PHUHIEU_THUHOI_CHITIET', 'ID_Row', 'Văn bản ngừng', month, year),
                     fetchTableDataWithFilter('GPKD_THUHOI_CHITIET', 'ID_Row', 'Ngày thu hồi', month, year),
                     fetchAllCompanyData(),
                     // Use global tinhData if available, otherwise fetch fresh
