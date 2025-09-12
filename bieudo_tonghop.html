@@ -151,11 +151,24 @@
             animation: slideInRight 0.3s ease-out;
         }
 
+        .tab-button {
+            transition: background-color 0.3s ease;
+        }
+
+        .tab-button:hover {
+            background-color: #3b82f6 !important;
+        }
+
+        .tab-button.active {
+            background-color: #1d4ed8 !important;
+        }
+
         @keyframes slideInRight {
             from {
                 transform: translateX(100%);
                 opacity: 0;
             }
+
             to {
                 transform: translateX(0);
                 opacity: 1;
@@ -198,8 +211,15 @@
         <!-- Navigation header với tabs -->
         <div class="bg-blue-600 text-white">
             <div class="flex">
-                <div class="bg-blue-500 px-6 py-3 font-semibold border-r border-blue-400 flex items-center gap-2">
+                <div id="tabTuyen"
+                    class="tab-button bg-blue-500 px-6 py-3 font-semibold border-r border-blue-400 flex items-center gap-2 cursor-pointer"
+                    onclick="switchTab('tuyen')">
                     📋 TUYẾN CÔNG BỐ
+                </div>
+                <div id="tabXe"
+                    class="tab-button bg-blue-600 px-6 py-3 font-semibold border-r border-blue-400 flex items-center gap-2 cursor-pointer hover:bg-blue-500"
+                    onclick="switchTab('xe')">
+                    🚗 TRA CỨU XE THEO TUYẾN
                 </div>
             </div>
         </div>
@@ -224,26 +244,106 @@
                         class="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2">
                         📊 Xuất Excel
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
+                            </path>
                         </svg>
                     </button>
-                    <div id="exportMenu" class="hidden absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                    <div id="exportMenu"
+                        class="hidden absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
                         <div class="py-2">
-                            <button onclick="exportToExcel('all')" 
-                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
+                            <button onclick="exportToExcel('all')"
+                                class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
                                 📋 Danh sách tổng thể
                             </button>
-                            <button onclick="exportToExcel('active')" 
-                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
+                            <button onclick="exportToExcel('active')"
+                                class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
                                 ✅ Tuyến đang khai thác
                             </button>
-                            <button onclick="exportToExcel('inactive')" 
-                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
+                            <button onclick="exportToExcel('inactive')"
+                                class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
                                 ❌ Tuyến chưa khai thác
                             </button>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Vehicle search content -->
+        <div id="vehicleSearchContent" style="display: none;">
+            <!-- Search bar for vehicles -->
+            <div class="bg-gray-100 p-2 border-b px-8">
+                <div class="flex items-center gap-4 flex-wrap">
+                    <div class="flex-1 min-w-[200px]">
+                        <input type="text" id="vehicleSearchInput" placeholder="Tìm kiếm xe theo biển số, tuyến..."
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <button onclick="performVehicleSearch()"
+                        class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                        🔍 Tìm kiếm xe
+                    </button>
+                    <div class="relative">
+                        <button onclick="toggleVehicleExportMenu()"
+                            class="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2">
+                            📊 Xuất danh sách xe
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div id="vehicleExportMenu"
+                            class="hidden absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                            <div class="py-2">
+                                <button onclick="exportVehiclesToExcel('all')"
+                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
+                                    📋 Tất cả xe đang hoạt động
+                                </button>
+                                <button onclick="exportVehiclesToExcel('by-route')"
+                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
+                                    🚌 Xe theo tuyến cụ thể
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results count for vehicles -->
+            <div class="bg-gray-50 px-6 py-2 border-b px-8">
+                <span class="text-sm text-gray-600">
+                    Hiển thị <span id="vehicleCount" class="font-semibold text-blue-600">0</span> xe
+                </span>
+            </div>
+
+            <!-- Vehicle table -->
+            <div class="overflow-x-auto px-8">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-gray-200 text-gray-700">
+                            <th class="px-2 py-2 text-center font-semibold border-r border-gray-300 min-w-[50px]">STT
+                            </th>
+                            <th class="px-2 py-2 text-center font-semibold border-r border-gray-300 min-w-[120px]">Biển
+                                số xe</th>
+                            <th class="px-2 py-2 text-center font-semibold border-r border-gray-300 min-w-[100px]">Mã
+                                tuyến</th>
+                            <th class="px-2 py-2 text-center font-semibold border-r border-gray-300 min-w-[200px]">Tên
+                                tuyến</th>
+                            <th class="px-2 py-2 text-center font-semibold border-r border-gray-300 min-w-[150px]">Đơn
+                                vị khai thác</th>
+                            <th class="px-2 py-2 text-center font-semibold border-r border-gray-300 min-w-[100px]">Số
+                                thông báo</th>
+                            <th class="px-2 py-2 text-center font-semibold border-r border-gray-300 min-w-[100px]">Loại
+                                phương tiện</th>
+                            <th class="px-2 py-2 text-center font-semibold border-r border-gray-300 min-w-[80px]">Hiệu
+                                lực
+                            </th>
+                            <th class="px-2 py-2 text-center font-semibold min-w-[80px]">Chi tiết</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vehicleTableBody">
+                        <!-- Dữ liệu xe sẽ được điền vào đây -->
+                    </tbody>
+                </table>
             </div>
         </div>
 
@@ -257,7 +357,7 @@
                         🗑️ Xóa tất cả
                     </button>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-8 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-9 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Tỉnh đi</label>
                         <select id="filterTinhDi"
@@ -314,6 +414,16 @@
                             <option value="Chưa khai thác">Chưa khai thác</option>
                         </select>
                     </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Đơn vị khai thác</label>
+                        <select id="filterLoaiDonVi"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Tất cả</option>
+                            <option value="Trong tỉnh">Trong tỉnh</option>
+                            <option value="Ngoài tỉnh">Ngoài tỉnh</option>
+                        </select>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -369,6 +479,29 @@
                     <!-- Dữ liệu tuyến sẽ được điền vào đây -->
                 </tbody>
             </table>
+        </div>
+
+        <!-- Status legend -->
+        <div class="bg-blue-50 px-8 py-3 border-t">
+            <div class="text-sm font-medium text-gray-700 mb-2">Chú thích trạng thái:</div>
+            <div class="flex flex-wrap gap-4 text-xs">
+                <div class="flex items-center gap-1">
+                    <span>🟢</span>
+                    <span>Đầy đủ (có tuyến và thông báo)</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <span>🟡</span>
+                    <span>Có thông báo, chưa có tuyến</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <span>🔴</span>
+                    <span>Thông báo không hợp lệ</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <span>⚪</span>
+                    <span>Chưa có thông báo</span>
+                </div>
+            </div>
         </div>
 
         <!-- Footer thông tin -->
@@ -527,6 +660,8 @@
         let allThongBaoData = [];
         let allChiTietData = [];
         let filteredTuyenData = [];
+        let allVehicleData = [];
+        let filteredVehicleData = [];
 
         // Progress tracking
         function updateProgress(percentage, text) {
@@ -583,6 +718,193 @@
             };
         }
 
+        // Function to switch between tabs
+        // Function to switch between tabs
+        function switchTab(tabName) {
+            const tabTuyen = document.getElementById('tabTuyen');
+            const tabXe = document.getElementById('tabXe');
+
+            // Find search containers more reliably
+            const routeSearchContent = document.querySelector('.bg-gray-100.p-2.border-b.px-8:not(#vehicleSearchContent *)');
+            const vehicleSearchContent = document.getElementById('vehicleSearchContent');
+
+            // Find table containers
+            const routeTableContainer = document.querySelector('.overflow-x-auto.px-8:has(#routeTableBody)');
+            const routeCountContainer = document.querySelector('.bg-gray-50.px-6.py-2.border-b.px-8:has(#routeCount)');
+
+            if (tabName === 'tuyen') {
+                // Switch to route tab
+                tabTuyen.classList.remove('bg-blue-600');
+                tabTuyen.classList.add('bg-blue-500');
+                tabXe.classList.remove('bg-blue-500');
+                tabXe.classList.add('bg-blue-600');
+
+                // Show route content, hide vehicle content  
+                if (routeSearchContent) routeSearchContent.style.display = 'block';
+                if (vehicleSearchContent) vehicleSearchContent.style.display = 'none';
+                if (routeTableContainer) routeTableContainer.style.display = 'block';
+                if (routeCountContainer) routeCountContainer.style.display = 'block';
+
+            } else if (tabName === 'xe') {
+                // Switch to vehicle tab
+                tabXe.classList.remove('bg-blue-600');
+                tabXe.classList.add('bg-blue-500');
+                tabTuyen.classList.remove('bg-blue-500');
+                tabTuyen.classList.add('bg-blue-600');
+
+                // Hide route content, show vehicle content
+                if (routeSearchContent) routeSearchContent.style.display = 'none';
+                if (vehicleSearchContent) vehicleSearchContent.style.display = 'block';
+                if (routeTableContainer) routeTableContainer.style.display = 'none';
+                if (routeCountContainer) routeCountContainer.style.display = 'none';
+
+                // Load vehicle data if not loaded yet
+                if (allVehicleData.length === 0) {
+                    console.log('Loading vehicle data for first time...');
+                    loadVehicleData();
+                } else {
+                    console.log('Vehicle data already loaded, displaying...');
+                    displayVehicleList(filteredVehicleData);
+                }
+            }
+        }
+
+        // Function to load vehicle data with correct ID_TB -> SoThongBao logic
+        async function loadVehicleData() {
+            try {
+                console.log('Loading vehicle data from PHUHIEUXE table...');
+
+                // Show loading state
+                const vehicleTableBody = document.getElementById('vehicleTableBody');
+                if (vehicleTableBody) {
+                    vehicleTableBody.innerHTML = `
+                <tr>
+                    <td colspan="9" class="text-center py-8">
+                        <div class="loading mb-2"></div>
+                        <span class="text-gray-600">Đang tải dữ liệu từ bảng PHUHIEUXE...</span>
+                    </td>
+                </tr>
+            `;
+                }
+
+                // Fetch PHUHIEUXE data
+                const vehicleData = await fetchDataFromAppSheet('PHUHIEUXE');
+                console.log('Raw PHUHIEUXE data:', vehicleData.length, 'records');
+
+                if (vehicleData.length > 0) {
+                    console.log('Sample PHUHIEUXE record:', vehicleData[0]);
+                }
+
+                // Process vehicle data with correct ID_TB -> SoThongBao logic
+                allVehicleData = vehicleData.filter(vehicle => {
+                    const hasBienSo = vehicle.BienSo && vehicle.BienSo.trim() !== '';
+                    return hasBienSo; // Include all vehicles with license plates
+                }).map(vehicle => {
+                    let thongBao = null;
+                    let tuyen = null;
+                    let soThongBaoDisplay = 'Chưa có thông báo';
+                    let maTuyen = 'N/A';
+                    let tenTuyen = 'Không xác định';
+                    let donViKhaiThac = 'Không xác định';
+
+                    // If vehicle has Ref_ThongBao, find the notification by ID_TB
+                    if (vehicle.Ref_ThongBao && vehicle.Ref_ThongBao.trim() !== '') {
+
+                        // LOGIC: Ref_ThongBao trỏ đến ID_TB trong THONGBAO_KHAITHAC
+                        thongBao = allThongBaoData.find(tb =>
+                            tb.ID_TB === vehicle.Ref_ThongBao &&
+                            (!tb.TrangThai || tb.TrangThai !== 'Hết hiệu lực')
+                        );
+
+                        if (thongBao) {
+                            // Hiển thị SoThongBao thay vì ID_TB
+                            soThongBaoDisplay = thongBao.SoThongBao || 'Không có số TB';
+
+                            // Lấy tuyến từ Ref_Tuyen
+                            if (thongBao.Ref_Tuyen) {
+                                tuyen = allTuyenData.find(t => t.MaSoTuyen === thongBao.Ref_Tuyen);
+
+                                if (tuyen) {
+                                    maTuyen = tuyen.MaSoTuyen;
+                                    tenTuyen = tuyen.TenTuyen || tuyen.MaSoTuyen;
+                                } else {
+                                    console.log(`Route not found for Ref_Tuyen: ${thongBao.Ref_Tuyen}`);
+                                    maTuyen = thongBao.Ref_Tuyen;
+                                    tenTuyen = `Tuyến ${thongBao.Ref_Tuyen} (chưa có thông tin)`;
+                                }
+                            }
+
+                            // Lấy thông tin đơn vị
+                            donViKhaiThac = thongBao['Đơn vị kinh doanh vận tải'] || 'Không xác định';
+
+                            console.log(`✓ Vehicle ${vehicle.BienSo}: ID_TB=${vehicle.Ref_ThongBao} -> SoTB=${soThongBaoDisplay}, Route=${maTuyen}`);
+                        } else {
+                            console.log(`✗ No notification found for vehicle ${vehicle.BienSo} with ID_TB=${vehicle.Ref_ThongBao}`);
+                            soThongBaoDisplay = `ID_TB: ${vehicle.Ref_ThongBao} (không tìm thấy)`;
+                        }
+                    }
+
+                    return {
+                        // Original PHUHIEUXE data
+                        ...vehicle,
+
+                        // Related data objects
+                        ThongBao: thongBao,
+                        Tuyen: tuyen,
+
+                        // Display fields
+                        BienSo: vehicle.BienSo || '',
+                        MaSoTuyen: maTuyen,
+                        TenTuyen: tenTuyen,
+                        DonViKhaiThac: donViKhaiThac,
+                        SoThongBaoDisplay: soThongBaoDisplay, // Hiển thị SoThongBao
+                        LoaiPH: vehicle.LoaiPH || '',
+                        TrangThai: vehicle.TrangThai || '',
+
+                        // Debug info
+                        RefThongBaoOriginal: vehicle.Ref_ThongBao || '', // ID_TB gốc
+                        HasValidThongBao: thongBao !== null,
+                        HasValidRoute: tuyen !== null
+                    };
+                });
+
+                console.log(`✓ Processed ${allVehicleData.length} vehicles from PHUHIEUXE`);
+
+                // Show detailed breakdown
+                const withValidNotification = allVehicleData.filter(v => v.HasValidThongBao).length;
+                const withValidRoute = allVehicleData.filter(v => v.HasValidRoute).length;
+                const withoutRef = allVehicleData.filter(v => !v.RefThongBaoOriginal).length;
+
+                console.log(`📊 Vehicle Data Breakdown:`);
+                console.log(`  - Total vehicles: ${allVehicleData.length}`);
+                console.log(`  - Without Ref_ThongBao: ${withoutRef}`);
+                console.log(`  - With valid notifications (ID_TB found): ${withValidNotification}`);
+                console.log(`  - With valid routes: ${withValidRoute}`);
+                console.log(`  - Invalid notifications: ${allVehicleData.length - withoutRef - withValidNotification}`);
+
+                filteredVehicleData = allVehicleData;
+                displayVehicleList(filteredVehicleData);
+
+            } catch (error) {
+                console.error('Error loading PHUHIEUXE data:', error);
+
+                const vehicleTableBody = document.getElementById('vehicleTableBody');
+                if (vehicleTableBody) {
+                    vehicleTableBody.innerHTML = `
+                <tr>
+                    <td colspan="9" class="text-center py-8 text-red-600">
+                        <div class="mb-2">❌ Lỗi tải dữ liệu từ bảng PHUHIEUXE</div>
+                        <div class="text-sm">${error.message}</div>
+                        <button onclick="loadVehicleData()" class="mt-2 px-4 py-1 bg-blue-500 text-white rounded text-xs">
+                            Thử lại
+                        </button>
+                    </td>
+                </tr>
+            `;
+                }
+            }
+        }
+
         // Format date function
         function formatDate(dateString) {
             if (!dateString) return '';
@@ -592,50 +914,139 @@
 
         // Calculate active notifications for a route
         function getActiveNotificationsCount(maSoTuyen) {
-            return allThongBaoData.filter(tb =>
+            return allThongBaoData.filter(tb => tb.Ref_Tuyen === maSoTuyen &&
+                (!tb.TrangThai || tb.TrangThai !== 'Hết hiệu lực')
+            ).length;
+        }
+
+        // Calculate actual trips from schedule data
+        function calculateActualTrips(maSoTuyen) {
+            const activeThongBao = allThongBaoData.filter(tb =>
                 tb.Ref_Tuyen === maSoTuyen &&
                 (!tb.TrangThai || tb.TrangThai !== 'Hết hiệu lực')
-           ).length;
-       }
+            );
 
-       // Calculate remaining capacity
-       function getRemainingCapacity(tuyen) {
-           const tongChuyen = parseInt(tuyen.TongChuyenThang) || 0;
-           const chuyenDaKhaiThac = parseInt(tuyen.ChuyenDaKhaiThac) || 0;
-           return Math.max(0, tongChuyen - chuyenDaKhaiThac);
-       }
+            if (activeThongBao.length === 0) {
+                return 0;
+            }
 
-       // Get route status
-       function getRouteStatus(tuyen) {
-           const activeNotifications = getActiveNotificationsCount(tuyen.MaSoTuyen);
-           return activeNotifications > 0 ? 'Đang khai thác' : 'Chưa khai thác';
-       }
+            const thongBaoIds = activeThongBao.map(tb => tb.SoThongBao);
+            const chiTietXeChay = allChiTietData.filter(ct =>
+                ct.SoThongBao && thongBaoIds.includes(ct.SoThongBao) &&
+                ct.GioXuatBen && ct.GioXuatBen.trim() !== ''
+            );
 
-       // Toggle export menu
-       function toggleExportMenu() {
-           const menu = document.getElementById('exportMenu');
-           menu.classList.toggle('hidden');
-       }
+            if (chiTietXeChay.length === 0) {
+                return 0;
+            }
 
-       // Close export menu when clicking outside
-       document.addEventListener('click', function(event) {
-           const menu = document.getElementById('exportMenu');
-           const button = event.target.closest('button[onclick="toggleExportMenu()"]');
-           
-           if (!button && !menu.contains(event.target)) {
-               menu.classList.add('hidden');
-           }
-       });
+            // Đếm trực tiếp số record có GioXuatBen
+            let tongSoChuyen = 0;
 
-       // Export to Excel function
-       async function exportToExcel(type) {
-           try {
-               // Close export menu
-               document.getElementById('exportMenu').classList.add('hidden');
-               
-               // Show loading
-               const loadingDiv = document.createElement('div');
-               loadingDiv.innerHTML = `
+            chiTietXeChay.forEach(ct => {
+                // Parse NgayHoatDong để xem có bao nhiêu ngày
+                const ngayHoatDong = ct.NgayHoatDong ? ct.NgayHoatDong.toString() : '';
+
+                if (ngayHoatDong.includes('-')) {
+                    // Format "1-31"
+                    const parts = ngayHoatDong.split('-');
+                    if (parts.length === 2) {
+                        const start = parseInt(parts[0]);
+                        const end = parseInt(parts[1]);
+                        if (!isNaN(start) && !isNaN(end)) {
+                            tongSoChuyen += (end - start + 1); // Số ngày hoạt động
+                        }
+                    }
+                } else if (ngayHoatDong.includes(',')) {
+                    // Format "1,2,3,4,5..."
+                    const days = ngayHoatDong.split(',').filter(d => d.trim() !== '');
+                    tongSoChuyen += days.length;
+                } else if (ngayHoatDong !== '') {
+                    // Một ngày duy nhất
+                    tongSoChuyen += 1;
+                }
+            });
+
+            // **CHIA 2 VÌ MỖI CHUYẾN CÓ 2 SLOT (ĐI + VỀ)**
+            const soChuyenThucTe = Math.round(tongSoChuyen / 2);
+
+            console.log(`Tuyến ${maSoTuyen}: Chi tiết=${chiTietXeChay.length} records, Tổng slot=${tongSoChuyen}, Số chuyến=${soChuyenThucTe}`);
+
+            return soChuyenThucTe;
+        }
+
+        // Calculate remaining capacity with new logic
+        function getRemainingCapacity(tuyen) {
+            const tongChuyenChoPhep = parseInt(tuyen.TongChuyenThang) || 0;
+            const chuyenThucTe = calculateActualTrips(tuyen.MaSoTuyen);
+            return Math.max(0, tongChuyenChoPhep - chuyenThucTe);
+        }
+
+        // Get route status with new logic
+        function getRouteStatus(tuyen) {
+            const chuyenThucTe = calculateActualTrips(tuyen.MaSoTuyen);
+            return chuyenThucTe > 0 ? 'Đang khai thác' : 'Chưa khai thác';
+        }
+
+        // Function to determine if a company is in-province or out-of-province
+        function getCompanyLocation(thongBaoList) {
+            // Tìm thông báo có hiệu lực gần nhất
+            const activeThongBao = thongBaoList.filter(tb =>
+                !tb.TrangThai || tb.TrangThai !== 'Hết hiệu lực'
+            );
+
+            if (activeThongBao.length === 0) {
+                return 'Không xác định';
+            }
+
+            // Lấy địa chỉ từ thông báo đầu tiên (hoặc gần nhất)
+            const diaChi = activeThongBao[0]['Địa chỉ sau xác nhập DVKDVT'] || '';
+
+            // Kiểm tra xem địa chỉ có chứa "Bắc Ninh" không
+            if (diaChi.toLowerCase().includes('bắc ninh')) {
+                return 'Trong tỉnh';
+            } else if (diaChi.trim() !== '') {
+                return 'Ngoài tỉnh';
+            } else {
+                return 'Không xác định';
+            }
+        }
+
+        // Function to get company location for a specific route
+        function getRouteCompanyLocation(maSoTuyen) {
+            const routeThongBao = allThongBaoData.filter(tb =>
+                tb.Ref_Tuyen === maSoTuyen &&
+                (!tb.TrangThai || tb.TrangThai !== 'Hết hiệu lực')
+            );
+
+            return getCompanyLocation(routeThongBao);
+        }
+
+        // Toggle export menu
+        function toggleExportMenu() {
+            const menu = document.getElementById('exportMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Close export menu when clicking outside
+        document.addEventListener('click', function (event) {
+            const menu = document.getElementById('exportMenu');
+            const button = event.target.closest('button[onclick="toggleExportMenu()"]');
+
+            if (!button && !menu.contains(event.target)) {
+                menu.classList.add('hidden');
+            }
+        });
+
+        // Export to Excel function
+        async function exportToExcel(type) {
+            try {
+                // Close export menu
+                document.getElementById('exportMenu').classList.add('hidden');
+
+                // Show loading
+                const loadingDiv = document.createElement('div');
+                loadingDiv.innerHTML = `
                    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                        <div class="bg-white rounded-lg p-6 flex items-center gap-4">
                            <div class="loading"></div>
@@ -643,226 +1054,242 @@
                        </div>
                    </div>
                `;
-               document.body.appendChild(loadingDiv);
+                document.body.appendChild(loadingDiv);
 
-               // Filter data based on type
-               let dataToExport = [];
-               let fileName = '';
-               let sheetName = '';
+                // Filter data based on type
+                let dataToExport = [];
+                let fileName = '';
+                let sheetName = '';
 
-               switch(type) {
-                   case 'all':
-                       dataToExport = allTuyenData;
-                       fileName = 'Danh_sach_tuyen_tong_the';
-                       sheetName = 'Danh sách tổng thể';
-                       break;
-                   case 'active':
-                       dataToExport = allTuyenData.filter(tuyen => {
-                           const chuyenDaKhaiThac = parseInt(tuyen.ChuyenDaKhaiThac) || 0;
-                           return chuyenDaKhaiThac > 0;
-                       });
-                       fileName = 'Danh_sach_tuyen_dang_khai_thac';
-                       sheetName = 'Tuyến đang khai thác';
-                       break;
-                   case 'inactive':
-                       dataToExport = allTuyenData.filter(tuyen => {
-                           const chuyenDaKhaiThac = parseInt(tuyen.ChuyenDaKhaiThac) || 0;
-                           return chuyenDaKhaiThac === 0;
-                       });
-                       fileName = 'Danh_sach_tuyen_chua_khai_thac';
-                       sheetName = 'Tuyến chưa khai thác';
-                       break;
-               }
+                switch (type) {
+                    case 'all':
+                        dataToExport = allTuyenData;
+                        fileName = 'Danh_sach_tuyen_tong_the';
+                        sheetName = 'Danh sách tổng thể';
+                        break;
+                    case 'active':
+                        dataToExport = allTuyenData.filter(tuyen => {
+                            // Sử dụng function getRouteStatus để đảm bảo logic nhất quán
+                            const status = getRouteStatus(tuyen);
+                            return status === 'Đang khai thác';
+                        });
+                        fileName = 'Danh_sach_tuyen_dang_khai_thac';
+                        sheetName = 'Tuyến đang khai thác';
+                        break;
+                    case 'inactive':
+                        dataToExport = allTuyenData.filter(tuyen => {
+                            // Sử dụng function getRouteStatus để đảm bảo logic nhất quán
+                            const status = getRouteStatus(tuyen);
+                            return status === 'Chưa khai thác';
+                        });
+                        fileName = 'Danh_sach_tuyen_chua_khai_thac';
+                        sheetName = 'Tuyến chưa khai thác';
+                        break;
+                }
 
-               // Create workbook
-               const workbook = new ExcelJS.Workbook();
-               const worksheet = workbook.addWorksheet(sheetName);
+                console.log(`Exporting ${type}: ${dataToExport.length} routes`);
 
-               // Add title
-               worksheet.mergeCells('A1:M1');
-               const titleCell = worksheet.getCell('A1');
-               titleCell.value = 'THÔNG TIN TUYẾN VẬN TẢI - ' + sheetName.toUpperCase();
-               titleCell.font = { bold: true, size: 16, color: { argb: 'FFFFFF' } };
-               titleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '1e3c72' } };
-               titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
-               worksheet.getRow(1).height = 30;
+                // Debug: Log first few routes to check status
+                if (dataToExport.length > 0) {
+                    console.log('Sample routes:', dataToExport.slice(0, 3).map(tuyen => ({
+                        MaSoTuyen: tuyen.MaSoTuyen,
+                        ChuyenDaKhaiThac: tuyen.ChuyenDaKhaiThac,
+                        ChuyenThucTe: calculateActualTrips(tuyen.MaSoTuyen),
+                        Status: getRouteStatus(tuyen),
+                        ActiveNotifications: getActiveNotificationsCount(tuyen.MaSoTuyen)
+                    })));
+                }
 
-               // Add export info
-               worksheet.mergeCells('A2:M2');
-               const infoCell = worksheet.getCell('A2');
-               infoCell.value = `Xuất ngày: ${new Date().toLocaleString('vi-VN')} | Tổng số tuyến: ${dataToExport.length}`;
-               infoCell.font = { italic: true, size: 10 };
-               infoCell.alignment = { horizontal: 'center' };
+                // Create workbook
+                const workbook = new ExcelJS.Workbook();
+                const worksheet = workbook.addWorksheet(sheetName);
 
-               // Add headers
-               const headers = [
-                   'STT',
-                   'Mã tuyến',
-                   'Tỉnh đi',
-                   'Tỉnh đến', 
-                   'BX đi',
-                   'BX đến',
-                   'Hành trình chạy xe',
-                   'Cự ly tuyến (km)',
-                   'Lưu lượng cho phép (chuyến/tháng)',
-                   'Tổng số chuyến đang khai thác',
-                   'Lưu lượng còn lại',
-                   'Thời gian giãn cách tối thiểu (phút/chuyến)',
-                   'Tình trạng'
-               ];
+                // Add title
+                worksheet.mergeCells('A1:M1');
+                const titleCell = worksheet.getCell('A1');
+                titleCell.value = 'THÔNG TIN TUYẾN VẬN TẢI - ' + sheetName.toUpperCase();
+                titleCell.font = { bold: true, size: 16, color: { argb: 'FFFFFF' } };
+                titleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '1e3c72' } };
+                titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+                worksheet.getRow(1).height = 30;
 
-               const headerRow = worksheet.addRow(headers);
-               headerRow.eachCell((cell, colNumber) => {
-                   cell.font = { bold: true, color: { argb: 'FFFFFF' } };
-                   cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '4a90e2' } };
-                   cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
-                   cell.border = {
-                       top: { style: 'thin' },
-                       left: { style: 'thin' },
-                       bottom: { style: 'thin' },
-                       right: { style: 'thin' }
-                   };
-               });
-               worksheet.getRow(3).height = 40;
+                // Add export info
+                worksheet.mergeCells('A2:M2');
+                const infoCell = worksheet.getCell('A2');
+                infoCell.value = `Xuất ngày: ${new Date().toLocaleString('vi-VN')} | Tổng số tuyến: ${dataToExport.length}`;
+                infoCell.font = { italic: true, size: 10 };
+                infoCell.alignment = { horizontal: 'center' };
 
-               // Add data
-               dataToExport.forEach((tuyen, index) => {
-                   const remainingCapacity = getRemainingCapacity(tuyen);
-                   const status = getRouteStatus(tuyen);
-                   
-                   const row = worksheet.addRow([
-                       index + 1,
-                       tuyen.MaSoTuyen || '',
-                       tuyen.TinhDi || '',
-                       tuyen.TinhDen || '',
-                       tuyen.BenDi || '',
-                       tuyen.BenDen || '',
-                       tuyen.HanhTrinh || '',
-                       tuyen.CuLyTuyen_km || '',
-                       tuyen.TongChuyenThang || '',
-                       tuyen.ChuyenDaKhaiThac || '0',
-                       remainingCapacity,
-                       tuyen.GianCachToiThieu_phut || '',
-                       status
-                   ]);
+                // Add headers
+                const headers = [
+                    'STT',
+                    'Mã tuyến',
+                    'Tỉnh đi',
+                    'Tỉnh đến',
+                    'BX đi',
+                    'BX đến',
+                    'Hành trình chạy xe',
+                    'Cự ly tuyến (km)',
+                    'Lưu lượng cho phép (chuyến/tháng)',
+                    'Tổng số chuyến đang khai thác',
+                    'Lưu lượng còn lại',
+                    'Thời gian giãn cách tối thiểu (phút/chuyến)',
+                    'Tình trạng'
+                ];
 
-                   // Style data rows
-                   row.eachCell((cell, colNumber) => {
-                       cell.border = {
-                           top: { style: 'thin' },
-                           left: { style: 'thin' },
-                           bottom: { style: 'thin' },
-                           right: { style: 'thin' }
-                       };
-                       
-                       // Center align certain columns
-                       if ([1, 8, 9, 10, 11, 12, 13].includes(colNumber)) {
-                           cell.alignment = { horizontal: 'center', vertical: 'middle' };
-                       } else {
-                           cell.alignment = { vertical: 'middle', wrapText: true };
-                       }
+                const headerRow = worksheet.addRow(headers);
+                headerRow.eachCell((cell, colNumber) => {
+                    cell.font = { bold: true, color: { argb: 'FFFFFF' } };
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '4a90e2' } };
+                    cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+                    cell.border = {
+                        top: { style: 'thin' },
+                        left: { style: 'thin' },
+                        bottom: { style: 'thin' },
+                        right: { style: 'thin' }
+                    };
+                });
+                worksheet.getRow(3).height = 40;
 
-                       // Color code status
-                       if (colNumber === 13) { // Status column
-                           if (status === 'Đang khai thác') {
-                               cell.font = { color: { argb: '059669' }, bold: true };
-                           } else {
-                               cell.font = { color: { argb: 'dc2626' }, bold: true };
-                           }
-                       }
+                // Add data
+                dataToExport.forEach((tuyen, index) => {
+                    const chuyenThucTe = calculateActualTrips(tuyen.MaSoTuyen); // Sử dụng tính toán mới
+                    const remainingCapacity = getRemainingCapacity(tuyen);
+                    const status = getRouteStatus(tuyen); // Đảm bảo sử dụng cùng logic
 
-                       // Color code remaining capacity
-                       if (colNumber === 11) { // Remaining capacity column
-                           if (remainingCapacity > 0) {
-                               cell.font = { color: { argb: '059669' } };
-                           } else {
-                               cell.font = { color: { argb: 'dc2626' } };
-                           }
-                       }
-                   });
+                    const row = worksheet.addRow([
+                        index + 1,
+                        tuyen.MaSoTuyen || '',
+                        tuyen.TinhDi || '',
+                        tuyen.TinhDen || '',
+                        tuyen.BenDi || '',
+                        tuyen.BenDen || '',
+                        tuyen.HanhTrinh || '',
+                        tuyen.CuLyTuyen_km || '',
+                        tuyen.TongChuyenThang || '',
+                        chuyenThucTe, // Sử dụng số chuyến tính toán
+                        remainingCapacity,
+                        tuyen.GianCachToiThieu_phut || '',
+                        status
+                    ]);
 
-                   // Alternate row colors
-                   if (index % 2 === 0) {
-                       row.eachCell(cell => {
-                           if (!cell.fill || !cell.fill.fgColor) {
-                               cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'f9fafb' } };
-                           }
-                       });
-                   }
-               });
+                    // Style data rows
+                    row.eachCell((cell, colNumber) => {
+                        cell.border = {
+                            top: { style: 'thin' },
+                            left: { style: 'thin' },
+                            bottom: { style: 'thin' },
+                            right: { style: 'thin' }
+                        };
 
-               // Auto-fit columns
-               worksheet.columns = [
-                   { width: 6 },   // STT
-                   { width: 12 },  // Mã tuyến
-                   { width: 15 },  // Tỉnh đi
-                   { width: 15 },  // Tỉnh đến
-                   { width: 20 },  // BX đi
-                   { width: 20 },  // BX đến
-                   { width: 50 },  // Hành trình
-                   { width: 12 },  // Cự ly
-                   { width: 15 },  // Lưu lượng cho phép
-                   { width: 15 },  // Chuyến đang khai thác
-                   { width: 12 },  // Lưu lượng còn lại
-                   { width: 15 },  // Thời gian giãn cách
-                   { width: 15 }   // Tình trạng
-               ];
+                        // Center align certain columns
+                        if ([1, 8, 9, 10, 11, 12, 13].includes(colNumber)) {
+                            cell.alignment = { horizontal: 'center', vertical: 'middle' };
+                        } else {
+                            cell.alignment = { vertical: 'middle', wrapText: true };
+                        }
 
-               // Add footer
-               const footerRowIndex = worksheet.rowCount + 2;
-               worksheet.mergeCells(`A${footerRowIndex}:M${footerRowIndex}`);
-               const footerCell = worksheet.getCell(`A${footerRowIndex}`);
-               footerCell.value = `Báo cáo được tạo tự động từ hệ thống THÔNG TIN TUYẾN VẬN TẢI - ${new Date().toLocaleString('vi-VN')}`;
-               footerCell.font = { italic: true, size: 9, color: { argb: '666666' } };
-               footerCell.alignment = { horizontal: 'center' };
+                        // Color code status
+                        if (colNumber === 13) { // Status column
+                            if (status === 'Đang khai thác') {
+                                cell.font = { color: { argb: '059669' }, bold: true };
+                            } else {
+                                cell.font = { color: { argb: 'dc2626' }, bold: true };
+                            }
+                        }
 
-               // Generate Excel file
-               const buffer = await workbook.xlsx.writeBuffer();
-               
-               // Download file
-               const blob = new Blob([buffer], { 
-                   type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
-               });
-               
-               const url = window.URL.createObjectURL(blob);
-               const link = document.createElement('a');
-               link.href = url;
-               link.download = `${fileName}_${new Date().toISOString().split('T')[0]}.xlsx`;
-               link.click();
-               
-               window.URL.revokeObjectURL(url);
+                        // Color code remaining capacity
+                        if (colNumber === 11) { // Remaining capacity column
+                            if (remainingCapacity > 0) {
+                                cell.font = { color: { argb: '059669' } };
+                            } else {
+                                cell.font = { color: { argb: 'dc2626' } };
+                            }
+                        }
+                    });
 
-               // Remove loading
-               document.body.removeChild(loadingDiv);
+                    // Alternate row colors
+                    if (index % 2 === 0) {
+                        row.eachCell(cell => {
+                            if (!cell.fill || !cell.fill.fgColor) {
+                                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'f9fafb' } };
+                            }
+                        });
+                    }
+                });
 
-               // Show success message
-               const successDiv = document.createElement('div');
-               successDiv.innerHTML = `
+                // Auto-fit columns
+                worksheet.columns = [
+                    { width: 6 },   // STT
+                    { width: 12 },  // Mã tuyến
+                    { width: 15 },  // Tỉnh đi
+                    { width: 15 },  // Tỉnh đến
+                    { width: 20 },  // BX đi
+                    { width: 20 },  // BX đến
+                    { width: 50 },  // Hành trình
+                    { width: 12 },  // Cự ly
+                    { width: 15 },  // Lưu lượng cho phép
+                    { width: 15 },  // Chuyến đang khai thác
+                    { width: 12 },  // Lưu lượng còn lại
+                    { width: 15 },  // Thời gian giãn cách
+                    { width: 15 }   // Tình trạng
+                ];
+
+                // Add footer
+                const footerRowIndex = worksheet.rowCount + 2;
+                worksheet.mergeCells(`A${footerRowIndex}:M${footerRowIndex}`);
+                const footerCell = worksheet.getCell(`A${footerRowIndex}`);
+                footerCell.value = `Báo cáo được tạo tự động từ hệ thống THÔNG TIN TUYẾN VẬN TẢI - ${new Date().toLocaleString('vi-VN')}`;
+                footerCell.font = { italic: true, size: 9, color: { argb: '666666' } };
+                footerCell.alignment = { horizontal: 'center' };
+
+                // Generate Excel file
+                const buffer = await workbook.xlsx.writeBuffer();
+
+                // Download file
+                const blob = new Blob([buffer], {
+                    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                });
+
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `${fileName}_${new Date().toISOString().split('T')[0]}.xlsx`;
+                link.click();
+
+                window.URL.revokeObjectURL(url);
+
+                // Remove loading
+                document.body.removeChild(loadingDiv);
+
+                // Show success message
+                const successDiv = document.createElement('div');
+                successDiv.innerHTML = `
                    <div class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-2">
                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                        </svg>
-                       Xuất Excel thành công!
+                       Xuất Excel thành công! (${dataToExport.length} tuyến)
                    </div>
                `;
-               document.body.appendChild(successDiv);
-               
-               setTimeout(() => {
-                   document.body.removeChild(successDiv);
-               }, 3000);
+                document.body.appendChild(successDiv);
 
-           } catch (error) {
-               console.error('Export error:', error);
-               
-               // Remove loading if exists
-               const loadingDiv = document.querySelector('.fixed.inset-0.bg-black');
-               if (loadingDiv && loadingDiv.parentElement) {
-                   document.body.removeChild(loadingDiv.parentElement);
-               }
+                setTimeout(() => {
+                    document.body.removeChild(successDiv);
+                }, 3000);
 
-               // Show error message
-               const errorDiv = document.createElement('div');
-               errorDiv.innerHTML = `
+            } catch (error) {
+                console.error('Export error:', error);
+
+                // Remove loading if exists
+                const loadingDiv = document.querySelector('.fixed.inset-0.bg-black');
+                if (loadingDiv && loadingDiv.parentElement) {
+                    document.body.removeChild(loadingDiv.parentElement);
+                }
+
+                // Show error message
+                const errorDiv = document.createElement('div');
+                errorDiv.innerHTML = `
                    <div class="fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-2">
                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -870,38 +1297,39 @@
                        Lỗi xuất Excel: ${error.message}
                    </div>
                `;
-               document.body.appendChild(errorDiv);
-               
-               setTimeout(() => {
-                   document.body.removeChild(errorDiv);
-               }, 5000);
-           }
-       }
+                document.body.appendChild(errorDiv);
 
-       // Display route list as table
-       function displayRouteList(tuyenList) {
-           const tableBody = document.getElementById('routeTableBody');
-           const routeCount = document.getElementById('routeCount');
+                setTimeout(() => {
+                    document.body.removeChild(errorDiv);
+                }, 5000);
+            }
+        }
 
-           routeCount.textContent = tuyenList.length;
+        // Display route list as table (updated)
+        function displayRouteList(tuyenList) {
+            const tableBody = document.getElementById('routeTableBody');
+            const routeCount = document.getElementById('routeCount');
 
-           if (!tuyenList || tuyenList.length === 0) {
-               tableBody.innerHTML = `
+            routeCount.textContent = tuyenList.length;
+
+            if (!tuyenList || tuyenList.length === 0) {
+                tableBody.innerHTML = `
                    <tr>
                        <td colspan="13" class="text-center py-8 text-gray-500 italic">
                            Không tìm thấy tuyến nào phù hợp với tiêu chí tìm kiếm
                        </td>
                    </tr>
                `;
-               return;
-           }
+                return;
+            }
 
-           let html = '';
-           tuyenList.forEach((tuyen, index) => {
-               const activeNotifications = getActiveNotificationsCount(tuyen.MaSoTuyen);
-               const remainingCapacity = getRemainingCapacity(tuyen);
+            let html = '';
+            tuyenList.forEach((tuyen, index) => {
+                const chuyenThucTe = calculateActualTrips(tuyen.MaSoTuyen);
+                const remainingCapacity = getRemainingCapacity(tuyen);
+                const status = getRouteStatus(tuyen);
 
-               html += `
+                html += `
                   <tr class="route-row border-b border-gray-200 hover:bg-blue-50" onclick="showRouteDetail('${tuyen.MaSoTuyen}')">
                       <td class="px-2 py-2 text-center border-r border-gray-200">${index + 1}</td>
                       <td class="px-2 py-2 text-center border-r border-gray-200 font-medium text-blue-600">${tuyen.MaSoTuyen || ''}</td>
@@ -912,7 +1340,7 @@
                       <td class="px-2 py-2 border-r border-gray-200 text-justify">${tuyen.HanhTrinh || ''}</td>
                       <td class="px-2 py-2 text-center border-r border-gray-200">${tuyen.CuLyTuyen_km || ''}</td>
                       <td class="px-2 py-2 text-center border-r border-gray-200">${tuyen.TongChuyenThang || ''}</td>
-                      <td class="px-2 py-2 text-center border-r border-gray-200">${tuyen.ChuyenDaKhaiThac || '0'}</td>
+                      <td class="px-2 py-2 text-center border-r border-gray-200 font-semibold ${chuyenThucTe > 0 ? 'text-green-600' : 'text-gray-500'}">${chuyenThucTe}</td>
                      <td class="px-2 py-2 text-center border-r border-gray-200 ${remainingCapacity > 0 ? 'text-green-600' : 'text-red-600'}">${remainingCapacity}</td>
                      <td class="px-2 py-2 text-center border-r border-gray-200">${tuyen.GianCachToiThieu_phut || ''}</td>
                      <td class="px-2 py-2 text-center">
@@ -923,325 +1351,575 @@
                      </td>
                  </tr>
              `;
-           });
+            });
 
-           tableBody.innerHTML = html;
-       }
+            tableBody.innerHTML = html;
+        }
 
-       // Setup filter options
-       function setupFilterOptions() {
-           const tinhDiSet = new Set();
-           const tinhDenSet = new Set();
-           const benDiSet = new Set();
-           const benDenSet = new Set();
-           const phanLoaiSet = new Set();
-           const donViKhaiThacSet = new Set();
+        // Setup filter options
+        function setupFilterOptions() {
+            const tinhDiSet = new Set();
+            const tinhDenSet = new Set();
+            const benDiSet = new Set();
+            const benDenSet = new Set();
+            const phanLoaiSet = new Set();
+            const donViKhaiThacSet = new Set();
 
-           // Get data from tuyen
-           allTuyenData.forEach(tuyen => {
-               if (tuyen.TinhDi) tinhDiSet.add(tuyen.TinhDi);
-               if (tuyen.TinhDen) tinhDenSet.add(tuyen.TinhDen);
-               if (tuyen.BenDi) benDiSet.add(tuyen.BenDi);
-               if (tuyen.BenDen) benDenSet.add(tuyen.BenDen);
-               if (tuyen.PhanLoaiTuyen) phanLoaiSet.add(tuyen.PhanLoaiTuyen);
-           });
+            // Get data from tuyen
+            allTuyenData.forEach(tuyen => {
+                if (tuyen.TinhDi) tinhDiSet.add(tuyen.TinhDi);
+                if (tuyen.TinhDen) tinhDenSet.add(tuyen.TinhDen);
+                if (tuyen.BenDi) benDiSet.add(tuyen.BenDi);
+                if (tuyen.BenDen) benDenSet.add(tuyen.BenDen);
+                if (tuyen.PhanLoaiTuyen) phanLoaiSet.add(tuyen.PhanLoaiTuyen);
+            });
 
-           // Get don vi khai thac from thong bao data
-           allThongBaoData.forEach(tb => {
-               if (tb['Đơn vị kinh doanh vận tải']) {
-                   donViKhaiThacSet.add(tb['Đơn vị kinh doanh vận tải']);
-               }
-           });
+            // Get don vi khai thac from thong bao data
+            allThongBaoData.forEach(tb => {
+                if (tb['Đơn vị kinh doanh vận tải']) {
+                    donViKhaiThacSet.add(tb['Đơn vị kinh doanh vận tải']);
+                }
+            });
 
-           // Populate filter dropdowns
-           const filterTinhDi = document.getElementById('filterTinhDi');
-           const filterTinhDen = document.getElementById('filterTinhDen');
-           const filterBenDi = document.getElementById('filterBenDi');
-           const filterBenDen = document.getElementById('filterBenDen');
-           const filterPhanLoai = document.getElementById('filterPhanLoai');
-           const filterDonViKhaiThac = document.getElementById('filterDonViKhaiThac');
+            // Populate filter dropdowns
+            const filterTinhDi = document.getElementById('filterTinhDi');
+            const filterTinhDen = document.getElementById('filterTinhDen');
+            const filterBenDi = document.getElementById('filterBenDi');
+            const filterBenDen = document.getElementById('filterBenDen');
+            const filterPhanLoai = document.getElementById('filterPhanLoai');
+            const filterDonViKhaiThac = document.getElementById('filterDonViKhaiThac');
 
-           // Clear existing options (except "Tất cả")
-           filterTinhDi.innerHTML = '<option value="">Tất cả</option>';
-           filterTinhDen.innerHTML = '<option value="">Tất cả</option>';
-           filterBenDi.innerHTML = '<option value="">Tất cả</option>';
-           filterBenDen.innerHTML = '<option value="">Tất cả</option>';
-           filterPhanLoai.innerHTML = '<option value="">Tất cả</option>';
-           filterDonViKhaiThac.innerHTML = '<option value="">Tất cả</option>';
+            // Clear existing options (except "Tất cả")
+            filterTinhDi.innerHTML = '<option value="">Tất cả</option>';
+            filterTinhDen.innerHTML = '<option value="">Tất cả</option>';
+            filterBenDi.innerHTML = '<option value="">Tất cả</option>';
+            filterBenDen.innerHTML = '<option value="">Tất cả</option>';
+            filterPhanLoai.innerHTML = '<option value="">Tất cả</option>';
+            filterDonViKhaiThac.innerHTML = '<option value="">Tất cả</option>';
 
-           // Add options
-           Array.from(tinhDiSet).sort().forEach(item => {
-               filterTinhDi.innerHTML += `<option value="${item}">${item}</option>`;
-           });
+            // Add options
+            Array.from(tinhDiSet).sort().forEach(item => {
+                filterTinhDi.innerHTML += `<option value="${item}">${item}</option>`;
+            });
 
-           Array.from(tinhDenSet).sort().forEach(item => {
-               filterTinhDen.innerHTML += `<option value="${item}">${item}</option>`;
-           });
+            Array.from(tinhDenSet).sort().forEach(item => {
+                filterTinhDen.innerHTML += `<option value="${item}">${item}</option>`;
+            });
 
-           Array.from(benDiSet).sort().forEach(item => {
-               filterBenDi.innerHTML += `<option value="${item}">${item}</option>`;
-           });
+            Array.from(benDiSet).sort().forEach(item => {
+                filterBenDi.innerHTML += `<option value="${item}">${item}</option>`;
+            });
 
-           Array.from(benDenSet).sort().forEach(item => {
-               filterBenDen.innerHTML += `<option value="${item}">${item}</option>`;
-           });
+            Array.from(benDenSet).sort().forEach(item => {
+                filterBenDen.innerHTML += `<option value="${item}">${item}</option>`;
+            });
 
-           Array.from(phanLoaiSet).sort().forEach(item => {
-               filterPhanLoai.innerHTML += `<option value="${item}">${item}</option>`;
-           });
+            Array.from(phanLoaiSet).sort().forEach(item => {
+                filterPhanLoai.innerHTML += `<option value="${item}">${item}</option>`;
+            });
 
-           Array.from(donViKhaiThacSet).sort().forEach(item => {
-               filterDonViKhaiThac.innerHTML += `<option value="${item}">${item}</option>`;
-           });
-       }
+            Array.from(donViKhaiThacSet).sort().forEach(item => {
+                filterDonViKhaiThac.innerHTML += `<option value="${item}">${item}</option>`;
+            });
+        }
 
-       // Parse distance filter
-       function parseDistanceFilter(filterValue) {
-           if (!filterValue) return null;
+        // Parse distance filter
+        function parseDistanceFilter(filterValue) {
+            if (!filterValue) return null;
 
-           filterValue = filterValue.trim();
+            filterValue = filterValue.trim();
 
-           // Format: 50-100
-           if (filterValue.includes('-')) {
-               const parts = filterValue.split('-');
-               if (parts.length === 2) {
-                   const min = parseFloat(parts[0].trim());
-                   const max = parseFloat(parts[1].trim());
-                   return { min: isNaN(min) ? null : min, max: isNaN(max) ? null : max };
-               }
-           }
+            // Format: 50-100
+            if (filterValue.includes('-')) {
+                const parts = filterValue.split('-');
+                if (parts.length === 2) {
+                    const min = parseFloat(parts[0].trim());
+                    const max = parseFloat(parts[1].trim());
+                    return { min: isNaN(min) ? null : min, max: isNaN(max) ? null : max };
+                }
+            }
 
-           // Format: >50
-           if (filterValue.startsWith('>')) {
-               const value = parseFloat(filterValue.substring(1).trim());
-               return { min: isNaN(value) ? null : value, max: null };
-           }
+            // Format: >50
+            if (filterValue.startsWith('>')) {
+                const value = parseFloat(filterValue.substring(1).trim());
+                return { min: isNaN(value) ? null : value, max: null };
+            }
 
-           // Format: <100
-           if (filterValue.startsWith('<')) {
-               const value = parseFloat(filterValue.substring(1).trim());
-               return { min: null, max: isNaN(value) ? null : value };
-           }
+            // Format: <100
+            if (filterValue.startsWith('<')) {
+                const value = parseFloat(filterValue.substring(1).trim());
+                return { min: null, max: isNaN(value) ? null : value };
+            }
 
-           // Format: =50 or just 50
-           const cleanValue = filterValue.startsWith('=') ? filterValue.substring(1).trim() : filterValue;
-           const value = parseFloat(cleanValue);
-           if (!isNaN(value)) {
-               return { min: value, max: value };
-           }
+            // Format: =50 or just 50
+            const cleanValue = filterValue.startsWith('=') ? filterValue.substring(1).trim() : filterValue;
+            const value = parseFloat(cleanValue);
+            if (!isNaN(value)) {
+                return { min: value, max: value };
+            }
 
-           return null;
-       }
+            return null;
+        }
 
-       // Check if distance matches filter
-       function matchesDistanceFilter(distance, filter) {
-           if (!filter) return true;
+        // Check if distance matches filter
+        function matchesDistanceFilter(distance, filter) {
+            if (!filter) return true;
 
-           const dist = parseFloat(distance);
-           if (isNaN(dist)) return false;
+            const dist = parseFloat(distance);
+            if (isNaN(dist)) return false;
 
-           if (filter.min !== null && dist < filter.min) return false;
-           if (filter.max !== null && dist > filter.max) return false;
+            if (filter.min !== null && dist < filter.min) return false;
+            if (filter.max !== null && dist > filter.max) return false;
 
-           return true;
-       }
+            return true;
+        }
 
-       // Toggle advanced search panel
-       function toggleAdvancedSearch() {
-           const panel = document.getElementById('advancedSearchPanel');
-           panel.classList.toggle('open');
-       }
+        // Toggle advanced search panel
+        function toggleAdvancedSearch() {
+            const panel = document.getElementById('advancedSearchPanel');
+            panel.classList.toggle('open');
+        }
 
-       // Perform search (both basic and advanced)
-       function performSearch() {
-           const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
-           const tinhDi = document.getElementById('filterTinhDi').value;
-           const tinhDen = document.getElementById('filterTinhDen').value;
-           const benDi = document.getElementById('filterBenDi').value;
-           const benDen = document.getElementById('filterBenDen').value;
-           const phanLoai = document.getElementById('filterPhanLoai').value;
-           const cuLyFilter = document.getElementById('filterCuLy').value;
-           const donViKhaiThac = document.getElementById('filterDonViKhaiThac').value;
-           const tinhTrangTuyen = document.getElementById('filterTinhTrangTuyen').value;
+        // Perform search (both basic and advanced)
+        function performSearch() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            const tinhDi = document.getElementById('filterTinhDi').value;
+            const tinhDen = document.getElementById('filterTinhDen').value;
+            const benDi = document.getElementById('filterBenDi').value;
+            const benDen = document.getElementById('filterBenDen').value;
+            const phanLoai = document.getElementById('filterPhanLoai').value;
+            const cuLyFilter = document.getElementById('filterCuLy').value;
+            const donViKhaiThac = document.getElementById('filterDonViKhaiThac').value;
+            const loaiDonVi = document.getElementById('filterLoaiDonVi').value;
+            const tinhTrangTuyen = document.getElementById('filterTinhTrangTuyen').value;
 
-           // Check if any advanced filter is applied
-           const hasAdvancedFilter = tinhDi || tinhDen || benDi || benDen || phanLoai || cuLyFilter || donViKhaiThac || tinhTrangTuyen;
+            // Check if any advanced filter is applied
+            const hasAdvancedFilter = tinhDi || tinhDen || benDi || benDen || phanLoai || cuLyFilter || donViKhaiThac || tinhTrangTuyen || loaiDonVi;
 
-           const distanceFilter = parseDistanceFilter(cuLyFilter);
+            const distanceFilter = parseDistanceFilter(cuLyFilter);
 
-           filteredTuyenData = allTuyenData.filter(tuyen => {
-               // Basic search filter
-               const matchesSearch = !searchTerm ||
-                   (tuyen.MaSoTuyen && tuyen.MaSoTuyen.toLowerCase().includes(searchTerm)) ||
-                   (tuyen.TenTuyen && tuyen.TenTuyen.toLowerCase().includes(searchTerm)) ||
-                   (tuyen.TinhDi && tuyen.TinhDi.toLowerCase().includes(searchTerm)) ||
-                   (tuyen.TinhDen && tuyen.TinhDen.toLowerCase().includes(searchTerm)) ||
-                   (tuyen.BenDi && tuyen.BenDi.toLowerCase().includes(searchTerm)) ||
-                   (tuyen.BenDen && tuyen.BenDen.toLowerCase().includes(searchTerm)) ||
-                   (tuyen.HanhTrinh && tuyen.HanhTrinh.toLowerCase().includes(searchTerm));
+            filteredTuyenData = allTuyenData.filter(tuyen => {
+                // Basic search filter
+                const matchesSearch = !searchTerm ||
+                    (tuyen.MaSoTuyen && tuyen.MaSoTuyen.toLowerCase().includes(searchTerm)) ||
+                    (tuyen.TenTuyen && tuyen.TenTuyen.toLowerCase().includes(searchTerm)) ||
+                    (tuyen.TinhDi && tuyen.TinhDi.toLowerCase().includes(searchTerm)) ||
+                    (tuyen.TinhDen && tuyen.TinhDen.toLowerCase().includes(searchTerm)) ||
+                    (tuyen.BenDi && tuyen.BenDi.toLowerCase().includes(searchTerm)) ||
+                    (tuyen.BenDen && tuyen.BenDen.toLowerCase().includes(searchTerm)) ||
+                    (tuyen.HanhTrinh && tuyen.HanhTrinh.toLowerCase().includes(searchTerm));
 
-               // Advanced filters
-               const matchesTinhDi = !tinhDi || tuyen.TinhDi === tinhDi;
-               const matchesTinhDen = !tinhDen || tuyen.TinhDen === tinhDen;
-               const matchesBenDi = !benDi || tuyen.BenDi === benDi;
-               const matchesBenDen = !benDen || tuyen.BenDen === benDen;
-               const matchesPhanLoai = !phanLoai || tuyen.PhanLoaiTuyen === phanLoai;
+                // Advanced filters
+                const matchesTinhDi = !tinhDi || tuyen.TinhDi === tinhDi;
+                const matchesTinhDen = !tinhDen || tuyen.TinhDen === tinhDen;
+                const matchesBenDi = !benDi || tuyen.BenDi === benDi;
+                const matchesBenDen = !benDen || tuyen.BenDen === benDen;
+                const matchesPhanLoai = !phanLoai || tuyen.PhanLoaiTuyen === phanLoai;
 
-               // Distance filter
-               const matchesDistance = matchesDistanceFilter(tuyen.CuLyTuyen_km, distanceFilter);
+                // Distance filter
+                const matchesDistance = matchesDistanceFilter(tuyen.CuLyTuyen_km, distanceFilter);
 
-               // Don vi khai thac filter
-               let matchesDonVi = true;
-               if (donViKhaiThac) {
-                   const tuyenThongBao = allThongBaoData.filter(tb =>
-                       tb.Ref_Tuyen === tuyen.MaSoTuyen &&
-                       (!tb.TrangThai || tb.TrangThai !== 'Hết hiệu lực')
-                   );
-                   matchesDonVi = tuyenThongBao.some(tb =>
-                       tb['Đơn vị kinh doanh vận tải'] === donViKhaiThac
-                   );
-               }
+                // Don vi khai thac filter
+                let matchesDonVi = true;
+                if (donViKhaiThac) {
+                    const tuyenThongBao = allThongBaoData.filter(tb =>
+                        tb.Ref_Tuyen === tuyen.MaSoTuyen &&
+                        (!tb.TrangThai || tb.TrangThai !== 'Hết hiệu lực')
+                    );
+                    matchesDonVi = tuyenThongBao.some(tb =>
+                        tb['Đơn vị kinh doanh vận tải'] === donViKhaiThac
+                    );
+                }
 
-               // Tinh trang tuyen filter
-               let matchesTinhTrang = true;
-               if (tinhTrangTuyen) {
-                   const currentStatus = getRouteStatus(tuyen);
-                   matchesTinhTrang = currentStatus === tinhTrangTuyen;
-               }
+                // Tinh trang tuyen filter
+                let matchesTinhTrang = true;
+                if (tinhTrangTuyen) {
+                    const currentStatus = getRouteStatus(tuyen);
+                    matchesTinhTrang = currentStatus === tinhTrangTuyen;
+                }
 
-               return matchesSearch && matchesTinhDi && matchesTinhDen && matchesBenDi &&
-                   matchesBenDen && matchesPhanLoai && matchesDistance &&
-                   matchesDonVi && matchesTinhTrang;
-           });
+                // Loai don vi filter
+                let matchesLoaiDonVi = true;
+                if (loaiDonVi) {
+                    const tuyenThongBao = allThongBaoData.filter(tb => tb.Ref_Tuyen === tuyen.MaSoTuyen);
+                    if (tuyenThongBao.length > 0) {
+                        matchesLoaiDonVi = tuyenThongBao.some(tb => {
+                            const diaChi = tb['Địa chỉ sau xác nhập DVKDVT'] || '';
+                            if (loaiDonVi === 'Trong tỉnh') {
+                                return diaChi.toLowerCase().includes('bắc ninh') ||
+                                    diaChi.toLowerCase().includes('Bắc ninh');
+                            } else if (loaiDonVi === 'Ngoài tỉnh') {
+                                return !diaChi.toLowerCase().includes('bắc ninh') && diaChi.trim() !== '';
+                            }
+                            return false;
+                        });
+                    } else {
+                        matchesLoaiDonVi = false;
+                    }
+                }
 
-           displayRouteList(filteredTuyenData);
+                return matchesSearch && matchesTinhDi && matchesTinhDen && matchesBenDi &&
+                    matchesBenDen && matchesPhanLoai && matchesDistance &&
+                    matchesDonVi && matchesTinhTrang && matchesLoaiDonVi;
+            });
 
-           // Show applied filters if any advanced filter is used
-           if (hasAdvancedFilter) {
-               showAppliedFilters();
-           }
-       }
+            displayRouteList(filteredTuyenData);
 
-       // Clear advanced filter
-       function clearAdvancedFilter() {
-           document.getElementById('searchInput').value = '';
-           document.getElementById('filterTinhDi').value = '';
-           document.getElementById('filterTinhDen').value = '';
-           document.getElementById('filterBenDi').value = '';
-           document.getElementById('filterBenDen').value = '';
-           document.getElementById('filterPhanLoai').value = '';
-           document.getElementById('filterCuLy').value = '';
-           document.getElementById('filterDonViKhaiThac').value = '';
-           document.getElementById('filterTinhTrangTuyen').value = '';
+            // Show applied filters if any advanced filter is used
+            if (hasAdvancedFilter) {
+                showAppliedFilters();
+            }
+        }
 
-           // Reset to all data
-           filteredTuyenData = allTuyenData;
-           displayRouteList(filteredTuyenData);
-       }
+        // Function to perform vehicle search
+        function performVehicleSearch() {
+            const searchTerm = document.getElementById('vehicleSearchInput').value.toLowerCase().trim();
 
-       // Show applied filters (optional visual feedback)
-       function showAppliedFilters() {
-           const filters = [];
-           const tinhDi = document.getElementById('filterTinhDi').value;
-           const tinhDen = document.getElementById('filterTinhDen').value;
-           const benDi = document.getElementById('filterBenDi').value;
-           const benDen = document.getElementById('filterBenDen').value;
-           const phanLoai = document.getElementById('filterPhanLoai').value;
-           const cuLy = document.getElementById('filterCuLy').value;
-           const donViKhaiThac = document.getElementById('filterDonViKhaiThac').value;
-           const tinhTrangTuyen = document.getElementById('filterTinhTrangTuyen').value;
+            filteredVehicleData = allVehicleData.filter(vehicle => {
+                const matchesSearch = !searchTerm ||
+                    (vehicle.BienSo && vehicle.BienSo.toLowerCase().includes(searchTerm)) ||
+                    (vehicle.MaSoTuyen && vehicle.MaSoTuyen.toLowerCase().includes(searchTerm)) ||
+                    (vehicle.TenTuyen && vehicle.TenTuyen.toLowerCase().includes(searchTerm)) ||
+                    (vehicle.DonViKhaiThac && vehicle.DonViKhaiThac.toLowerCase().includes(searchTerm));
 
-           if (tinhDi) filters.push(`Tỉnh đi: ${tinhDi}`);
-           if (tinhDen) filters.push(`Tỉnh đến: ${tinhDen}`);
-           if (benDi) filters.push(`Bến đi: ${benDi}`);
-           if (benDen) filters.push(`Bến đến: ${benDen}`);
-           if (phanLoai) filters.push(`Phân loại: ${phanLoai}`);
-           if (cuLy) filters.push(`Cự ly: ${cuLy} km`);
-           if (donViKhaiThac) filters.push(`Đơn vị: ${donViKhaiThac}`);
-           if (tinhTrangTuyen) filters.push(`Tình trạng: ${tinhTrangTuyen}`);
+                return matchesSearch;
+            });
 
-           if (filters.length > 0) {
-               console.log('Đã áp dụng bộ lọc:', filters.join(', '));
-           }
-       }
+            displayVehicleList(filteredVehicleData);
+        }
 
-       // Setup search functionality
-       function setupSearch() {
-           const searchInput = document.getElementById('searchInput');
+        // Clear advanced filter
+        function clearAdvancedFilter() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('filterTinhDi').value = '';
+            document.getElementById('filterTinhDen').value = '';
+            document.getElementById('filterBenDi').value = '';
+            document.getElementById('filterBenDen').value = '';
+            document.getElementById('filterPhanLoai').value = '';
+            document.getElementById('filterCuLy').value = '';
+            document.getElementById('filterDonViKhaiThac').value = '';
+            document.getElementById('filterTinhTrangTuyen').value = '';
+            document.getElementById('filterLoaiDonVi').value = '';
 
-           // Search on Enter key
-           searchInput.addEventListener('keypress', function (e) {
-               if (e.key === 'Enter') {
-                   performSearch();
-               }
-           });
-       }
+            // Reset to all data
+            filteredTuyenData = allTuyenData;
+            displayRouteList(filteredTuyenData);
+        }
 
-       // Setup auto search when filter values change
-       function setupAutoSearch() {
-           // Auto search when filter values change
-           const filterElements = [
-               'filterTinhDi', 'filterTinhDen', 'filterBenDi', 'filterBenDen',
-               'filterPhanLoai', 'filterDonViKhaiThac', 'filterTinhTrangTuyen'
-           ];
+        // Show applied filters (optional visual feedback)
+        function showAppliedFilters() {
+            const filters = [];
+            const tinhDi = document.getElementById('filterTinhDi').value;
+            const tinhDen = document.getElementById('filterTinhDen').value;
+            const benDi = document.getElementById('filterBenDi').value;
+            const benDen = document.getElementById('filterBenDen').value;
+            const phanLoai = document.getElementById('filterPhanLoai').value;
+            const cuLy = document.getElementById('filterCuLy').value;
+            const donViKhaiThac = document.getElementById('filterDonViKhaiThac').value;
+            const tinhTrangTuyen = document.getElementById('filterTinhTrangTuyen').value;
+            const loaiDonVi = document.getElementById('filterLoaiDonVi').value;
 
-           filterElements.forEach(id => {
-               const element = document.getElementById(id);
-               if (element) {
-                   element.addEventListener('change', performSearch);
-               }
-           });
+            if (tinhDi) filters.push(`Tỉnh đi: ${tinhDi}`);
+            if (tinhDen) filters.push(`Tỉnh đến: ${tinhDen}`);
+            if (benDi) filters.push(`Bến đi: ${benDi}`);
+            if (benDen) filters.push(`Bến đến: ${benDen}`);
+            if (phanLoai) filters.push(`Phân loại: ${phanLoai}`);
+            if (cuLy) filters.push(`Cự ly: ${cuLy} km`);
+            if (donViKhaiThac) filters.push(`Đơn vị: ${donViKhaiThac}`);
+            if (tinhTrangTuyen) filters.push(`Tình trạng: ${tinhTrangTuyen}`);
+            if (loaiDonVi) filters.push(`Loại đơn vị: ${loaiDonVi}`);
 
-           // Distance filter with debounce
-           const cuLyInput = document.getElementById('filterCuLy');
-           if (cuLyInput) {
-               let timeout;
-               cuLyInput.addEventListener('input', function () {
-                   clearTimeout(timeout);
-                   timeout = setTimeout(performSearch, 500); // Debounce 500ms
-               });
-           }
-       }
+            if (filters.length > 0) {
+                console.log('Đã áp dụng bộ lọc:', filters.join(', '));
+            }
+        }
 
-       // Show route detail
-       function showRouteDetail(maSoTuyen) {
-           const selectedTuyen = allTuyenData.find(t => t.MaSoTuyen === maSoTuyen);
-           if (!selectedTuyen) {
-               alert('Không tìm thấy thông tin tuyến');
-               return;
-           }
+        // Setup search functionality
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
 
-           // Filter data for selected route
-           const filteredThongBao = allThongBaoData.filter(tb => tb.Ref_Tuyen === maSoTuyen);
-           const thongBaoIds = filteredThongBao.map(tb => tb.SoThongBao);
-           const filteredChiTiet = allChiTietData.filter(ct =>
-               ct.SoThongBao && thongBaoIds.includes(ct.SoThongBao)
-           );
+            // Search on Enter key
+            searchInput.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+        }
 
-           // Display data
-           displayTuyenInfo(selectedTuyen);
-           displayThongBaoTable(filteredThongBao);
-           generateScheduleTable(filteredThongBao, filteredChiTiet);
+        // Setup auto search when filter values change
+        function setupAutoSearch() {
+            // Auto search when filter values change
+            const filterElements = [
+                'filterTinhDi', 'filterTinhDen', 'filterBenDi', 'filterBenDen',
+                'filterPhanLoai', 'filterDonViKhaiThac', 'filterTinhTrangTuyen', 'filterLoaiDonVi'
+            ];
 
-           // Update current time
-           document.getElementById('current-time').textContent = new Date().toLocaleString('vi-VN');
+            filterElements.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('change', performSearch);
+                }
+            });
 
-           // Switch to detail view
-           document.getElementById('routeListContent').style.display = 'none';
-           document.getElementById('routeDetailContent').style.display = 'block';
-       }
+            // Distance filter with debounce
+            const cuLyInput = document.getElementById('filterCuLy');
+            if (cuLyInput) {
+                let timeout;
+                cuLyInput.addEventListener('input', function () {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(performSearch, 500); // Debounce 500ms
+                });
+            }
+        }
 
-       // Back to list
-       function backToList() {
-           document.getElementById('routeDetailContent').style.display = 'none';
-           document.getElementById('routeListContent').style.display = 'block';
-       }
+        // Show route detail
+        function showRouteDetail(maSoTuyen) {
+            const selectedTuyen = allTuyenData.find(t => t.MaSoTuyen === maSoTuyen);
+            if (!selectedTuyen) {
+                alert('Không tìm thấy thông tin tuyến');
+                return;
+            }
 
-       // Display route information
-       function displayTuyenInfo(tuyenData) {
-           const tuyenInfoDiv = document.getElementById('tuyenInfo');
+            // Filter data for selected route
+            const filteredThongBao = allThongBaoData.filter(tb => tb.Ref_Tuyen === maSoTuyen);
+            const thongBaoIds = filteredThongBao.map(tb => tb.SoThongBao);
+            const filteredChiTiet = allChiTietData.filter(ct =>
+                ct.SoThongBao && thongBaoIds.includes(ct.SoThongBao)
+            );
 
-           const infoHTML = `
+            // Display data
+            displayTuyenInfo(selectedTuyen);
+            displayThongBaoTable(filteredThongBao);
+            generateScheduleTable(filteredThongBao, filteredChiTiet);
+
+            // Update current time
+            document.getElementById('current-time').textContent = new Date().toLocaleString('vi-VN');
+
+            // Switch to detail view
+            document.getElementById('routeListContent').style.display = 'none';
+            document.getElementById('routeDetailContent').style.display = 'block';
+
+            // THÊM DÒNG NÀY: Cuộn về đầu trang
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Function to show vehicle detail
+        function showVehicleDetail(BienSo, maSoTuyen) {
+            // Switch to route detail for the specific route
+            showRouteDetail(maSoTuyen);
+
+            // You can add specific vehicle highlighting logic here
+            setTimeout(() => {
+                // Scroll to and highlight the specific vehicle in the schedule
+                const scheduleTable = document.getElementById('bieuDoXeChay');
+                if (scheduleTable) {
+                    // Add visual indication for the specific vehicle
+                    console.log(`Highlighting vehicle ${BienSo} in route ${maSoTuyen}`);
+                }
+            }, 1000);
+        }
+
+        // Function to toggle vehicle export menu
+        function toggleVehicleExportMenu() {
+            const menu = document.getElementById('vehicleExportMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Function to export vehicles to Excel
+        async function exportVehiclesToExcel(type) {
+            try {
+                document.getElementById('vehicleExportMenu').classList.add('hidden');
+
+                // Show loading
+                const loadingDiv = document.createElement('div');
+                loadingDiv.innerHTML = `
+            <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div class="bg-white rounded-lg p-6 flex items-center gap-4">
+                    <div class="loading"></div>
+                    <span>Đang xuất danh sách xe...</span>
+                </div>
+            </div>
+        `;
+                document.body.appendChild(loadingDiv);
+
+                let dataToExport = [];
+                let fileName = '';
+                let sheetName = '';
+
+                if (type === 'all') {
+                    dataToExport = allVehicleData;
+                    fileName = 'Danh_sach_xe_hoat_dong';
+                    sheetName = 'Xe đang hoạt động';
+                } else if (type === 'by-route') {
+                    dataToExport = filteredVehicleData;
+                    fileName = 'Danh_sach_xe_theo_tuyen';
+                    sheetName = 'Xe theo tuyến';
+                }
+
+                // Create workbook
+                const workbook = new ExcelJS.Workbook();
+                const worksheet = workbook.addWorksheet(sheetName);
+
+                // Add title
+                worksheet.mergeCells('A1:I1');
+                const titleCell = worksheet.getCell('A1');
+                titleCell.value = 'DANH SÁCH XE HOẠT ĐỘNG - ' + sheetName.toUpperCase();
+                titleCell.font = { bold: true, size: 16, color: { argb: 'FFFFFF' } };
+                titleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '1e3c72' } };
+                titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+                worksheet.getRow(1).height = 30;
+
+                // Add export info
+                worksheet.mergeCells('A2:I2');
+                const infoCell = worksheet.getCell('A2');
+                infoCell.value = `Xuất ngày: ${new Date().toLocaleString('vi-VN')} | Tổng số xe: ${dataToExport.length}`;
+                infoCell.font = { italic: true, size: 10 };
+                infoCell.alignment = { horizontal: 'center' };
+
+                // Add headers
+                const headers = [
+                    'STT',
+                    'Biển số xe',
+                    'Mã tuyến',
+                    'Tên tuyến',
+                    'Đơn vị khai thác',
+                    'Số thông báo',
+                    'Loại phương tiện',
+                    'Hiệu lực',
+                    'Ghi chú'
+                ];
+
+                const headerRow = worksheet.addRow(headers);
+                headerRow.eachCell((cell) => {
+                    cell.font = { bold: true, color: { argb: 'FFFFFF' } };
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '4a90e2' } };
+                    cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+                    cell.border = {
+                        top: { style: 'thin' },
+                        left: { style: 'thin' },
+                        bottom: { style: 'thin' },
+                        right: { style: 'thin' }
+                    };
+                });
+                worksheet.getRow(3).height = 40;
+
+                // Add data
+                dataToExport.forEach((vehicle, index) => {
+                    const row = worksheet.addRow([
+                        index + 1,
+                        vehicle.BienSo || '',
+                        vehicle.MaSoTuyen || '',
+                        vehicle.TenTuyen || '',
+                        vehicle.DonViKhaiThac || '',
+                        vehicle.Ref_ThongBao || '',
+                        vehicle.LoaiPH || '',
+                        vehicle.TrangThai || '',
+                        ''
+                    ]);
+
+                    // Style data rows
+                    row.eachCell((cell, colNumber) => {
+                        cell.border = {
+                            top: { style: 'thin' },
+                            left: { style: 'thin' },
+                            bottom: { style: 'thin' },
+                            right: { style: 'thin' }
+                        };
+
+                        if ([1, 3, 6, 7, 8].includes(colNumber)) {
+                            cell.alignment = { horizontal: 'center', vertical: 'middle' };
+                        } else {
+                            cell.alignment = { vertical: 'middle', wrapText: true };
+                        }
+                    });
+
+                    // Alternate row colors
+                    if (index % 2 === 0) {
+                        row.eachCell(cell => {
+                            if (!cell.fill || !cell.fill.fgColor) {
+                                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'f9fafb' } };
+                            }
+                        });
+                    }
+                });
+
+                // Auto-fit columns
+                worksheet.columns = [
+                    { width: 6 },   // STT
+                    { width: 15 },  // Biển số xe
+                    { width: 12 },  // Mã tuyến
+                    { width: 30 },  // Tên tuyến
+                    { width: 25 },  // Đơn vị khai thác
+                    { width: 15 },  // Số thông báo
+                    { width: 15 },  // Loại phương tiện
+                    { width: 12 },  // Hiệu lực
+                    { width: 20 }   // Ghi chú
+                ];
+
+                // Generate Excel file
+                const buffer = await workbook.xlsx.writeBuffer();
+                const blob = new Blob([buffer], {
+                    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                });
+
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `${fileName}_${new Date().toISOString().split('T')[0]}.xlsx`;
+                link.click();
+
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(loadingDiv);
+
+                // Show success message
+                const successDiv = document.createElement('div');
+                successDiv.innerHTML = `
+            <div class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Xuất Excel thành công! (${dataToExport.length} xe)
+            </div>
+        `;
+                document.body.appendChild(successDiv);
+
+                setTimeout(() => {
+                    document.body.removeChild(successDiv);
+                }, 3000);
+
+            } catch (error) {
+                console.error('Export error:', error);
+                // Handle error similar to route export
+            }
+        }
+
+        // Setup vehicle search functionality
+        function setupVehicleSearch() {
+            const vehicleSearchInput = document.getElementById('vehicleSearchInput');
+            if (vehicleSearchInput) {
+                vehicleSearchInput.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') {
+                        performVehicleSearch();
+                    }
+                });
+            }
+        }
+
+        // Back to list
+        function backToList() {
+            document.getElementById('routeDetailContent').style.display = 'none';
+            document.getElementById('routeListContent').style.display = 'block';
+
+            // THÊM DÒNG NÀY: Cuộn về đầu trang
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Update displayTuyenInfo to show calculated trips
+        function displayTuyenInfo(tuyenData) {
+            const tuyenInfoDiv = document.getElementById('tuyenInfo');
+            const chuyenThucTe = calculateActualTrips(tuyenData.MaSoTuyen);
+
+            const infoHTML = `
              <div class="space-y-0">
                  <div class="grid grid-cols-9 border-gray-200">
                      <div class="col-span-4 font-bold flex items-center relative">
@@ -1314,7 +1992,7 @@
                          Tình trạng khai thác tuyến:
                          <div class="absolute right-0 w-1 gradient-secondary"></div>
                      </div>
-                     <div class="col-span-5 text-sm text-gray-800 flex items-center font-medium">${tuyenData.TinhTrangKhaiThac || ''}</div>
+                     <div class="col-span-5 text-sm text-gray-800 flex items-center font-medium">${getRouteStatus(tuyenData)}</div>
                  </div>
 
                  <div class="grid grid-cols-9 border-gray-200">
@@ -1338,7 +2016,20 @@
                          Tổng số chuyến xe đã có đơn vị tham gia khai thác (chuyến/ tháng):
                          <div class="absolute right-0 w-1 gradient-secondary"></div>
                      </div>
-                     <div class="col-span-5 text-sm text-gray-800 flex items-center font-medium">${tuyenData.ChuyenDaKhaiThac || ''}</div>
+                     <div class="col-span-5 text-sm text-gray-800 flex items-center font-medium">
+                         <span class="font-semibold ${chuyenThucTe > 0 ? 'text-green-600' : 'text-gray-500'}">${chuyenThucTe}</span>
+                         <span class="text-xs text-gray-500 ml-2">(Tính từ biểu đồ xe chạy)</span>
+                     </div>
+                 </div>
+
+                 <div class="grid grid-cols-9 border-gray-200">
+                     <div class="col-span-4 font-bold flex items-center relative">
+                         Lưu lượng còn lại (chuyến/ tháng):
+                         <div class="absolute right-0 w-1 gradient-secondary"></div>
+                     </div>
+                     <div class="col-span-5 text-sm text-gray-800 flex items-center font-medium">
+                         <span class="font-semibold ${getRemainingCapacity(tuyenData) > 0 ? 'text-green-600' : 'text-red-600'}">${getRemainingCapacity(tuyenData)}</span>
+                     </div>
                  </div>
 
                  <div class="grid grid-cols-9 border-gray-200">
@@ -1375,34 +2066,34 @@
              </div>
          `;
 
-           tuyenInfoDiv.innerHTML = infoHTML;
-       }
+            tuyenInfoDiv.innerHTML = infoHTML;
+        }
 
-       // Display notification table
-       function displayThongBaoTable(thongBaoList) {
-           const tableBody = document.getElementById('thongBaoTable');
+        // Display notification table
+        function displayThongBaoTable(thongBaoList) {
+            const tableBody = document.getElementById('thongBaoTable');
 
-           const activeThongBao = thongBaoList.filter(thongBao =>
-               !thongBao.TrangThai || thongBao.TrangThai !== 'Hết hiệu lực'
-           );
+            const activeThongBao = thongBaoList.filter(thongBao =>
+                !thongBao.TrangThai || thongBao.TrangThai !== 'Hết hiệu lực'
+            );
 
-           if (!activeThongBao || activeThongBao.length === 0) {
-               tableBody.innerHTML = `
+            if (!activeThongBao || activeThongBao.length === 0) {
+                tableBody.innerHTML = `
                  <tr>
                      <td colspan="7" class="text-center py-8 text-gray-500 italic border border-gray-200">
                          Chưa có thông báo đang có hiệu lực
                      </td>
                  </tr>
              `;
-               return;
-           }
+                return;
+            }
 
-           let html = '';
-           activeThongBao.forEach((thongBao, index) => {
-               const fileData = thongBao.File && thongBao.File.trim() !== '' ? thongBao.File.trim() : null;
-               const hasFile = fileData && fileData !== '';
+            let html = '';
+            activeThongBao.forEach((thongBao, index) => {
+                const fileData = thongBao.File && thongBao.File.trim() !== '' ? thongBao.File.trim() : null;
+                const hasFile = fileData && fileData !== '';
 
-               html += `
+                html += `
                  <tr class="even:bg-blue-50">
                      <td class="py-3 px-3 text-center border border-gray-200 text-xs">${index + 1}.</td>
                      <td class="py-3 px-3 text-center border border-gray-200 text-xs">${thongBao.SoThongBao || ''}</td>
@@ -1428,163 +2119,270 @@
                      </td>
                  </tr>
              `;
-           });
+            });
 
-           tableBody.innerHTML = html;
-       }
+            tableBody.innerHTML = html;
+        }
 
-       // Open AppSheet file
-       function openAppSheetFile(fileData) {
-           if (!fileData || fileData.trim() === '') {
-               alert('Không có file đính kèm');
-               return;
-           }
+        // Function to display vehicle list with clear status indicators
+        function displayVehicleList(vehicleList) {
+            console.log('🚗 Displaying vehicle list:', vehicleList.length, 'vehicles');
 
-           try {
-               console.log('File data received:', fileData);
+            const tableBody = document.getElementById('vehicleTableBody');
+            const vehicleCount = document.getElementById('vehicleCount');
 
-               if (fileData.startsWith('https://www.appsheet.com/template/gettablefileurl') ||
-                   fileData.startsWith('https://') && fileData.includes('appsheet.com')) {
-                   console.log('Opening direct URL:', fileData);
-                   window.open(fileData, '_blank');
-               } else {
-                   console.log('Creating URL for file:', fileData);
-                   const baseUrl = 'https://www.appsheet.com/template/gettablefileurl';
-                   const appName = 'QLVT-691992930';
-                   const tableName = 'THONGBAO_KHAITHAC';
+            if (!vehicleCount || !tableBody) {
+                console.error('❌ Missing DOM elements for vehicle display');
+                return;
+            }
 
-                   const fileUrl = `${baseUrl}?appName=${appName}&tableName=${tableName}&fileName=${encodeURIComponent(fileData)}`;
+            vehicleCount.textContent = vehicleList.length;
 
-                   console.log('Generated URL:', fileUrl);
-                   window.open(fileUrl, '_blank');
-               }
-           } catch (error) {
-               console.error('Lỗi khi mở file:', error);
-               alert('Không thể mở file. Vui lòng thử lại sau.');
-           }
-       }
+            if (!vehicleList || vehicleList.length === 0) {
+                tableBody.innerHTML = `
+            <tr>
+                <td colspan="9" class="text-center py-8 text-gray-500 italic">
+                    <div class="mb-2">🔍 Không tìm thấy xe nào</div>
+                    <div class="text-xs">Kiểm tra lại tiêu chí tìm kiếm hoặc dữ liệu trong bảng PHUHIEUXE</div>
+                </td>
+            </tr>
+        `;
+                return;
+            }
 
-       // Generate schedule table
-       function generateScheduleTable(thongBaoList, chiTietList) {
-           const bieuDoDiv = document.getElementById('bieuDoXeChay');
+            let html = '';
+            vehicleList.forEach((vehicle, index) => {
+                // Determine styling based on data status
+                let rowClass = 'route-row border-b border-gray-200';
+                let statusIcon = '';
+                let routeColor = '';
+                let notificationColor = '';
 
-           if (!chiTietList || chiTietList.length === 0) {
-               bieuDoDiv.innerHTML = `
+                if (!vehicle.RefThongBaoOriginal) {
+                    // No reference to notification
+                    rowClass += ' bg-gray-50 hover:bg-gray-100';
+                    statusIcon = '⚪';
+                    routeColor = 'text-gray-500';
+                    notificationColor = 'text-gray-500';
+                } else if (!vehicle.HasValidThongBao) {
+                    // Has reference but notification not found
+                    rowClass += ' bg-red-50 hover:bg-red-100';
+                    statusIcon = '🔴';
+                    routeColor = 'text-red-500';
+                    notificationColor = 'text-red-600 font-medium';
+                } else if (!vehicle.HasValidRoute) {
+                    // Has notification but route not found
+                    rowClass += ' bg-yellow-50 hover:bg-yellow-100';
+                    statusIcon = '🟡';
+                    routeColor = 'text-yellow-600';
+                    notificationColor = 'text-blue-600 font-medium';
+                } else {
+                    // Complete data chain
+                    rowClass += ' bg-green-50 hover:bg-green-100';
+                    statusIcon = '🟢';
+                    routeColor = 'text-green-700 font-medium';
+                    notificationColor = 'text-blue-600 font-medium';
+                }
+
+                html += `
+            <tr class="${rowClass}">
+                <td class="px-2 py-2 text-center border-r border-gray-200">
+                    <div class="flex items-center justify-center gap-1">
+                        <span class="text-xs">${statusIcon}</span>
+                        <span>${index + 1}</span>
+                    </div>
+                </td>
+                <td class="px-2 py-2 text-center border-r border-gray-200 font-medium text-blue-600">${vehicle.BienSo || ''}</td>
+                <td class="px-2 py-2 text-center border-r border-gray-200 ${routeColor}">${vehicle.MaSoTuyen || ''}</td>
+                <td class="px-2 py-2 border-r border-gray-200 ${routeColor} text-sm">${vehicle.TenTuyen || ''}</td>
+                <td class="px-2 py-2 border-r border-gray-200 text-xs">${vehicle.DonViKhaiThac || ''}</td>
+                <td class="px-2 py-2 text-center border-r border-gray-200 text-xs ${notificationColor}" 
+                    title="ID_TB gốc: ${vehicle.RefThongBaoOriginal || 'Không có'}">${vehicle.SoThongBaoDisplay || ''}</td>
+                <td class="px-2 py-2 text-center border-r border-gray-200 text-xs">${vehicle.LoaiPH || ''}</td>
+                <td class="px-2 py-2 text-center border-r border-gray-200 text-xs">${vehicle.TrangThai || ''}</td>
+                <td class="px-2 py-2 text-center">
+                    ${vehicle.HasValidRoute ?
+                        `<button onclick="showVehicleDetail('${vehicle.BienSo}', '${vehicle.MaSoTuyen}')" 
+                                class="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600 transition-colors">
+                            🔍 Chi tiết
+                        </button>` :
+                        `<span class="text-gray-400 text-xs">
+                            ${!vehicle.RefThongBaoOriginal ? 'Chưa có TB' :
+                            !vehicle.HasValidThongBao ? 'TB không hợp lệ' : 'Không có tuyến'}
+                        </span>`
+                    }
+                </td>
+            </tr>
+        `;
+            });
+
+            tableBody.innerHTML = html;
+            console.log('✅ Vehicle table updated with SoThongBao display');
+
+            // Show summary in console
+            const summary = {
+                total: vehicleList.length,
+                noRef: vehicleList.filter(v => !v.RefThongBaoOriginal).length,
+                invalidNotification: vehicleList.filter(v => v.RefThongBaoOriginal && !v.HasValidThongBao).length,
+                validNotification: vehicleList.filter(v => v.HasValidThongBao).length,
+                completeChain: vehicleList.filter(v => v.HasValidRoute).length
+            };
+
+            console.log('📊 Display Summary:', summary);
+        }
+
+        // Open AppSheet file
+        function openAppSheetFile(fileData) {
+            if (!fileData || fileData.trim() === '') {
+                alert('Không có file đính kèm');
+                return;
+            }
+
+            try {
+                console.log('File data received:', fileData);
+
+                if (fileData.startsWith('https://www.appsheet.com/template/gettablefileurl') ||
+                    fileData.startsWith('https://') && fileData.includes('appsheet.com')) {
+                    console.log('Opening direct URL:', fileData);
+                    window.open(fileData, '_blank');
+                } else {
+                    console.log('Creating URL for file:', fileData);
+                    const baseUrl = 'https://www.appsheet.com/template/gettablefileurl';
+                    const appName = 'QLVT-691992930';
+                    const tableName = 'THONGBAO_KHAITHAC';
+
+                    const fileUrl = `${baseUrl}?appName=${appName}&tableName=${tableName}&fileName=${encodeURIComponent(fileData)}`;
+
+                    console.log('Generated URL:', fileUrl);
+                    window.open(fileUrl, '_blank');
+                }
+            } catch (error) {
+                console.error('Lỗi khi mở file:', error);
+                alert('Không thể mở file. Vui lòng thử lại sau.');
+            }
+        }
+
+        // Generate schedule table
+        function generateScheduleTable(thongBaoList, chiTietList) {
+            const bieuDoDiv = document.getElementById('bieuDoXeChay');
+
+            if (!chiTietList || chiTietList.length === 0) {
+                bieuDoDiv.innerHTML = `
                  <div class="text-center py-8 text-gray-500 italic">
                      Chưa có dữ liệu chi tiết xe chạy
                  </div>
              `;
-               return;
-           }
+                return;
+            }
 
-           const activeThongBaoIds = thongBaoList
-               .filter(tb => !tb.TrangThai || tb.TrangThai !== 'Hết hiệu lực')
-               .map(tb => tb.SoThongBao);
+            const activeThongBaoIds = thongBaoList
+                .filter(tb => !tb.TrangThai || tb.TrangThai !== 'Hết hiệu lực')
+                .map(tb => tb.SoThongBao);
 
-           const validChiTiet = chiTietList.filter(ct =>
-               ct.SoThongBao && activeThongBaoIds.includes(ct.SoThongBao)
-           );
+            const validChiTiet = chiTietList.filter(ct =>
+                ct.SoThongBao && activeThongBaoIds.includes(ct.SoThongBao)
+            );
 
-           if (validChiTiet.length === 0) {
-               bieuDoDiv.innerHTML = `
+            if (validChiTiet.length === 0) {
+                bieuDoDiv.innerHTML = `
                  <div class="text-center py-8 text-gray-500 italic">
                      Chưa có dữ liệu chi tiết xe chạy cho các thông báo có hiệu lực
                  </div>
              `;
-               return;
-           }
+                return;
+            }
 
-           const groupedByThongBao = {};
-           validChiTiet.forEach(ct => {
-               const thongBaoId = ct.SoThongBao;
-               if (!groupedByThongBao[thongBaoId]) {
-                   groupedByThongBao[thongBaoId] = [];
-               }
-               groupedByThongBao[thongBaoId].push(ct);
-           });
+            const groupedByThongBao = {};
+            validChiTiet.forEach(ct => {
+                const thongBaoId = ct.SoThongBao;
+                if (!groupedByThongBao[thongBaoId]) {
+                    groupedByThongBao[thongBaoId] = [];
+                }
+                groupedByThongBao[thongBaoId].push(ct);
+            });
 
-           const thongBaoKeys = Object.keys(groupedByThongBao);
+            const thongBaoKeys = Object.keys(groupedByThongBao);
 
-           // Generate table for first half of month (1-15)
-           let html = `
+            // Generate table for first half of month (1-15)
+            let html = `
              <table class="w-full border-collapse text-xs bg-white">
                  <thead>
                      <tr>
                          <th rowspan="2" class="gradient-secondary text-white py-3 px-2 text-center border-2 border-gray-300 font-bold text-xs uppercase min-w-[60px]">STB</th>
          `;
 
-           // Generate headers for days 1-15
-           for (let day = 1; day <= 15; day++) {
-               html += `
+            // Generate headers for days 1-15
+            for (let day = 1; day <= 15; day++) {
+                html += `
                  <th colspan="2" class="gradient-table py-3 px-2 text-center border-2 border-gray-300 font-bold text-gray-700 text-xs uppercase min-w-[80px]">
                      Ngày ${day}
                  </th>
              `;
-           }
+            }
 
-           html += `</tr><tr>`;
+            html += `</tr><tr>`;
 
-           // Generate sub-headers (Đi/Về)
-           for (let day = 1; day <= 15; day++) {
-               html += `
+            // Generate sub-headers (Đi/Về)
+            for (let day = 1; day <= 15; day++) {
+                html += `
                  <th class="gradient-table py-2 px-1 text-center border border-gray-300 text-xs">Đi</th>
                  <th class="gradient-table py-2 px-1 text-center border border-gray-300 text-xs">Về</th>
              `;
-           }
+            }
 
-           html += `</tr></thead><tbody>`;
+            html += `</tr></thead><tbody>`;
 
-           // Generate rows for each thông báo
-           thongBaoKeys.forEach((thongBaoId, index) => {
-               const stbShort = thongBaoId.split('/')[0];
-               html += `<tr><td class="gradient-secondary text-white py-2 px-1 text-center font-bold text-xs">${stbShort}</td>`;
+            // Generate rows for each thông báo
+            thongBaoKeys.forEach((thongBaoId, index) => {
+                const stbShort = thongBaoId.split('/')[0];
+                html += `<tr><td class="gradient-secondary text-white py-2 px-1 text-center font-bold text-xs">${stbShort}</td>`;
 
-               for (let day = 1; day <= 15; day++) {
-                   const chiTietDi = groupedByThongBao[thongBaoId].filter(ct =>
-                       ct.Chieu === 'Đi' &&
-                       ct.NgayHoatDong && (
-                           ct.NgayHoatDong.toString() === day.toString() ||
-                           ct.NgayHoatDong.toString().split(',').map(d => d.trim()).includes(day.toString()) ||
-                           ct.NgayHoatDong.toString().split(' ').includes(day.toString())
-                       )
-                   );
+                for (let day = 1; day <= 15; day++) {
+                    const chiTietDi = groupedByThongBao[thongBaoId].filter(ct =>
+                        ct.Chieu === 'Đi' &&
+                        ct.NgayHoatDong && (
+                            ct.NgayHoatDong.toString() === day.toString() ||
+                            ct.NgayHoatDong.toString().split(',').map(d => d.trim()).includes(day.toString()) ||
+                            ct.NgayHoatDong.toString().split(' ').includes(day.toString())
+                        )
+                    );
 
-                   const chiTietVe = groupedByThongBao[thongBaoId].filter(ct =>
-                       ct.Chieu === 'Về' &&
-                       ct.NgayHoatDong && (
-                           ct.NgayHoatDong.toString() === day.toString() ||
-                           ct.NgayHoatDong.toString().split(',').map(d => d.trim()).includes(day.toString()) ||
-                           ct.NgayHoatDong.toString().split(' ').includes(day.toString())
-                       )
-                   );
+                    const chiTietVe = groupedByThongBao[thongBaoId].filter(ct =>
+                        ct.Chieu === 'Về' &&
+                        ct.NgayHoatDong && (
+                            ct.NgayHoatDong.toString() === day.toString() ||
+                            ct.NgayHoatDong.toString().split(',').map(d => d.trim()).includes(day.toString()) ||
+                            ct.NgayHoatDong.toString().split(' ').includes(day.toString())
+                        )
+                    );
 
-                   html += `
+                    html += `
                      <td class="text-center bg-amber-200 h-15 align-top pt-1">
                          ${chiTietDi.length > 0 ?
-                           chiTietDi.map(ct =>
-                               `<div class="bg-lime-300 text-xs py-1 px-1 font-bold shadow-sm mb-1 rounded">${ct.GioXuatBen || ''}</div>`
-                           ).join('') :
-                           `<div class="bg-gray-100 h-6 shadow-sm rounded"></div>`
-                       }
+                            chiTietDi.map(ct =>
+                                `<div class="bg-lime-300 text-xs py-1 px-1 font-bold shadow-sm mb-1 rounded">${ct.GioXuatBen || ''}</div>`
+                            ).join('') :
+                            `<div class="bg-gray-100 h-6 shadow-sm rounded"></div>`
+                        }
                      </td>
                      <td class="text-center bg-amber-200 h-15 align-top pt-1">
                          ${chiTietVe.length > 0 ?
-                           chiTietVe.map(ct =>
-                               `<div class="bg-lime-300 text-xs py-1 px-1 font-bold shadow-sm mb-1 rounded">${ct.GioXuatBen || ''}</div>`
-                           ).join('') :
-                           `<div class="bg-gray-100 h-6 shadow-sm rounded"></div>`
-                       }
+                            chiTietVe.map(ct =>
+                                `<div class="bg-lime-300 text-xs py-1 px-1 font-bold shadow-sm mb-1 rounded">${ct.GioXuatBen || ''}</div>`
+                            ).join('') :
+                            `<div class="bg-gray-100 h-6 shadow-sm rounded"></div>`
+                        }
                      </td>
                  `;
-               }
+                }
 
-               html += `</tr>`;
-           });
+                html += `</tr>`;
+            });
 
-           html += `</tbody></table>`;
+            html += `</tbody></table>`;
 
-           // Generate table for second half of month (16-31)
-           html += `
+            // Generate table for second half of month (16-31)
+            html += `
              <div class="gradient-primary text-white text-center py-5 font-bold text-base uppercase tracking-wider">
                  Giờ xuất bến
              </div>
@@ -1594,132 +2392,133 @@
                          <th rowspan="2" class="gradient-secondary text-white py-3 px-2 text-center border-2 border-gray-300 font-bold text-xs uppercase min-w-[60px]">STB</th>
          `;
 
-           // Generate headers for days 16-31
-           for (let day = 16; day <= 31; day++) {
-               html += `
+            // Generate headers for days 16-31
+            for (let day = 16; day <= 31; day++) {
+                html += `
                  <th colspan="2" class="gradient-table py-3 px-2 text-center border-2 border-gray-300 font-bold text-gray-700 text-xs uppercase min-w-[80px]">
                      Ngày ${day}
                  </th>
              `;
-           }
+            }
 
-           html += `</tr><tr>`;
+            html += `</tr><tr>`;
 
-           // Generate sub-headers (Đi/Về)
-           for (let day = 16; day <= 31; day++) {
-               html += `
+            // Generate sub-headers (Đi/Về)
+            for (let day = 16; day <= 31; day++) {
+                html += `
                  <th class="gradient-table py-2 px-1 text-center border border-gray-300 text-xs">Đi</th>
                  <th class="gradient-table py-2 px-1 text-center border border-gray-300 text-xs">Về</th>
              `;
-           }
+            }
 
-           html += `</tr></thead><tbody>`;
+            html += `</tr></thead><tbody>`;
 
-           // Generate rows for each thông báo (16-31)
-           thongBaoKeys.forEach((thongBaoId, index) => {
-               const stbShort = thongBaoId.split('/')[0];
-               html += `<tr><td class="gradient-secondary text-white py-2 px-1 text-center font-bold text-xs">${stbShort}</td>`;
+            // Generate rows for each thông báo (16-31)
+            thongBaoKeys.forEach((thongBaoId, index) => {
+                const stbShort = thongBaoId.split('/')[0];
+                html += `<tr><td class="gradient-secondary text-white py-2 px-1 text-center font-bold text-xs">${stbShort}</td>`;
 
-               for (let day = 16; day <= 31; day++) {
-                   const chiTietDi = groupedByThongBao[thongBaoId].filter(ct =>
-                       ct.Chieu === 'Đi' &&
-                       ct.NgayHoatDong && (
-                           ct.NgayHoatDong.toString() === day.toString() ||
-                           ct.NgayHoatDong.toString().split(',').map(d => d.trim()).includes(day.toString()) ||
-                           ct.NgayHoatDong.toString().split(' ').includes(day.toString())
-                       )
-                   );
+                for (let day = 16; day <= 31; day++) {
+                    const chiTietDi = groupedByThongBao[thongBaoId].filter(ct =>
+                        ct.Chieu === 'Đi' &&
+                        ct.NgayHoatDong && (
+                            ct.NgayHoatDong.toString() === day.toString() ||
+                            ct.NgayHoatDong.toString().split(',').map(d => d.trim()).includes(day.toString()) ||
+                            ct.NgayHoatDong.toString().split(' ').includes(day.toString())
+                        )
+                    );
 
-                   const chiTietVe = groupedByThongBao[thongBaoId].filter(ct =>
-                       ct.Chieu === 'Về' &&
-                       ct.NgayHoatDong && (
-                           ct.NgayHoatDong.toString() === day.toString() ||
-                           ct.NgayHoatDong.toString().split(',').map(d => d.trim()).includes(day.toString()) ||
-                           ct.NgayHoatDong.toString().split(' ').includes(day.toString())
-                       )
-                   );
+                    const chiTietVe = groupedByThongBao[thongBaoId].filter(ct =>
+                        ct.Chieu === 'Về' &&
+                        ct.NgayHoatDong && (
+                            ct.NgayHoatDong.toString() === day.toString() ||
+                            ct.NgayHoatDong.toString().split(',').map(d => d.trim()).includes(day.toString()) ||
+                            ct.NgayHoatDong.toString().split(' ').includes(day.toString())
+                        )
+                    );
 
-                   html += `
+                    html += `
                      <td class="text-center bg-amber-200 h-15 align-top pt-1">
                          ${chiTietDi.length > 0 ?
-                           chiTietDi.map(ct =>
-                               `<div class="bg-lime-300 text-xs py-1 px-1 font-bold shadow-sm mb-1 rounded">${ct.GioXuatBen || ''}</div>`
-                           ).join('') :
-                           `<div class="bg-gray-100 h-6 shadow-sm rounded"></div>`
-                       }
+                            chiTietDi.map(ct =>
+                                `<div class="bg-lime-300 text-xs py-1 px-1 font-bold shadow-sm mb-1 rounded">${ct.GioXuatBen || ''}</div>`
+                            ).join('') :
+                            `<div class="bg-gray-100 h-6 shadow-sm rounded"></div>`
+                        }
                      </td>
                      <td class="text-center bg-amber-200 h-15 align-top pt-1">
                          ${chiTietVe.length > 0 ?
-                           chiTietVe.map(ct =>
-                               `<div class="bg-lime-300 text-xs py-1 px-1 font-bold shadow-sm mb-1 rounded">${ct.GioXuatBen || ''}</div>`
-                           ).join('') :
-                           `<div class="bg-gray-100 h-6 shadow-sm rounded"></div>`
-                       }
+                            chiTietVe.map(ct =>
+                                `<div class="bg-lime-300 text-xs py-1 px-1 font-bold shadow-sm mb-1 rounded">${ct.GioXuatBen || ''}</div>`
+                            ).join('') :
+                            `<div class="bg-gray-100 h-6 shadow-sm rounded"></div>`
+                        }
                      </td>
                  `;
-               }
+                }
 
-               html += `</tr>`;
-           });
+                html += `</tr>`;
+            });
 
-           html += `</tbody></table>`;
+            html += `</tbody></table>`;
 
-           bieuDoDiv.innerHTML = html;
-       }
+            bieuDoDiv.innerHTML = html;
+        }
 
-       // Main initialization function
-       async function initialize() {
-           try {
-               console.log('Starting initialization...');
+        // Main initialization function
+        async function initialize() {
+            try {
+                console.log('Starting initialization...');
 
-               const startTime = performance.now();
-               const { tuyenData, thongBaoData, chiTietData } = await loadAllDataParallel();
-               const loadTime = performance.now() - startTime;
-               console.log(`Data loaded in ${loadTime.toFixed(2)}ms`);
+                const startTime = performance.now();
+                const { tuyenData, thongBaoData, chiTietData } = await loadAllDataParallel();
+                const loadTime = performance.now() - startTime;
+                console.log(`Data loaded in ${loadTime.toFixed(2)}ms`);
 
-               updateProgress(70, 'Đang xử lý dữ liệu...');
+                updateProgress(70, 'Đang xử lý dữ liệu...');
 
-               // Store data globally
-               allTuyenData = tuyenData;
-               allThongBaoData = thongBaoData;
-               allChiTietData = chiTietData;
-               filteredTuyenData = tuyenData;
+                // Store data globally
+                allTuyenData = tuyenData;
+                allThongBaoData = thongBaoData;
+                allChiTietData = chiTietData;
+                filteredTuyenData = tuyenData;
 
-               console.log('Total routes:', allTuyenData.length);
-               console.log('Total notifications:', allThongBaoData.length);
-               console.log('Total details:', allChiTietData.length);
+                console.log('Total routes:', allTuyenData.length);
+                console.log('Total notifications:', allThongBaoData.length);
+                console.log('Total details:', allChiTietData.length);
 
-               updateProgress(80, 'Đang hiển thị danh sách tuyến...');
+                updateProgress(80, 'Đang hiển thị danh sách tuyến...');
 
-               // Setup filter options
-               setupFilterOptions();
+                // Setup filter options
+                setupFilterOptions();
 
-               // Display route list
-               displayRouteList(filteredTuyenData);
+                // Display route list
+                displayRouteList(filteredTuyenData);
 
-               updateProgress(90, 'Thiết lập tìm kiếm...');
+                updateProgress(90, 'Thiết lập tìm kiếm...');
 
-               // Setup search functionality
-               setupSearch();
-               setupAutoSearch();
+                // Setup search functionality
+                setupSearch();
+                setupAutoSearch();
+                setupVehicleSearch();
 
-               // Update current time
-               document.getElementById('current-time-list').textContent = new Date().toLocaleString('vi-VN');
+                // Update current time
+                document.getElementById('current-time-list').textContent = new Date().toLocaleString('vi-VN');
 
-               updateProgress(100, 'Tải thành công!');
+                updateProgress(100, 'Tải thành công!');
 
-               // Hide loading message and show route list
-               setTimeout(() => {
-                   document.getElementById('loadingMessage').style.display = 'none';
-                   document.getElementById('routeListContent').style.display = 'block';
-               }, 500);
+                // Hide loading message and show route list
+                setTimeout(() => {
+                    document.getElementById('loadingMessage').style.display = 'none';
+                    document.getElementById('routeListContent').style.display = 'block';
+                }, 500);
 
-               const totalTime = performance.now() - startTime;
-               console.log(`Total processing time: ${totalTime.toFixed(2)}ms`);
+                const totalTime = performance.now() - startTime;
+                console.log(`Total processing time: ${totalTime.toFixed(2)}ms`);
 
-           } catch (error) {
-               console.error('Initialization failed:', error);
-               document.getElementById('loadingMessage').innerHTML = `
+            } catch (error) {
+                console.error('Initialization failed:', error);
+                document.getElementById('loadingMessage').innerHTML = `
                  <div class="text-center py-20">
                      <div class="text-red-600 text-lg font-bold mb-4">Lỗi tải dữ liệu</div>
                      <p class="text-gray-600">${error.message}</p>
@@ -1728,318 +2527,348 @@
                      </button>
                  </div>
              `;
-           }
-       }
+            }
+        }
 
-       // Utility functions
-       function printDocument() {
-           window.print();
-       }
+        // Utility functions
+        function printDocument() {
+            window.print();
+        }
 
-       // Add keyboard shortcuts
-       document.addEventListener('keydown', function (e) {
-           if (e.ctrlKey && e.key === 'p') {
-               e.preventDefault();
-               printDocument();
-           }
-           if (e.key === 'Escape') {
-               // Press Escape to go back to list or close advanced search
-               if (document.getElementById('routeDetailContent').style.display === 'block') {
-                   backToList();
-               } else if (document.getElementById('advancedSearchPanel').classList.contains('open')) {
-                   toggleAdvancedSearch();
-               }
-           }
-       });
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function (e) {
+            if (e.ctrlKey && e.key === 'p') {
+                e.preventDefault();
+                printDocument();
+            }
+            if (e.key === 'Escape') {
+                // Press Escape to go back to list or close advanced search
+                if (document.getElementById('routeDetailContent').style.display === 'block') {
+                    backToList();
+                } else if (document.getElementById('advancedSearchPanel').classList.contains('open')) {
+                    toggleAdvancedSearch();
+                }
+            }
+        });
 
-       // Initialize when page loads
-       document.addEventListener('DOMContentLoaded', initialize);
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initialize);
 
-       // Add some responsive behavior for search input
-       document.addEventListener('DOMContentLoaded', function () {
-           const searchInput = document.getElementById('searchInput');
-           if (searchInput) {
-               searchInput.addEventListener('focus', function () {
-                   this.style.borderColor = '#3b82f6';
-                   this.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
-               });
+        // Add some responsive behavior for search input
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('focus', function () {
+                    this.style.borderColor = '#3b82f6';
+                    this.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+                });
 
-               searchInput.addEventListener('blur', function () {
-                   this.style.borderColor = '#d1d5db';
-                   this.style.boxShadow = 'none';
-               });
-           }
+                searchInput.addEventListener('blur', function () {
+                    this.style.borderColor = '#d1d5db';
+                    this.style.boxShadow = 'none';
+                });
+            }
 
-           // Add placeholder text and examples for distance filter
-           const cuLyInput = document.getElementById('filterCuLy');
-           if (cuLyInput) {
-               cuLyInput.addEventListener('focus', function () {
-                   if (!this.value) {
-                       this.placeholder = '10-50, >10, <50';
-                   }
-               });
+            // Add placeholder text and examples for distance filter
+            const cuLyInput = document.getElementById('filterCuLy');
+            if (cuLyInput) {
+                cuLyInput.addEventListener('focus', function () {
+                    if (!this.value) {
+                        this.placeholder = '10-50, >10, <50';
+                    }
+                });
 
-               cuLyInput.addEventListener('blur', function () {
-                   if (!this.value) {
-                       this.placeholder = '10-50, >10, <50';
-                   }
-               });
-           }
-       });
-   </script>
+                cuLyInput.addEventListener('blur', function () {
+                    if (!this.value) {
+                        this.placeholder = '10-50, >10, <50';
+                    }
+                });
+            }
+        });
 
-   <!-- Print styles -->
-   <style>
-       @media print {
-           body {
-               background: white !important;
-               padding: 0 !important;
-           }
+        // Close vehicle export menu when clicking outside
+        document.addEventListener('click', function (event) {
+            const menu = document.getElementById('vehicleExportMenu');
+            const button = event.target.closest('button[onclick="toggleVehicleExportMenu()"]');
 
-           #routeListContent,
-           #routeDetailContent {
-               box-shadow: none !important;
-               border: none !important;
-           }
+            if (menu && !button && !menu.contains(event.target)) {
+                menu.classList.add('hidden');
+            }
+        });
 
-           .no-print {
-               display: none !important;
-           }
+        // Disable context menu and dev tools
+        document.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+        }, false);
 
-           table {
-               page-break-inside: auto;
-           }
+        document.onkeydown = function (e) {
+            if (e.keyCode == 123) {
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) {
+                return false;
+            }
+        };
+    </script>
 
-           tr {
-               page-break-inside: avoid;
-               page-break-after: auto;
-           }
+    <!-- Print styles -->
+    <style>
+        @media print {
+            body {
+                background: white !important;
+                padding: 0 !important;
+            }
 
-           thead {
-               display: table-header-group;
-           }
+            #routeListContent,
+            #routeDetailContent {
+                box-shadow: none !important;
+                border: none !important;
+            }
 
-           tfoot {
-               display: table-footer-group;
-           }
-       }
+            .no-print {
+                display: none !important;
+            }
 
-       /* Responsive design */
-       @media (max-width: 1200px) {
+            table {
+                page-break-inside: auto;
+            }
 
-           .grid-cols-6 {
-               grid-template-columns: 1fr 2fr;
-           }
+            tr {
+                page-break-inside: avoid;
+                page-break-after: auto;
+            }
 
-           h1 {
-               font-size: 1.5rem;
-           }
+            thead {
+                display: table-header-group;
+            }
 
-           .grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-8 {
-               grid-template-columns: repeat(2, 1fr);
-           }
-       }
+            tfoot {
+                display: table-footer-group;
+            }
+        }
 
-       @media (max-width: 768px) {
-           .grid-cols-6 {
-               grid-template-columns: 1fr;
-           }
+        /* Responsive design */
+        @media (max-width: 1200px) {
 
-           .grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-8 {
-               grid-template-columns: 1fr;
-           }
+            .grid-cols-6 {
+                grid-template-columns: 1fr 2fr;
+            }
 
-           table {
-               font-size: 10px;
-           }
+            h1 {
+                font-size: 1.5rem;
+            }
 
-           .px-8 {
-               padding-left: 1rem;
-               padding-right: 1rem;
-           }
+            .grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-8 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
 
-           /* Stack search elements vertically on mobile */
-           .flex.items-center.gap-4 {
-               flex-direction: column;
-               align-items: stretch;
-               gap: 10px;
-           }
+        @media (max-width: 768px) {
+            .grid-cols-6 {
+                grid-template-columns: 1fr;
+            }
 
-           .flex-1 {
-               width: 100%;
-           }
+            .grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-8 {
+                grid-template-columns: 1fr;
+            }
 
-           /* Hide some table columns on mobile */
-           .mobile-hidden {
-               display: none;
-           }
+            table {
+                font-size: 10px;
+            }
 
-           /* Make advanced search panel more mobile friendly */
-           .filter-panel.open {
-               max-height: 800px;
-           }
-       }
+            .px-8 {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
 
-       /* Additional styling for better UX */
-       .hover-effect:hover {
-           transform: translateY(-2px);
-           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-           transition: all 0.3s ease;
-       }
+            /* Stack search elements vertically on mobile */
+            .flex.items-center.gap-4 {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
 
-       .fade-in {
-           animation: fadeIn 0.5s ease-in;
-       }
+            .flex-1 {
+                width: 100%;
+            }
 
-       @keyframes fadeIn {
-           from {
-               opacity: 0;
-               transform: translateY(20px);
-           }
+            /* Hide some table columns on mobile */
+            .mobile-hidden {
+                display: none;
+            }
 
-           to {
-               opacity: 1;
-               transform: translateY(0);
-           }
-       }
+            /* Make advanced search panel more mobile friendly */
+            .filter-panel.open {
+                max-height: 800px;
+            }
+        }
 
-       /* Custom scrollbar */
-       ::-webkit-scrollbar {
-           width: 8px;
-           height: 8px;
-       }
+        /* Additional styling for better UX */
+        .hover-effect:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
 
-       ::-webkit-scrollbar-track {
-           background: #f1f1f1;
-       }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
 
-       ::-webkit-scrollbar-thumb {
-           background: #4a90e2;
-           border-radius: 4px;
-       }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
 
-       ::-webkit-scrollbar-thumb:hover {
-           background: #357abd;
-       }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-       /* Table styling improvements */
-       table {
-           border-spacing: 0;
-       }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
 
-       th,
-       td {
-           border: 1px solid #e5e7eb;
-       }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
 
-       .route-row:nth-child(even) {
-           background-color: #f9fafb;
-       }
+        ::-webkit-scrollbar-thumb {
+            background: #4a90e2;
+            border-radius: 4px;
+        }
 
-       .route-row:hover {
-           background-color: #eff6ff !important;
-           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-       }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #357abd;
+        }
 
-       /* Button hover effects */
-       button:hover {
-           transform: translateY(-1px);
-           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-       }
+        /* Table styling improvements */
+        table {
+            border-spacing: 0;
+        }
 
-       /* Loading animation improvements */
-       .loading {
-           margin: 0 auto;
-       }
+        th,
+        td {
+            border: 1px solid #e5e7eb;
+        }
 
-       /* Advanced search panel styling */
-       #advancedSearchPanel {
-           border-left: 4px solid #3b82f6;
-       }
+        .route-row:nth-child(even) {
+            background-color: #f9fafb;
+        }
 
-       #advancedSearchPanel.open {
-           box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-       }
+        .route-row:hover {
+            background-color: #eff6ff !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
 
-       /* Filter tab active state */
-       .filter-tab.active {
-           background-color: #3b82f6;
-           color: white;
-       }
+        /* Button hover effects */
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
 
-       /* Responsive table wrapper */
-       .table-responsive {
-           overflow-x: auto;
-           -webkit-overflow-scrolling: touch;
-       }
+        /* Loading animation improvements */
+        .loading {
+            margin: 0 auto;
+        }
 
-       /* Status indicators */
-       .status-active {
-           color: #059669;
-           font-weight: 600;
-       }
+        /* Advanced search panel styling */
+        #advancedSearchPanel {
+            border-left: 4px solid #3b82f6;
+        }
 
-       .status-inactive {
-           color: #dc2626;
-           font-weight: 600;
-       }
+        #advancedSearchPanel.open {
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
 
-       /* Tooltip styling */
-       [title] {
-           cursor: help;
-       }
+        /* Filter tab active state */
+        .filter-tab.active {
+            background-color: #3b82f6;
+            color: white;
+        }
 
-       /* Enhanced distance input styling */
-       #filterCuLy {
-           background-color: #f8fafc;
-           border: 2px solid #e2e8f0;
-           transition: all 0.2s ease;
-       }
+        /* Responsive table wrapper */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
 
-       #filterCuLy:focus {
-           background-color: white;
-           border-color: #3b82f6;
-           box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-       }
+        /* Status indicators */
+        .status-active {
+            color: #059669;
+            font-weight: 600;
+        }
 
-       #filterCuLy::placeholder {
-           color: #94a3b8;
-           font-style: italic;
-       }
-   </style>
+        .status-inactive {
+            color: #dc2626;
+            font-weight: 600;
+        }
 
-   <!-- Mobile responsive meta tags -->
-   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        /* Tooltip styling */
+        [title] {
+            cursor: help;
+        }
 
-   <!-- Additional mobile styles for table -->
-   <style>
-       @media (max-width: 640px) {
-           .overflow-x-auto {
-               max-width: calc(100vw - 1rem);
-           }
+        /* Enhanced distance input styling */
+        #filterCuLy {
+            background-color: #f8fafc;
+            border: 2px solid #e2e8f0;
+            transition: all 0.2s ease;
+        }
 
-           table {
-               min-width: 1200px;
-               /* Ensure table doesn't get too cramped */
-           }
+        #filterCuLy:focus {
+            background-color: white;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
 
-           th,
-           td {
-               white-space: nowrap;
-               min-width: 60px;
-           }
+        #filterCuLy::placeholder {
+            color: #94a3b8;
+            font-style: italic;
+        }
+    </style>
 
-           .px-4 {
-               padding-left: 0.5rem;
-               padding-right: 0.5rem;
-           }
+    <!-- Mobile responsive meta tags -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-           .py-3 {
-               padding-top: 0.5rem;
-               padding-bottom: 0.5rem;
-           }
-       }
-   </style>
+    <!-- Additional mobile styles for table -->
+    <style>
+        @media (max-width: 640px) {
+            .overflow-x-auto {
+                max-width: calc(100vw - 1rem);
+            }
+
+            table {
+                min-width: 1200px;
+                /* Ensure table doesn't get too cramped */
+            }
+
+            th,
+            td {
+                white-space: nowrap;
+                min-width: 60px;
+            }
+
+            .px-4 {
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+            }
+
+            .py-3 {
+                padding-top: 0.5rem;
+                padding-bottom: 0.5rem;
+            }
+        }
+    </style>
 </body>
 
 </html>
