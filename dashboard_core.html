@@ -2268,6 +2268,341 @@
             }
         }
 
+        // ==================== CÁC HÀM XUẤT EXCEL BỊ THIẾU ==================== 
+
+        // Xuất dữ liệu Dashboard với SheetJS
+        function exportDashboardDataSheetJS() {
+            const workbook = XLSX.utils.book_new();
+
+            // Sheet 1: Tổng quan thống kê
+            const summaryData = [
+                ['THỐNG KÊ TỔNG QUAN HỆ THỐNG QUẢN LÝ VẬN TẢI'],
+                ['Ngày xuất:', new Date().toLocaleString('vi-VN')],
+                ['Khoảng thời gian:', `${formatDate(document.getElementById('startDate').value)} - ${formatDate(document.getElementById('endDate').value)}`],
+                [],
+                ['Loại dữ liệu', 'Số lượng'],
+                ['GPKD được cấp', filteredLicensesData.length],
+                ['Phù hiệu có hiệu lực', filteredEmblemsData.filter(e => !isEmblemExpired(e.NgayHetHan) && e.TrangThai !== 'Đã thu hồi').length],
+                ['GP Liên vận QT', filteredInternationalData.length],
+                ['Phù hiệu LV', filteredIntEmblemsData.length],
+                ['Sổ liên vận', filteredIntBooksData.length],
+                ['Bến xe', filteredBusStationsData.length],
+                ['Tuyến cố định', filteredFixedRoutesData.length],
+                ['Tuyến buýt', filteredBusRoutesData.length]
+            ];
+
+            const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
+            XLSX.utils.book_append_sheet(workbook, summarySheet, 'Tổng quan');
+
+            // Sheet 2: Giấy phép
+            if (filteredLicensesData.length > 0) {
+                const licenseSheet = createLicenseSheet();
+                XLSX.utils.book_append_sheet(workbook, licenseSheet, 'Giấy phép KDVT');
+            }
+
+            // Sheet 3: Phù hiệu
+            if (filteredEmblemsData.length > 0) {
+                const emblemSheet = createEmblemSheet();
+                XLSX.utils.book_append_sheet(workbook, emblemSheet, 'Phù hiệu xe');
+            }
+
+            // Sheet 4: GP Liên vận QT
+            if (filteredInternationalData.length > 0) {
+                const intSheet = createInternationalSheet();
+                XLSX.utils.book_append_sheet(workbook, intSheet, 'GP Liên vận QT');
+            }
+
+            // Sheet 5: Phù hiệu Liên vận - THÊM MỚI
+            if (filteredIntEmblemsData.length > 0) {
+                const intEmblemSheet = createIntEmblemSheet();
+                XLSX.utils.book_append_sheet(workbook, intEmblemSheet, 'Phù hiệu LV');
+            }
+
+            // Sheet 6: Sổ liên vận - THÊM MỚI
+            if (filteredIntBooksData.length > 0) {
+                const intBookSheet = createIntBookSheet();
+                XLSX.utils.book_append_sheet(workbook, intBookSheet, 'Sổ liên vận');
+            }
+
+            // Sheet 7: Bến xe - THÊM MỚI
+            if (filteredBusStationsData.length > 0) {
+                const busStationSheet = createBusStationSheet();
+                XLSX.utils.book_append_sheet(workbook, busStationSheet, 'Bến xe');
+            }
+
+            return workbook;
+        }
+
+        // Xuất dữ liệu GP Liên vận QT với SheetJS
+        function exportInternationalDataSheetJS() {
+            const workbook = XLSX.utils.book_new();
+            const sheet = createInternationalSheet();
+            XLSX.utils.book_append_sheet(workbook, sheet, 'GP Liên vận QT');
+            return workbook;
+        }
+
+        // Xuất dữ liệu Phù hiệu Liên vận với SheetJS
+        function exportIntEmblemsDataSheetJS() {
+            const workbook = XLSX.utils.book_new();
+            const sheet = createIntEmblemSheet();
+            XLSX.utils.book_append_sheet(workbook, sheet, 'Phù hiệu Liên vận');
+            return workbook;
+        }
+
+        // Xuất dữ liệu Sổ Liên vận với SheetJS
+        function exportIntBooksDataSheetJS() {
+            const workbook = XLSX.utils.book_new();
+            const sheet = createIntBookSheet();
+            XLSX.utils.book_append_sheet(workbook, sheet, 'Sổ Liên vận');
+            return workbook;
+        }
+
+        // Xuất dữ liệu Thống kê với SheetJS
+        function exportStatisticsDataSheetJS() {
+            const workbook = XLSX.utils.book_new();
+
+            // Sheet 1: Thống kê tổng quan
+            const summaryData = [
+                ['THỐNG KÊ HỆ THỐNG QUẢN LÝ VẬN TẢI'],
+                [`Ngày xuất: ${new Date().toLocaleString('vi-VN')}`],
+                [`Khoảng thời gian: ${formatDate(document.getElementById('startDate').value)} - ${formatDate(document.getElementById('endDate').value)}`],
+                [],
+                ['CHỈ TIÊU', 'SỐ LƯỢNG'],
+                ['Tổng số GPKD', filteredLicensesData.length],
+                ['Tổng số phù hiệu', filteredEmblemsData.length],
+                ['GP Liên vận QT', filteredInternationalData.length],
+                ['Phù hiệu LV', filteredIntEmblemsData.length],
+                ['Sổ liên vận', filteredIntBooksData.length],
+                [],
+                ['THỐNG KÊ TRẠNG THÁI GPKD'],
+                ['Còn hiệu lực', filteredLicensesData.filter(l => l.TrangThai !== 'Đã thu hồi' && l.TrangThai !== 'Hết hiệu lực').length],
+                ['Hết hiệu lực', filteredLicensesData.filter(l => l.TrangThai === 'Hết hiệu lực').length],
+                ['Bị thu hồi', filteredLicensesData.filter(l => l.TrangThai === 'Đã thu hồi' || l.NgayThuHoi).length],
+                [],
+                ['THỐNG KÊ TRẠNG THÁI PHÙ HIỆU'],
+                ['Còn hiệu lực', filteredEmblemsData.filter(e => !isEmblemExpired(e.NgayHetHan) && e.TrangThai !== 'Đã thu hồi').length],
+                ['Hết hạn', filteredEmblemsData.filter(e => isEmblemExpired(e.NgayHetHan) && e.TrangThai !== 'Đã thu hồi').length],
+                ['Bị thu hồi', filteredEmblemsData.filter(e => e.TrangThai === 'Đã thu hồi' || e.NgayThuHoi).length]
+            ];
+
+            const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
+            XLSX.utils.book_append_sheet(workbook, summarySheet, 'Thống kê tổng quan');
+
+            // Sheet 2: Thống kê theo loại hình vận tải
+            const transportTypeData = getTransportTypeStatistics();
+            const transportSheet = XLSX.utils.aoa_to_sheet([
+                ['THỐNG KÊ THEO LOẠI HÌNH VẬN TẢI'],
+                [`Ngày xuất: ${new Date().toLocaleString('vi-VN')}`],
+                [],
+                ['Loại hình vận tải', 'Số lượng GPKD'],
+                ...transportTypeData.map(item => [item.type, item.count])
+            ]);
+            XLSX.utils.book_append_sheet(workbook, transportSheet, 'Theo loại hình VT');
+
+            return workbook;
+        }
+
+        // Xuất dữ liệu Báo cáo với SheetJS
+        function exportReportsDataSheetJS() {
+            const workbook = XLSX.utils.book_new();
+
+            // Sheet 1: Báo cáo tổng hợp
+            const reportData = [
+                ['BÁO CÁO HỆ THỐNG QUẢN LÝ VẬN TẢI'],
+                [`Ngày xuất: ${new Date().toLocaleString('vi-VN')}`],
+                [`Khoảng thời gian: ${formatDate(document.getElementById('startDate').value)} - ${formatDate(document.getElementById('endDate').value)}`],
+                [],
+                ['1. TỔNG QUAN'],
+                ['- Tổng số GPKD được cấp:', filteredLicensesData.length],
+                ['- Tổng số phù hiệu được cấp:', filteredEmblemsData.length],
+                ['- Tổng số GP Liên vận QT:', filteredInternationalData.length],
+                ['- Tổng số phù hiệu LV:', filteredIntEmblemsData.length],
+                ['- Tổng số sổ liên vận:', filteredIntBooksData.length],
+                [],
+                ['2. TÌNH HÌNH HOẠT ĐỘNG'],
+                ['- GPKD còn hiệu lực:', filteredLicensesData.filter(l => l.TrangThai !== 'Đã thu hồi' && l.TrangThai !== 'Hết hiệu lực').length],
+                ['- Phù hiệu còn hiệu lực:', filteredEmblemsData.filter(e => !isEmblemExpired(e.NgayHetHan) && e.TrangThai !== 'Đã thu hồi').length],
+                ['- GP Liên vận QT đang hoạt động:', filteredInternationalData.filter(i => i.TrangThaiHoatDong === 'Đang hoạt động').length],
+                [],
+                ['3. CẢNH BÁO'],
+                ['- Phù hiệu LV sắp đến hạn:', filteredIntEmblemsData.filter(e => e.HieuLuc === 'Sắp đến hạn').length],
+                ['- Sổ liên vận sắp đến hạn:', filteredIntBooksData.filter(b => b.HieuLuc === 'Sắp đến hạn').length],
+                [],
+                ['4. KẾT LUẬN VÀ KHUYẾN NGHỊ'],
+                ['- Hệ thống đang quản lý tổng cộng:',
+                    filteredLicensesData.length + filteredEmblemsData.length +
+                    filteredInternationalData.length + filteredIntEmblemsData.length +
+                    filteredIntBooksData.length + ' hồ sơ'],
+                ['- Cần theo dõi và gia hạn kịp thời các giấy tờ sắp hết hạn'],
+                ['- Đảm bảo tính chính xác và cập nhật thông tin định kỳ']
+            ];
+
+            const reportSheet = XLSX.utils.aoa_to_sheet(reportData);
+            XLSX.utils.book_append_sheet(workbook, reportSheet, 'Báo cáo tổng hợp');
+
+            // Sheet 2: Xu hướng theo tháng
+            const trendData = getLicenseTrendData(filteredLicensesData);
+            const trendSheet = XLSX.utils.aoa_to_sheet([
+                ['XU HƯỚNG CẤP GPKD THEO THÁNG'],
+                [`Ngày xuất: ${new Date().toLocaleString('vi-VN')}`],
+                [],
+                ['Tháng/Năm', 'Số GPKD được cấp'],
+                ...trendData.labels.map((label, index) => [label, trendData.values[index]])
+            ]);
+            XLSX.utils.book_append_sheet(workbook, trendSheet, 'Xu hướng theo tháng');
+
+            return workbook;
+        }
+
+        // Xuất dữ liệu Bến xe với SheetJS
+        function exportBusStationsDataSheetJS() {
+            const workbook = XLSX.utils.book_new();
+            const sheet = createBusStationSheet();
+            XLSX.utils.book_append_sheet(workbook, sheet, 'Bến xe');
+            return workbook;
+        }
+
+        // Xuất dữ liệu Trung tâm ĐK với SheetJS
+        function exportRegistrationCentersDataSheetJS() {
+            const workbook = XLSX.utils.book_new();
+            const sheet = createRegistrationCenterSheet();
+            XLSX.utils.book_append_sheet(workbook, sheet, 'Trung tâm ĐK');
+            return workbook;
+        }
+
+        // Bổ sung hàm createLicenseSheet và createEmblemSheet nếu chưa có
+        function createLicenseSheet() {
+            const headers = [
+                'STT', 'Số giấy phép', 'Mã hồ sơ', 'Tên đơn vị', 'Địa chỉ',
+                'Quận/Huyện', 'Xã/Phường/Thị trấn', 'Ngày cấp', 'Loại cấp',
+                'Loại hình vận tải', 'Trạng thái', 'Ngày thu hồi', 'Lý do thu hồi', 'Ghi chú'
+            ];
+
+            const data = [
+                ['DANH SÁCH GIẤY PHÉP KINH DOANH VẬN TẢI'],
+                [`Ngày xuất: ${new Date().toLocaleString('vi-VN')}`],
+                [`Tổng số: ${filteredLicensesData.length} giấy phép`],
+                [`Khoảng thời gian: ${formatDate(document.getElementById('startDate').value)} - ${formatDate(document.getElementById('endDate').value)}`],
+                [],
+                headers
+            ];
+
+            filteredLicensesData.forEach((license, index) => {
+                const transportTypes = Array.isArray(license.LoaiHinhVanTai)
+                    ? license.LoaiHinhVanTai.join(', ')
+                    : license.LoaiHinhVanTai || '';
+
+                const companyInfo = getCompanyInfo(license.Ref_DoanhNghiep, 'GIAYPHEPKINHDOANHNOIDIA');
+
+                data.push([
+                    index + 1,
+                    license.SoGiayPhep || '',
+                    license.MaHoSo || '',
+                    license.TenDonVi || '',
+                    license.DiaChi || '',
+                    companyInfo.QuanHuyen || '',
+                    companyInfo.XaPhuongThiTran || '',
+                    formatDate(license.NgayCap),
+                    license.LoaiCap || '',
+                    transportTypes,
+                    license.TrangThai || '',
+                    formatDate(license.NgayThuHoi),
+                    license.LyDoThuHoi || '',
+                    license.GhiChu || ''
+                ]);
+            });
+
+            const worksheet = XLSX.utils.aoa_to_sheet(data);
+
+            // Thiết lập độ rộng cột
+            const colWidths = [
+                { wch: 5 },   // STT
+                { wch: 20 },  // Số giấy phép
+                { wch: 15 },  // Mã hồ sơ
+                { wch: 30 },  // Tên đơn vị
+                { wch: 40 },  // Địa chỉ
+                { wch: 20 },  // Quận/Huyện
+                { wch: 25 },  // Xã/Phường/Thị trấn
+                { wch: 12 },  // Ngày cấp
+                { wch: 15 },  // Loại cấp
+                { wch: 25 },  // Loại hình vận tải
+                { wch: 15 },  // Trạng thái
+                { wch: 12 },  // Ngày thu hồi
+                { wch: 25 },  // Lý do thu hồi
+                { wch: 20 }   // Ghi chú
+            ];
+            worksheet['!cols'] = colWidths;
+
+            return worksheet;
+        }
+
+        function createEmblemSheet() {
+            const headers = [
+                'STT', 'Số phù hiệu', 'Biển số xe', 'Tên đơn vị', 'Địa chỉ',
+                'Quận/Huyện', 'Xã/Phường/Thị trấn', 'Ngày cấp', 'Ngày hết hạn',
+                'Loại phù hiệu', 'Màu phù hiệu', 'Loại cấp', 'Tuyến khai thác',
+                'Trạng thái', 'Ngày thu hồi', 'Ghi chú'
+            ];
+
+            const data = [
+                ['DANH SÁCH PHÙ HIỆU XE'],
+                [`Ngày xuất: ${new Date().toLocaleString('vi-VN')}`],
+                [`Tổng số: ${filteredEmblemsData.length} phù hiệu`],
+                [`Khoảng thời gian: ${formatDate(document.getElementById('startDate').value)} - ${formatDate(document.getElementById('endDate').value)}`],
+                [],
+                headers
+            ];
+
+            filteredEmblemsData.forEach((emblem, index) => {
+                const companyInfo = getCompanyInfo(emblem.Ref_DonViCapPhuHieu, 'PHUHIEUXE');
+                const actualStatus = isEmblemExpired(emblem.NgayHetHan) ? 'Hết hạn' : (emblem.TrangThai || '');
+
+                data.push([
+                    index + 1,
+                    emblem.SoPhuHieu || '',
+                    emblem.BienSo || '',
+                    emblem.Ten_don_vi || '',
+                    emblem['Địa chỉ'] || '',
+                    companyInfo.QuanHuyen || '',
+                    companyInfo.XaPhuongThiTran || '',
+                    formatDate(emblem.NgayCap),
+                    formatDate(emblem.NgayHetHan),
+                    emblem.LoaiPH || '',
+                    emblem.MauPhuHieu || '',
+                    emblem.LoaiCap || '',
+                    emblem['Tuyến khai thác'] || '',
+                    actualStatus,
+                    formatDate(emblem.NgayThuHoi),
+                    emblem.GhiChu || ''
+                ]);
+            });
+
+            const worksheet = XLSX.utils.aoa_to_sheet(data);
+
+            // Thiết lập độ rộng cột
+            const colWidths = [
+                { wch: 5 },   // STT
+                { wch: 20 },  // Số phù hiệu
+                { wch: 15 },  // Biển số xe
+                { wch: 30 },  // Tên đơn vị
+                { wch: 40 },  // Địa chỉ
+                { wch: 20 },  // Quận/Huyện
+                { wch: 25 },  // Xã/Phường/Thị trấn
+                { wch: 12 },  // Ngày cấp
+                { wch: 12 },  // Ngày hết hạn
+                { wch: 15 },  // Loại phù hiệu
+                { wch: 12 },  // Màu phù hiệu
+                { wch: 12 },  // Loại cấp
+                { wch: 30 },  // Tuyến khai thác
+                { wch: 15 },  // Trạng thái
+                { wch: 12 },  // Ngày thu hồi
+                { wch: 20 }   // Ghi chú
+            ];
+            worksheet['!cols'] = colWidths;
+
+            return worksheet;
+        }
+
         // Xuất dữ liệu Dashboard (tổng hợp tất cả)
         function exportDashboardData() {
             const workbook = XLSX.utils.book_new();
