@@ -879,20 +879,24 @@
 
                 switch (tableType) {
                     case 'phuHieu':
+                        // Kiểm tra loại phù hiệu để hiển thị đúng cột
+                        const soGhe = (item.LoaiPH === 'Xe tải') ? '-' : (extractNumber(item['Số ghế']) || '-');
+                        const taiTrong = (item.LoaiPH === 'Xe tải') ? (extractNumber(item['Tải trọng']) || '-') : '-';
+
                         rowHtml = `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td>${item.BienSo || ''}</td>
-                        <td>${extractNumber(item['Số ghế']) || '-'}</td>
-                        <td>${extractNumber(item['Tải trọng']) || '-'}</td>
-                        <td>${item.SoPhuHieu || ''}</td>
-                        <td>${item.LoaiPH || ''}</td>
-                        <td>${formatDate(item.NgayHetHan)}</td>
-                        <td class="text-left">${item['Tuyến khai thác'] || ''}</td>
-                        <td class="text-left">${item['Tuyến buýt'] || ''}</td>
-                        <td class="text-left">${item.tenDoanhNghiep || ''}</td>
-                        <td class="text-left">${item.diaChiDoanhNghiep || ''}</td>
-                    </tr>`;
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td>${item.BienSo || ''}</td>
+                                <td>${soGhe}</td>
+                                <td>${taiTrong}</td>
+                                <td>${item.SoPhuHieu || ''}</td>
+                                <td>${item.LoaiPH || ''}</td>
+                                <td>${formatDate(item.NgayHetHan)}</td>
+                                <td class="text-left">${item['Tuyến khai thác'] || ''}</td>
+                                <td class="text-left">${item['Tuyến buýt'] || ''}</td>
+                                <td class="text-left">${item.tenDoanhNghiep || ''}</td>
+                                <td class="text-left">${item.diaChiDoanhNghiep || ''}</td>
+                            </tr>`;
                         break;
                     case 'gpkd':
                         rowHtml = `
