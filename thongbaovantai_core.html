@@ -753,8 +753,14 @@
 
         function extractNumber(value) {
             if (!value) return '';
-            // Extract first number found
-            const match = value.toString().match(/\d+/);
+            const str = value.toString();
+
+            // Lấy pattern số/số
+            const slashMatch = str.match(/(\d+\/\d+)/);
+            if (slashMatch) return slashMatch[0];
+
+            // Nếu không có "/", lấy số thông thường
+            const match = str.match(/\d+/);
             return match ? match[0] : '';
         }
 
