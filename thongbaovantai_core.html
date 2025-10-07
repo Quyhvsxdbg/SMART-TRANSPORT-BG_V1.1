@@ -1282,21 +1282,26 @@
                                 return nameA.localeCompare(nameB, 'vi', { numeric: true });
                             });
 
-                            locationData.phuHieuGrouped = sortedPhuHieu.map((item, index) => ({
-                                stt: (index + 1).toString(),
-                                bien_so: item.BienSo || '',
-                                so_ghe: extractNumber(item['Số ghế']) || '-',
-                                tai_trong: extractNumber(item['Tải trọng']) || '-',
-                                so_phu_hieu: item.SoPhuHieu || '',
-                                loai_phu_hieu: item.LoaiPH || '',
-                                co_gia_tri_den: formatDate(item.NgayHetHan),
-                                tuyen_khai_thac: item['Tuyến khai thác'] || '',
-                                tuyen_buyt: item['Tuyến buýt'] || '',
-                                ten_don_vi: item.tenDoanhNghiep || '',
-                                dia_chi: item.diaChiDoanhNghiep || ''
-                            }));
-                        }
+                            locationData.phuHieuGrouped = sortedPhuHieu.map((item, index) => {
+                                // ÁP DỤNG LOGIC GIỐNG HIỂN THỊ TRÊN TRANG
+                                const soGhe = (item.LoaiPH === 'Xe tải') ? '-' : (extractNumber(item['Số ghế']) || '-');
+                                const taiTrong = (item.LoaiPH === 'Xe tải') ? (extractNumber(item['Tải trọng']) || '-') : '-';
 
+                                return {
+                                    stt: (index + 1).toString(),
+                                    bien_so: item.BienSo || '',
+                                    so_ghe: soGhe,
+                                    tai_trong: taiTrong,
+                                    so_phu_hieu: item.SoPhuHieu || '',
+                                    loai_phu_hieu: item.LoaiPH || '',
+                                    co_gia_tri_den: formatDate(item.NgayHetHan),
+                                    tuyen_khai_thac: item['Tuyến khai thác'] || '',
+                                    tuyen_buyt: item['Tuyến buýt'] || '',
+                                    ten_don_vi: item.tenDoanhNghiep || '',
+                                    dia_chi: item.diaChiDoanhNghiep || ''
+                                };
+                            });
+                        }
                         // Prepare GPKD data với sắp xếp
                         if (groupedGpkd[location] && groupedGpkd[location].length > 0) {
                             locationData.hasGpkd = true;
