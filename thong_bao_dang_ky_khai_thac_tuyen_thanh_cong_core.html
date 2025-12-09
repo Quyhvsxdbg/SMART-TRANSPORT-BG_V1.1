@@ -368,20 +368,17 @@
     </div>
 
     <script>
-        // ===== 1. Cấu hình AppSheet =====
         const appId = '7ee20176-7cb1-4ad4-9d13-e541c8b1b3dc';
         const accessKey = 'V2-EYFgE-X83x3-xFTsK-y3eTp-L9F22-MKoI1-TGU28-sWcWd';
         const region = 'www';
 
         let globalDocumentData = null;
 
-        // Lấy ID_TB từ URL
         function getIDFromURL() {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get('ID_TB') || urlParams.get('id_tb');
         }
 
-        // Gọi API AppSheet
         async function fetchAppSheetData(tableName, filter = null) {
             const selector = filter || `Filter(${tableName}, true)`;
             const body = {
@@ -407,7 +404,6 @@
             return Array.isArray(data) ? data : [];
         }
 
-        // Định dạng ngày dd/mm/yyyy
         function formatDateShort(dateString) {
             if (!dateString) return '';
             let date;
@@ -426,7 +422,6 @@
                     date = new Date(dateString);
                 }
             } else if (dateString instanceof Date) {
-                date = dateString;
             } else {
                 return dateString.toString();
             }
@@ -439,7 +434,6 @@
             return `${day}/${monthStr}/${year}`;
         }
 
-        // Lấy ngày hiện tại
         function getCurrentDateComponents() {
             const today = new Date();
             const month = today.getMonth() + 1;
@@ -450,7 +444,6 @@
             };
         }
 
-        // Lấy NgayHS từ input date -> dd/mm/yyyy
         function getNgayHSFromInput() {
             const input = document.getElementById('ngay-ho-so');
             if (!input.value) {
@@ -461,43 +454,50 @@
             const day = date.getDate().toString().padStart(2, '0');
             const month = date.getMonth() + 1;
             const year = date.getFullYear();
-
             const monthStr = (month === 1 || month === 2) ? month.toString().padStart(2, '0') : month.toString();
-
             return `${day}/${monthStr}/${year}`;
         }
 
-        // Tính tổng số chuyến/tháng từ LichChieuDi
-        // Ví dụ: "07:40, vào các ngày 1, 2, 3, ..., 30."
+        // ==== HÀM MỚI: tính tổng chuyến từ LichChieuDi ====
+        // Ví dụ chuỗi:
+        // "06:00, 19:15, vào các ngày 1, 2, 3, ..., 30."
         function calculateTongChuyenThang(lichChieuDi) {
             if (!lichChieuDi || typeof lichChieuDi !== 'string') {
                 return 0;
             }
 
-            // Lấy phần sau "vào các ngày"
+            // Tách 2 phần: trước và sau "vào các ngày"
             const parts = lichChieuDi.split('vào các ngày');
-            let daysPart = parts.length > 1 ? parts[1] : lichChieuDi;
+            const hoursPart = parts[0] || '';
+            let daysPart = parts[1] || '';
 
-            // Bỏ dấu chấm
+            // --- 1. Đếm số khung giờ trong ngày ---
+            // bỏ dấu chấm nếu lỡ có
+            const hoursClean = hoursPart.replace(/\./g, '');
+            // tách theo dấu phẩy, lấy token có dạng "hh:mm"
+            const hourTokens = hoursClean.split(',')
+                .map(s => s.trim())
+                .filter(s => /^\d{1,2}:\d{2}$/.test(s));
+            const hoursCount = hourTokens.length;
+
+            // --- 2. Đếm số ngày chạy ---
             daysPart = daysPart.replace(/\./g, '');
-
-            // Tách theo dấu phẩy, lọc số
             const dayTokens = daysPart.split(',')
                 .map(s => s.trim())
                 .filter(s => s !== '');
 
-            let count = 0;
+            let daysCount = 0;
             dayTokens.forEach(token => {
                 const numMatch = token.match(/\d+/);
                 if (numMatch) {
-                    count++;
+                    daysCount++;
                 }
             });
 
-            return count;
+            // Tổng chuyến = số giờ * số ngày
+            return hoursCount * daysCount;
         }
 
-        // Load dữ liệu từ AppSheet
         async function loadData() {
             try {
                 const idTB = getIDFromURL();
@@ -525,7 +525,6 @@
                 const lichChieuDiStr = thongbaoData['LichChieuDi'] || '';
                 const tongChuyenThang = calculateTongChuyenThang(lichChieuDiStr);
 
-                // Map dữ liệu từ AppSheet vào object
                 globalDocumentData = {
                     ID_TB: thongbaoData['ID_TB'] || '',
                     SoThongBao: thongbaoData['SoThongBao'] || '',
@@ -548,7 +547,6 @@
                     LichChieuDi: lichChieuDiStr,
                     LichChieuVe: thongbaoData['LichChieuVe'] || '',
 
-                    // Tổng chuyến / tháng tính từ LichChieuDi
                     TongChuyenThang: tongChuyenThang,
 
                     Ngay: currentDate.day,
@@ -568,7 +566,6 @@
             }
         }
 
-        // Đổ dữ liệu vào HTML
         function populateHTML(data) {
             const setText = (id, value) => {
                 const element = document.getElementById(id);
@@ -618,12 +615,9 @@
             setText('LichChieuVe', data.LichChieuVe);
 
             setText('TongChuyenThang', data.TongChuyenThang);
-
-            // NgayHS sẽ set sau khi user chọn trong input
             setText('NgayHS', '...');
         }
 
-        // Xuất Word
         async function exportToWordTemplate() {
             try {
                 if (!globalDocumentData) {
@@ -640,8 +634,7 @@
                 document.getElementById('loading-message').style.display = 'block';
                 document.getElementById('loading-message').textContent = 'Đang xuất file Word...';
 
-                // Sửa đường dẫn template cho đúng với file .docx của bạn
-                const templateUrl = 'https://poalninh.github.io/templates/thong_bao_dang_ky_khai_thac_tuyen_thanh_cong.docx';
+                const templateUrl = 'templates/thong_bao_dang_ky_khai_thac_tuyen_thanh_cong.docx';
 
                 const response = await fetch(templateUrl);
                 if (!response.ok) {
@@ -659,8 +652,6 @@
                     ...globalDocumentData,
                     NgayHS: ngayHS
                 };
-
-                console.log('📋 Dữ liệu gửi vào template Word:', exportData);
 
                 doc.setData(exportData);
                 doc.render();
@@ -685,7 +676,6 @@
             document.getElementById('loading-message').classList.add('hidden');
         }
 
-        // Khởi tạo
         async function initialize() {
             try {
                 const idTB = getIDFromURL();
@@ -704,7 +694,6 @@
         document.addEventListener('DOMContentLoaded', function () {
             const dateInput = document.getElementById('ngay-ho-so');
 
-            // Khi user chọn ngày -> cập nhật vào văn bản
             dateInput.addEventListener('change', function () {
                 const ngayHS = getNgayHSFromInput();
                 const element = document.getElementById('NgayHS');
@@ -718,7 +707,6 @@
             }, 500);
         });
 
-        // Chặn chuột phải & F12 (tùy bạn giữ hay bỏ)
         document.addEventListener('contextmenu', function (e) {
             e.preventDefault();
         }, false);
