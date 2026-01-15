@@ -297,6 +297,11 @@
     <!-- Button Container -->
     <div class="button-container">
         <div class="date-input-container">
+            <label for="don-vi-kdvt-input">Đơn vị kinh doanh vận tải:</label>
+            <input type="text" id="don-vi-kdvt-input" placeholder="Tự động từ dữ liệu" />
+        </div>
+
+        <div class="date-input-container">
             <label for="ngay-ho-so">Ngày nhận hồ sơ:</label>
             <input type="date" id="ngay-ho-so" />
         </div>
@@ -599,6 +604,12 @@
                 }
             };
 
+            // Set giá trị mặc định cho input DonViKDVT
+            const donViInput = document.getElementById('don-vi-kdvt-input');
+            if (donViInput && data.DonViKDVT) {
+                donViInput.value = data.DonViKDVT;
+            }
+
             setText('ref-tinh-di-upper', data.RefTinhdi_upper);
             setText('so-thong-bao', data.SoThongBao);
             setText('ref-tinh-di', data.RefTinhdi);
@@ -649,7 +660,15 @@
                     return;
                 }
 
+                const donViKDVT = document.getElementById('don-vi-kdvt-input').value.trim();
                 const ngayHS = getNgayHSFromInput();
+
+                if (!donViKDVT) {
+                    alert('Vui lòng nhập đơn vị kinh doanh vận tải trước khi xuất file.');
+                    document.getElementById('don-vi-kdvt-input').focus();
+                    return;
+                }
+
                 if (!ngayHS) {
                     alert('Vui lòng chọn ngày nhận hồ sơ trước khi xuất file.');
                     return;
@@ -674,6 +693,7 @@
 
                 const exportData = {
                     ...globalDocumentData,
+                    DonViKDVT: donViKDVT,
                     NgayHS: ngayHS
                 };
 
@@ -700,8 +720,28 @@
 
         // Update display when date input changes
         document.addEventListener('DOMContentLoaded', function () {
+            const donViInput = document.getElementById('don-vi-kdvt-input');
             const dateInput = document.getElementById('ngay-ho-so');
-            
+
+            // Cập nhật DonViKDVT realtime
+            donViInput.addEventListener('input', function() {
+                const donViKDVT = donViInput.value;
+
+                // Cập nhật cả 2 vị trí
+                const elements = ['don-vi-kdvt', 'don-vi-kdvt-2'];
+                elements.forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.textContent = donViKDVT || '...';
+                    }
+                });
+
+                // Update global data
+                if (globalDocumentData) {
+                    globalDocumentData.DonViKDVT = donViKDVT;
+                }
+            });
+
             dateInput.addEventListener('change', function() {
                 const ngayHS = getNgayHSFromInput();
                 const element = document.getElementById('ngay-ban-hanh');

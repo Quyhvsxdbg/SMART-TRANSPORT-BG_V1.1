@@ -275,6 +275,11 @@
     <!-- Button Container -->
     <div class="button-container">
         <div class="date-input-container">
+            <label for="don-vi-kdvt-input">Đơn vị kinh doanh vận tải:</label>
+            <input type="text" id="don-vi-kdvt-input" placeholder="Tự động từ dữ liệu" />
+        </div>
+
+        <div class="date-input-container">
             <label for="ngay-ho-so">Ngày thông báo (NgayHS):</label>
             <input type="date" id="ngay-ho-so" />
         </div>
@@ -574,6 +579,12 @@
                 }
             };
 
+            // Set giá trị mặc định cho input DonViKDVT
+            const donViInput = document.getElementById('don-vi-kdvt-input');
+            if (donViInput && data.DonViKDVT) {
+                donViInput.value = data.DonViKDVT;
+            }
+
             setText('RefTinhdi_upper', data.RefTinhdi_upper);
             setText('SoThongBao', data.SoThongBao);
             setText('RefTinhdi', data.RefTinhdi);
@@ -625,7 +636,15 @@
                     return;
                 }
 
+                const donViKDVT = document.getElementById('don-vi-kdvt-input').value.trim();
                 const ngayHS = getNgayHSFromInput();
+
+                if (!donViKDVT) {
+                    alert('Vui lòng nhập đơn vị kinh doanh vận tải trước khi xuất file.');
+                    document.getElementById('don-vi-kdvt-input').focus();
+                    return;
+                }
+
                 if (!ngayHS) {
                     alert('Vui lòng chọn NgayHS (ngày thông báo) trước khi xuất file.');
                     return;
@@ -634,7 +653,7 @@
                 document.getElementById('loading-message').style.display = 'block';
                 document.getElementById('loading-message').textContent = 'Đang xuất file Word...';
 
-                const templateUrl = 'https://poalninh.github.io/templates/thong_bao_dang_ky_khai_thac_tuyen_thanh_cong.docx';
+                const templateUrl = 'templates/thong_bao_dang_ky_khai_thac_tuyen_thanh_cong.docx';
 
                 const response = await fetch(templateUrl);
                 if (!response.ok) {
@@ -650,6 +669,7 @@
 
                 const exportData = {
                     ...globalDocumentData,
+                    DonViKDVT: donViKDVT,
                     NgayHS: ngayHS
                 };
 
@@ -692,7 +712,27 @@
         }
 
         document.addEventListener('DOMContentLoaded', function () {
+            const donViInput = document.getElementById('don-vi-kdvt-input');
             const dateInput = document.getElementById('ngay-ho-so');
+
+            // Cập nhật DonViKDVT realtime
+            donViInput.addEventListener('input', function () {
+                const donViKDVT = donViInput.value;
+
+                // Cập nhật tất cả 4 vị trí
+                const elements = ['DonViKDVT', 'DonViKDVT_2', 'DonViKDVT_3', 'DonViKDVT_4'];
+                elements.forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.textContent = donViKDVT || '...';
+                    }
+                });
+
+                // Update global data
+                if (globalDocumentData) {
+                    globalDocumentData.DonViKDVT = donViKDVT;
+                }
+            });
 
             dateInput.addEventListener('change', function () {
                 const ngayHS = getNgayHSFromInput();
