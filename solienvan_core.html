@@ -613,8 +613,8 @@
                 if (xeData.NhanHieu) {
                     document.getElementById('nhan-hieu').textContent = xeData.NhanHieu;
                 }
-                if (xeData.LoaiXe) {
-                    document.getElementById('loai-xe').textContent = xeData.LoaiXe;
+                if (xeData.LoaiPhuongTien) {
+                    document.getElementById('loai-xe').textContent = xeData.LoaiPhuongTien;
                 }
                 if (xeData.MauSon) {
                     document.getElementById('mau-son').textContent = xeData.MauSon;
@@ -703,7 +703,7 @@
                     bien_so: soLienVan.BienSo || '',
                     nam_san_xuat: xe ? (xe.NamSanXuat || '') : '',
                     nhan_hieu: xe ? (xe.NhanHieu || '') : '',
-                    loai_xe: xe ? (xe.LoaiXe || '') : '',
+                    loai_xe: xe ? (xe.LoaiPhuongTien || '') : '',
                     mau_son: xe ? (xe.MauSon || '') : '',
                     so_may: xe ? (xe.SoMay || '') : '',
                     so_khung: xe ? (xe.SoKhung || '') : '',
