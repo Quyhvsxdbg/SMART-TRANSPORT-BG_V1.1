@@ -445,11 +445,37 @@
 
         // Function to get parameters from URL
         function getParametersFromURL() {
-            const urlParams = new URLSearchParams(window.location.search);
             const params = {};
+            const knownKeys = [
+                'tendoanhnghiep',
+                'ngaycap',
+                'nguoidaidien',
+                'bophanat_truongbp',
+                'bophanat_thanhvien'
+            ];
 
-            for (const [key, value] of urlParams) {
-                params[key.toLowerCase()] = decodeURIComponent(value);
+            // Decode toàn bộ query string trước
+            const fullQuery = decodeURIComponent(window.location.search.slice(1));
+
+            for (let i = 0; i < knownKeys.length; i++) {
+                const key = knownKeys[i];
+                const keyIndex = fullQuery.toLowerCase().indexOf(key + '=');
+                if (keyIndex === -1) continue;
+
+                const valueStart = keyIndex + key.length + 1;
+
+                // Tìm điểm kết thúc = vị trí &knownKey= gần nhất phía sau
+                let valueEnd = fullQuery.length;
+                for (let j = 0; j < knownKeys.length; j++) {
+                    if (j === i) continue;
+                    const nextKeyPattern = '&' + knownKeys[j] + '=';
+                    const nextIndex = fullQuery.toLowerCase().indexOf(nextKeyPattern, valueStart);
+                    if (nextIndex !== -1 && nextIndex < valueEnd) {
+                        valueEnd = nextIndex;
+                    }
+                }
+
+                params[key] = fullQuery.substring(valueStart, valueEnd);
             }
 
             return params;
