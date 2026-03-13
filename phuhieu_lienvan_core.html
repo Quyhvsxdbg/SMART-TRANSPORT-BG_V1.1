@@ -283,14 +283,19 @@
         // Format date function
         function formatDate(dateString) {
             if (!dateString) return '';
+            // AppSheet trả về định dạng DD/MM/YYYY, parse thủ công để tránh JS hiểu nhầm MM/DD/YYYY
+            const parts = dateString.split('/');
+            if (parts.length === 3) {
+                const day = parts[0].padStart(2, '0');
+                const month = parts[1].padStart(2, '0');
+                const year = parts[2];
+                return `${day}/${month}/${year}`;
+            }
+            // Fallback nếu định dạng khác
             const date = new Date(dateString);
-            const day = date.getDate().toString().padStart(2, '0'); // Always pad day with zero
-            const month = date.getMonth() + 1;
-            // Only pad months 1 and 2 with zero
-            const formattedMonth = month <= 2 ?
-                month.toString().padStart(2, '0') :
-                month.toString();
-            return `${day}/${formattedMonth}/${date.getFullYear()}`;
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            return `${day}/${month}/${date.getFullYear()}`;
         }
 
         // Main function to fetch all data simultaneously
