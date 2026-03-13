@@ -287,14 +287,16 @@
             const parts = dateString.split('/');
             if (parts.length === 3) {
                 const day = parts[0].padStart(2, '0');
-                const month = parts[1].padStart(2, '0');
+                const monthNum = parseInt(parts[1], 10);
+                const month = monthNum <= 2 ? String(monthNum).padStart(2, '0') : String(monthNum);
                 const year = parts[2];
                 return `${day}/${month}/${year}`;
             }
             // Fallback nếu định dạng khác
             const date = new Date(dateString);
             const day = date.getDate().toString().padStart(2, '0');
-            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const monthNum = date.getMonth() + 1;
+            const month = monthNum <= 2 ? String(monthNum).padStart(2, '0') : String(monthNum);
             return `${day}/${month}/${date.getFullYear()}`;
         }
 
