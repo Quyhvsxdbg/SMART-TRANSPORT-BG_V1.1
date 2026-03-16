@@ -171,7 +171,7 @@
                 </select>
             </div>
             <!-- Quận huyện -->
-            <div class="min-w-[180px]">
+            <div class="min-w-[140px] max-w-[180px]">
                 <label class="block text-xs font-semibold text-gray-600 mb-1">
                     <i class="fas fa-map-marker-alt mr-1 text-red-500"></i> Quận/Huyện
                 </label>
@@ -179,6 +179,26 @@
                     class="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-500 transition bg-white">
                     <option value="">-- Tất cả --</option>
                 </select>
+            </div>
+            <!-- Số lượng phù hiệu -->
+            <div class="min-w-[230px]">
+                <label class="block text-xs font-semibold text-gray-600 mb-1">
+                    <i class="fas fa-filter mr-1 text-orange-500"></i> Tổng phù hiệu
+                </label>
+                <div class="flex gap-1 items-center">
+                    <select id="totalOp" onchange="applyFilters()"
+                        class="border-2 border-gray-200 rounded-xl px-2 py-2 text-sm focus:outline-none focus:border-blue-500 transition bg-white">
+                        <option value="">-- Tất cả --</option>
+                        <option value="gte">&ge; Lớn hơn</option>
+                        <option value="lte">&le; Nhỏ hơn</option>
+                        <option value="between">Trong khoảng</option>
+                    </select>
+                    <input id="totalMin" type="number" min="0" placeholder="Số" oninput="applyFilters()"
+                        class="w-20 border-2 border-gray-200 rounded-xl px-2 py-2 text-sm focus:outline-none focus:border-blue-500 transition">
+                    <span id="totalBetweenSep" class="text-gray-400 text-xs hidden">—</span>
+                    <input id="totalMax" type="number" min="0" placeholder="Đến" oninput="applyFilters()"
+                        class="w-20 border-2 border-gray-200 rounded-xl px-2 py-2 text-sm focus:outline-none focus:border-blue-500 transition hidden">
+                </div>
             </div>
             <!-- Nút reset -->
             <button onclick="resetFilters()"
@@ -323,9 +343,9 @@
                 companyMap[key] = {
                     companyId:    key,
                     tenDonVi:     e.Ten_don_vi || (comp ? (comp.TenDoanhNghiep || '') : ''),
-                    diaChi:       e['Địa chỉ'] || (comp ? (comp.DiachiDayDu || comp['Địa chỉ'] || '') : ''),
+                    diaChi:       comp ? (comp.DiaChiSauSapNhap || '') : '',
                     loaihinh:     e.Loaihinh_donvi || (comp ? (comp.Loaihinh_donvi || comp.LoaihinhDonvi || '') : ''),
-                    quanHuyen:    comp ? (comp.QuanHuyen || '') : '',
+                    quanHuyen:    comp ? (comp.XaPhuongSauSapNhap || '') : '',
                     maDN:         comp ? (comp.MaDN || comp.IDDoanhNghiep || key) : key,
                     nguoiDaiDien: comp ? (comp.NguoiDaiDienTheoPhapLuat || comp.NguoiDaiDien || comp.NguoidaidienTheoPhapLuat || '') : '',
                     dienThoai:    comp ? (comp.SoDienThoai || comp.DienThoai || '') : '',
@@ -375,6 +395,14 @@
         const loaihinh = document.getElementById('loaihinhFilter').value;
         const loaiph   = document.getElementById('loaiphFilter').value;
         const qh       = document.getElementById('quanhuyenFilter').value;
+        const totalOp  = document.getElementById('totalOp').value;
+        const totalMin = parseFloat(document.getElementById('totalMin').value);
+        const totalMax = parseFloat(document.getElementById('totalMax').value);
+
+        // Hiện/ẩn ô "đến" theo toán tử
+        const isBetween = totalOp === 'between';
+        document.getElementById('totalMax').classList.toggle('hidden', !isBetween);
+        document.getElementById('totalBetweenSep').classList.toggle('hidden', !isBetween);
 
         filteredStats = statsData.filter(s => {
             if (loaihinh && s.loaihinh !== loaihinh) return false;
@@ -384,6 +412,11 @@
                 const name = removeAccents(s.tenDonVi.toLowerCase());
                 const ma   = removeAccents(s.maDN.toLowerCase());
                 if (!name.includes(search) && !ma.includes(search)) return false;
+            }
+            if (totalOp && !isNaN(totalMin)) {
+                if (totalOp === 'gte'     && s.total < totalMin)  return false;
+                if (totalOp === 'lte'     && s.total > totalMin)  return false;
+                if (totalOp === 'between' && !isNaN(totalMax) && (s.total < totalMin || s.total > totalMax)) return false;
             }
             return true;
         });
@@ -398,6 +431,9 @@
         document.getElementById('loaihinhFilter').value = '';
         document.getElementById('loaiphFilter').value = '';
         document.getElementById('quanhuyenFilter').value = '';
+        document.getElementById('totalOp').value = '';
+        document.getElementById('totalMin').value = '';
+        document.getElementById('totalMax').value = '';
         applyFilters();
     }
 
@@ -543,8 +579,8 @@
                     ${s.loaihinh ? `<span class="type-badge ${badgeClass}">${s.loaihinh}</span>` : ''}
                 </td>
                 <td class="sc-ten px-3 py-2.5 text-xs font-semibold text-gray-800" style="background:${rowBg};white-space:normal;word-break:break-word">${s.tenDonVi}</td>
-                <td class="sc-dia px-3 py-2.5 text-xs text-gray-500 cell-truncate" style="background:${rowBg}" title="${s.diaChi}">${s.diaChi}</td>
-                <td class="sc-ndd px-3 py-2.5 text-xs text-gray-600 cell-truncate" style="background:${rowBg}" title="${s.nguoiDaiDien}">${s.nguoiDaiDien}</td>
+                <td class="sc-dia px-3 py-2.5 text-xs text-gray-500" style="background:${rowBg}" title="${s.diaChi}">${s.diaChi}</td>
+                <td class="sc-ndd px-3 py-2.5 text-xs text-gray-600 " style="background:${rowBg}" title="${s.nguoiDaiDien}">${s.nguoiDaiDien}</td>
                 <td class="sc-dt  px-3 py-2.5 text-xs text-gray-600 whitespace-nowrap" style="background:${rowBg}">${s.dienThoai ? `<a href="tel:${s.dienThoai}" class="hover:text-blue-600">${s.dienThoai}</a>` : ''}</td>
                 <td class="px-3 py-2.5 text-xs text-gray-600 cell-truncate" style="max-width:150px">${s.email ? `<a href="mailto:${s.email}" class="text-blue-500 hover:underline" title="${s.email}">${s.email}</a>` : ''}</td>
                 <td class="px-3 py-2.5 text-center font-bold text-indigo-700">${s.dangKhaiThac || ''}</td>
