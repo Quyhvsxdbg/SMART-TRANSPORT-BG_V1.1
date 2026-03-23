@@ -1162,7 +1162,7 @@
 
                     <!-- Bộ lọc cho Phù hiệu -->
                     <div id="emblemFilters" class="filter-section hidden">
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
                             <div class="filter-group">
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">
                                     <i class="fas fa-search text-blue-500 mr-1"></i>
@@ -1231,6 +1231,75 @@
                                     </select>
                                     <i
                                         class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Hàng bộ lọc thứ 2: thông tin từ bảng Xe -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                            <!-- Loại phương tiện -->
+                            <div class="filter-group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-bus text-blue-500 mr-1"></i>
+                                    LOẠI PHƯƠNG TIỆN
+                                </label>
+                                <div class="relative">
+                                    <select id="emblemVehicleTypeFilter"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 appearance-none">
+                                        <option value="">Tất cả</option>
+                                    </select>
+                                    <i class="fas fa-chevron-down absolute right-3 top-4 text-gray-400 pointer-events-none"></i>
+                                </div>
+                            </div>
+                            <!-- Số chỗ -->
+                            <div class="filter-group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-users text-green-500 mr-1"></i>
+                                    SỐ CHỖ (chỗ)
+                                </label>
+                                <div class="flex gap-2">
+                                    <input type="number" id="emblemSoChoMin" placeholder="Từ"
+                                        class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200">
+                                    <input type="number" id="emblemSoChoMax" placeholder="Đến"
+                                        class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200">
+                                </div>
+                            </div>
+                            <!-- Tải trọng -->
+                            <div class="filter-group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-weight-hanging text-orange-500 mr-1"></i>
+                                    TẢI TRỌNG (kg)
+                                </label>
+                                <div class="flex gap-2">
+                                    <input type="number" id="emblemTaiTrongMin" placeholder="Từ"
+                                        class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200">
+                                    <input type="number" id="emblemTaiTrongMax" placeholder="Đến"
+                                        class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200">
+                                </div>
+                            </div>
+                            <!-- Số giường -->
+                            <div class="filter-group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-bed text-purple-500 mr-1"></i>
+                                    SỐ GIƯỜNG (giường)
+                                </label>
+                                <div class="flex gap-2">
+                                    <input type="number" id="emblemSoGiuongMin" placeholder="Từ"
+                                        class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200">
+                                    <input type="number" id="emblemSoGiuongMax" placeholder="Đến"
+                                        class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200">
+                                </div>
+                            </div>
+                            <!-- Năm sản xuất -->
+                            <div class="filter-group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-calendar-alt text-red-500 mr-1"></i>
+                                    NĂM SẢN XUẤT
+                                </label>
+                                <div class="flex gap-2">
+                                    <input type="number" id="emblemNamSXMin" placeholder="Từ năm"
+                                        class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200">
+                                    <input type="number" id="emblemNamSXMax" placeholder="Đến năm"
+                                        class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200">
                                 </div>
                             </div>
                         </div>
@@ -2176,6 +2245,7 @@
         let originalFixedRoutesData = [];
         let originalBusRoutesData = [];
         let originalRegistrationCentersData = [];
+        let vehicleData = []; // Dữ liệu bảng Xe để join với PHUHIEUXE
 
         // Filtered data variables (dữ liệu sau khi lọc)
         let filteredLicensesData = [];
@@ -4040,6 +4110,23 @@
             }
         }
 
+        // Fetch Vehicle Data (bảng Xe) để join với PHUHIEUXE
+        async function fetchVehicleData() {
+            try {
+                const response = await apiRequest('Xe', 'Find', {
+                    Selector: "Filter(Xe, true)"
+                });
+                if (Array.isArray(response)) {
+                    vehicleData = response;
+                    console.log('Dữ liệu xe:', vehicleData);
+                } else {
+                    throw new Error('Dữ liệu không hợp lệ');
+                }
+            } catch (error) {
+                console.error('Lỗi khi lấy dữ liệu xe:', error);
+            }
+        }
+
         // Fetch International Licenses Data
         async function fetchInternationalData() {
             try {
@@ -4462,6 +4549,21 @@
             const statusFilter = document.getElementById('emblemStatusFilter').value;
             const unitTypeFilter = document.getElementById('emblemUnitTypeFilter').value;
 
+            // Bộ lọc từ bảng Xe
+            const vehicleTypeFilter = document.getElementById('emblemVehicleTypeFilter').value;
+            const soChoMin = document.getElementById('emblemSoChoMin').value;
+            const soChoMax = document.getElementById('emblemSoChoMax').value;
+            const taiTrongMin = document.getElementById('emblemTaiTrongMin').value;
+            const taiTrongMax = document.getElementById('emblemTaiTrongMax').value;
+            const soGiuongMin = document.getElementById('emblemSoGiuongMin').value;
+            const soGiuongMax = document.getElementById('emblemSoGiuongMax').value;
+            const namSXMin = document.getElementById('emblemNamSXMin').value;
+            const namSXMax = document.getElementById('emblemNamSXMax').value;
+
+            const hasVehicleFilter = vehicleTypeFilter || soChoMin || soChoMax ||
+                taiTrongMin || taiTrongMax || soGiuongMin || soGiuongMax ||
+                namSXMin || namSXMax;
+
             return data.filter(emblem => {
                 // Company name and license plate filter - CẬP NHẬT ĐỂ TÌM CẢ TÊN VÀ BIỂN SỐ
                 if (companyFilter) {
@@ -4469,7 +4571,6 @@
                     const normalizedCompanyName = removeVietnameseAccents(emblem.Ten_don_vi || '');
                     const normalizedLicensePlate = removeVietnameseAccents(emblem.BienSo || '');
 
-                    // Tìm kiếm trong cả tên đơn vị và biển số
                     const matchesCompany = normalizedCompanyName.includes(normalizedFilter);
                     const matchesLicensePlate = normalizedLicensePlate.includes(normalizedFilter);
 
@@ -4497,6 +4598,30 @@
                 if (statusFilter) {
                     const emblemStatus = getEmblemFilterStatus(emblem);
                     if (emblemStatus !== statusFilter) return false;
+                }
+
+                // Bộ lọc theo bảng Xe (join qua BienSoXe = IDXe)
+                if (hasVehicleFilter) {
+                    const vehicle = vehicleData.find(v => v.IDXe === emblem.BienSoXe);
+                    if (!vehicle) return false;
+
+                    if (vehicleTypeFilter && vehicle.LoaiPhuongTien !== vehicleTypeFilter) return false;
+
+                    const socho = parseFloat(vehicle.SoCho) || 0;
+                    if (soChoMin && socho < parseFloat(soChoMin)) return false;
+                    if (soChoMax && socho > parseFloat(soChoMax)) return false;
+
+                    const taitrong = parseFloat(vehicle.TaiTrong) || 0;
+                    if (taiTrongMin && taitrong < parseFloat(taiTrongMin)) return false;
+                    if (taiTrongMax && taitrong > parseFloat(taiTrongMax)) return false;
+
+                    const sogiuong = parseFloat(vehicle.SoGiuong) || 0;
+                    if (soGiuongMin && sogiuong < parseFloat(soGiuongMin)) return false;
+                    if (soGiuongMax && sogiuong > parseFloat(soGiuongMax)) return false;
+
+                    const namsx = parseInt(vehicle.NamSanXuat) || 0;
+                    if (namSXMin && namsx < parseInt(namSXMin)) return false;
+                    if (namSXMax && namsx > parseInt(namSXMax)) return false;
                 }
 
                 return true;
@@ -4752,6 +4877,17 @@
             document.getElementById('emblemCapFilter').value = '';
             document.getElementById('emblemStatusFilter').value = '';
             document.getElementById('emblemUnitTypeFilter').value = '';
+
+            // Clear vehicle filters
+            document.getElementById('emblemVehicleTypeFilter').value = '';
+            document.getElementById('emblemSoChoMin').value = '';
+            document.getElementById('emblemSoChoMax').value = '';
+            document.getElementById('emblemTaiTrongMin').value = '';
+            document.getElementById('emblemTaiTrongMax').value = '';
+            document.getElementById('emblemSoGiuongMin').value = '';
+            document.getElementById('emblemSoGiuongMax').value = '';
+            document.getElementById('emblemNamSXMin').value = '';
+            document.getElementById('emblemNamSXMax').value = '';
 
             document.getElementById('intEmblemStatusFilter').value = '';
             document.getElementById('intEmblemTypeFilter').value = '';
@@ -7345,6 +7481,19 @@
                 option.textContent = cap;
                 capFilter.appendChild(option);
             });
+
+            // Populate LoaiPhuongTien từ bảng Xe
+            const vehicleTypeFilter = document.getElementById('emblemVehicleTypeFilter');
+            while (vehicleTypeFilter.children.length > 1) {
+                vehicleTypeFilter.removeChild(vehicleTypeFilter.lastChild);
+            }
+            const vehicleTypes = [...new Set(vehicleData.map(v => v.LoaiPhuongTien).filter(Boolean))];
+            vehicleTypes.sort().forEach(vt => {
+                const option = document.createElement('option');
+                option.value = vt;
+                option.textContent = vt;
+                vehicleTypeFilter.appendChild(option);
+            });
         }
 
         function populateInternationalFilters() {
@@ -7658,11 +7807,12 @@
                 await Promise.all([
                     fetchLicensesData(),
                     fetchEmblemsData(),
+                    fetchVehicleData(),
                     fetchInternationalData(),
                     fetchIntEmblemsData(),
                     fetchIntBooksData(),
                     fetchBusStationsData(),      // THÊM
-                    fetchFixedRoutesData(),      // THÊM  
+                    fetchFixedRoutesData(),      // THÊM
                     fetchBusRoutesData(),
                     fetchRegistrationCentersData()
                 ]);
@@ -7931,6 +8081,7 @@
                     fetchCompanyData(), // Thêm làm mới dữ liệu công ty
                     fetchLicensesData(),
                     fetchEmblemsData(),
+                    fetchVehicleData(),
                     fetchInternationalData(),
                     fetchIntEmblemsData(),
                     fetchIntBooksData(),
