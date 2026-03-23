@@ -7784,38 +7784,96 @@
                 }
             });
 
-            // Show loading notification
-            showNotification('Đang khởi tạo hệ thống...', 'info');
+            // === CACHE + PROGRESSIVE LOADING ===
+            const CACHE_TTL = 10 * 60 * 1000; // 10 phút
+
+            function saveCache(key, data) {
+                try {
+                    localStorage.setItem(key, JSON.stringify({ ts: Date.now(), data }));
+                } catch (e) { /* localStorage đầy thì bỏ qua */ }
+            }
+
+            function loadCache(key) {
+                try {
+                    const raw = localStorage.getItem(key);
+                    if (!raw) return null;
+                    const { ts, data } = JSON.parse(raw);
+                    if (Date.now() - ts > CACHE_TTL) return null;
+                    return data;
+                } catch (e) { return null; }
+            }
+
+            // Wrap mỗi fetch: dùng cache ngay nếu có, gọi API ngầm rồi cập nhật
+            async function fetchWithCache(key, fetchFn, setData) {
+                const cached = loadCache(key);
+                if (cached) {
+                    setData(cached);
+                    // Refresh ngầm ở background
+                    fetchFn().then(fresh => {
+                        if (fresh && fresh.length) {
+                            setData(fresh);
+                            saveCache(key, fresh);
+                        }
+                    }).catch(() => {});
+                    return;
+                }
+                const data = await fetchFn();
+                if (data && data.length) {
+                    setData(data);
+                    saveCache(key, data);
+                }
+            }
+
+            // Các hàm fetch trả về data thay vì tự set biến
+            async function _fetchRaw(tableName, selector) {
+                const res = await apiRequest(tableName, 'Find', { Selector: selector });
+                return Array.isArray(res) ? res : [];
+            }
+
+            showNotification('Đang tải dữ liệu...', 'info');
 
             try {
-                // Load company data first
-                await fetchCompanyData();
-
-                // Load data from all tables
+                // BƯỚC 1: Load company + bảng ưu tiên (dashboard & tab mặc định) song song
                 await Promise.all([
-                    fetchLicensesData(),
-                    fetchEmblemsData(),
-                    fetchVehicleData(),
-                    fetchInternationalData(),
-                    fetchIntEmblemsData(),
-                    fetchIntBooksData(),
-                    fetchBusStationsData(),      // THÊM
-                    fetchFixedRoutesData(),      // THÊM
-                    fetchBusRoutesData(),
-                    fetchRegistrationCentersData()
+                    fetchWithCache('cache_company', () => _fetchRaw('THONGTINDONVIVANTAI', 'Filter(THONGTINDONVIVANTAI, true)'),
+                        d => { originalCompanyData = d; }),
+                    fetchWithCache('cache_licenses', () => _fetchRaw('GIAYPHEPKINHDOANHNOIDIA', 'Filter(GIAYPHEPKINHDOANHNOIDIA, true)'),
+                        d => { originalLicensesData = d; filteredLicensesData = [...d]; }),
+                    fetchWithCache('cache_emblems', () => _fetchRaw('PHUHIEUXE', 'Filter(PHUHIEUXE, true)'),
+                        d => { originalEmblemsData = d; filteredEmblemsData = [...d]; }),
+                    fetchWithCache('cache_vehicle', () => _fetchRaw('Xe', 'Filter(Xe, true)'),
+                        d => { vehicleData = d; }),
                 ]);
 
-                // Populate filter options
+                // BƯỚC 2: Hiển thị UI ngay với data đã có
                 populateFilterOptions();
-
-                // Update all UI with initial data
                 updateAllUI();
+                setTimeout(() => { initDashboardCharts(); }, 300);
+                showNotification('Đã tải xong dữ liệu chính!', 'success');
 
-                // Initialize dashboard charts
-                setTimeout(() => {
-                    initDashboardCharts();
-                    showNotification('Hệ thống đã sẵn sàng!', 'success');
-                }, 500);
+                // BƯỚC 3: Load các bảng phụ ngầm ở background
+                Promise.all([
+                    fetchWithCache('cache_international', () => _fetchRaw('DoanhNghiep', 'Filter(DoanhNghiep, [SoGPLienVanQT] <> "")'),
+                        d => { originalInternationalData = d; filteredInternationalData = [...d]; }),
+                    fetchWithCache('cache_int_emblems', () => _fetchRaw('PhuHieuLienVan', 'Filter(PhuHieuLienVan, true)'),
+                        d => { originalIntEmblemsData = d; filteredIntEmblemsData = [...d]; }),
+                    fetchWithCache('cache_int_books', () => _fetchRaw('SoLienVan', 'Filter(SoLienVan, true)'),
+                        d => { originalIntBooksData = d; filteredIntBooksData = [...d]; }),
+                    fetchWithCache('cache_bus_stations', () => _fetchRaw('MABENXE', 'Filter(MABENXE, true)').then(res => res.filter(s => {
+                        const addr = s.DiaChiBenXe || '';
+                        return (addr.includes('Bắc Giang') || addr.includes('Bắc Ninh')) && (s.MoHinh || '').toUpperCase() === 'BX';
+                    })), d => { originalBusStationsData = d; filteredBusStationsData = [...d]; }),
+                    fetchWithCache('cache_fixed_routes', () => _fetchRaw('DANHMUCTUYENCODINH', 'Filter(DANHMUCTUYENCODINH, true)'),
+                        d => { originalFixedRoutesData = d; filteredFixedRoutesData = [...d]; }),
+                    fetchWithCache('cache_bus_routes', () => _fetchRaw('DANHMUCTUYENBUYT', 'Filter(DANHMUCTUYENBUYT, true)'),
+                        d => { originalBusRoutesData = d; filteredBusRoutesData = [...d]; }),
+                    fetchWithCache('cache_reg_centers', () => _fetchRaw('TRUNGTAMDK', 'Filter(TRUNGTAMDK, true)'),
+                        d => { originalRegistrationCentersData = d; filteredRegistrationCentersData = [...d]; }),
+                ]).then(() => {
+                    populateFilterOptions();
+                    updateAllUI();
+                    updateChartsWithFilteredData();
+                }).catch(e => console.error('Lỗi tải dữ liệu phụ:', e));
 
             } catch (error) {
                 console.error('Lỗi khởi tạo ứng dụng:', error);
@@ -8061,24 +8119,42 @@
         // Event listeners
         document.addEventListener('DOMContentLoaded', initializeApp);
 
-        // Auto-refresh data every 10 minutes (CẬP NHẬT)
+        // Auto-refresh data every 10 minutes — xóa cache cũ rồi fetch lại
         setInterval(async () => {
             showNotification('Đang làm mới dữ liệu...', 'info');
+            const keys = ['cache_company','cache_licenses','cache_emblems','cache_vehicle',
+                'cache_international','cache_int_emblems','cache_int_books',
+                'cache_bus_stations','cache_fixed_routes','cache_bus_routes','cache_reg_centers'];
+            keys.forEach(k => localStorage.removeItem(k));
             try {
                 await Promise.all([
-                    fetchCompanyData(), // Thêm làm mới dữ liệu công ty
+                    fetchCompanyData(),
                     fetchLicensesData(),
                     fetchEmblemsData(),
                     fetchVehicleData(),
                     fetchInternationalData(),
                     fetchIntEmblemsData(),
                     fetchIntBooksData(),
-                    fetchBusStationsData(),    // THÊM
-                    fetchFixedRoutesData(),    // THÊM
+                    fetchBusStationsData(),
+                    fetchFixedRoutesData(),
                     fetchBusRoutesData(),
-                    fetchRegistrationCentersData()        // THÊM
+                    fetchRegistrationCentersData()
                 ]);
+                // Lưu lại cache mới
+                const save = (k, d) => { try { localStorage.setItem(k, JSON.stringify({ ts: Date.now(), data: d })); } catch(e){} };
+                save('cache_company', originalCompanyData);
+                save('cache_licenses', originalLicensesData);
+                save('cache_emblems', originalEmblemsData);
+                save('cache_vehicle', vehicleData);
+                save('cache_international', originalInternationalData);
+                save('cache_int_emblems', originalIntEmblemsData);
+                save('cache_int_books', originalIntBooksData);
+                save('cache_bus_stations', originalBusStationsData);
+                save('cache_fixed_routes', originalFixedRoutesData);
+                save('cache_bus_routes', originalBusRoutesData);
+                save('cache_reg_centers', originalRegistrationCentersData);
                 updateAllUI();
+                updateChartsWithFilteredData();
                 showNotification('Dữ liệu đã được làm mới!', 'success');
             } catch (error) {
                 console.error('Lỗi khi làm mới dữ liệu:', error);
