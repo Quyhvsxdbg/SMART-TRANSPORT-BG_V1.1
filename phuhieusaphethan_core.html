@@ -414,27 +414,16 @@
                 // Prepare API calls
                 const currentDate = new Date().toISOString();
 
-                // === SỬA LỖI CHÍNH ===
-                // Tạo ngày đầu và cuối của tháng tiếp theo để filter
-                const nextMonthStart = new Date(year, month - 1, 1); // Ngày đầu tháng tiếp theo
-                const nextMonthEnd = new Date(year, month, 0); // Ngày cuối tháng tiếp theo
-
-                const startDateStr = `${month}/${1}/${year}`;
-                const endDateStr = `${month}/${nextMonthEnd.getDate()}/${year}`;
-
                 const apiCalls = [
-                    // 1. Fetch PH_SAP_HET_HAN data - LẤY TẤT CẢ CỘT và FILTER THEO THÁNG TIẾP THEO
-                    callAPI('PH_SAP_HET_HAN',
-                        `Filter(PH_SAP_HET_HAN, MONTH([NgayHetHan]) = ${month} AND YEAR([NgayHetHan]) = ${year})`
-                    ),
-
+                    // 1. Fetch PH_SAP_HET_HAN data
+                    callAPI('PH_SAP_HET_HAN', 'Select(PH_SAP_HET_HAN[ID_PhuHieu], true)'),
+                    
                     // 2. Get ThongTin data (for tinh)
                     callAPI('ThongTin', `Filter(ThongTin, [Ngay_hieu_luc] <= "${currentDate}")`)
                 ];
 
                 // Execute API calls
                 console.log("Bắt đầu gọi API...");
-                console.log(`Đang lọc phù hiệu hết hạn trong tháng ${month}/${year}`);
                 const [phSapHetHanData, tinhResult] = await Promise.all(apiCalls);
 
                 console.log("PH_SAP_HET_HAN data:", phSapHetHanData);
@@ -446,7 +435,7 @@
 
                 if (!phSapHetHanData || phSapHetHanData.length === 0) {
                     hideLoadingMessage();
-                    alert(`Không tìm thấy dữ liệu phù hiệu sắp hết hạn trong tháng ${month}/${year}.`);
+                    alert('Không tìm thấy dữ liệu phù hiệu sắp hết hạn.');
                     return;
                 }
 
@@ -470,7 +459,6 @@
         function formatDate(dateString) {
             if (!dateString) return '';
             const date = new Date(dateString);
-            if (isNaN(date.getTime())) return dateString; // Trả về nguyên gốc nếu không parse được
             const day = date.getDate().toString().padStart(2, '0'); // Always pad day with zero
             const month = date.getMonth() + 1;
             // Only pad months 1 and 2 with zero
@@ -514,7 +502,7 @@
 
             // Update date
             document.getElementById('ngay-thang').innerHTML =
-                `<span id="tinh-footer">${tenTinh}</span>, ngày ${day} tháng ${formattedCurrentMonth} năm ${today.getFullYear()}`;
+                `<span id="tinh-footer">${tenTinh}</span>, ngày ${day} tháng ${formattedCurrentMonth} năm ${year}`;
 
             // Update title with next month
             document.getElementById('title-thang').textContent =
@@ -543,7 +531,7 @@
                     <td>${formatDate(item.NgayCap)}</td>
                     <td>${formatDate(item.NgayHetHan)}</td>
                     <td class="text-left">${item.Ten_don_vi || ''}</td>
-                    <td class="text-left">${item['Địa chỉ'] || item.DiaChi || ''}</td>
+                    <td class="text-left">${item['Địa chỉ'] || ''}</td>
                 `;
 
                 tableBody.appendChild(row);
@@ -590,7 +578,7 @@
                         ngay_cap: formatDate(item.NgayCap),
                         ngay_het_han: formatDate(item.NgayHetHan),
                         ten_don_vi: item.Ten_don_vi || '',
-                        dia_chi: item['Địa chỉ'] || item.DiaChi || ''
+                        dia_chi: item['Địa chỉ'] || ''
                     };
                 });
 
@@ -656,25 +644,6 @@
 
         // Load data when page loads
         document.addEventListener('DOMContentLoaded', fetchData);
-
-        document.addEventListener('contextmenu', function (e) {
-            e.preventDefault();
-        }, false);
-
-        document.onkeydown = function (e) {
-            if (e.keyCode == 123) {
-                return false;
-            }
-            if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) {
-                return false;
-            }
-            if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) {
-                return false;
-            }
-            if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) {
-                return false;
-            }
-        };
     </script>
 </body>
 
