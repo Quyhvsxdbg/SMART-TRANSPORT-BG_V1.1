@@ -415,8 +415,8 @@
                 const currentDate = new Date().toISOString();
 
                 const apiCalls = [
-                    // 1. Fetch PH_SAP_HET_HAN data
-                    callAPI('PH_SAP_HET_HAN', 'Select(PH_SAP_HET_HAN[ID_PhuHieu], true)'),
+                    // 1. Fetch PH_SAP_HET_HAN data - lấy toàn bộ bản ghi
+                    callAPI('PH_SAP_HET_HAN', 'Filter(PH_SAP_HET_HAN, true)'),
                     
                     // 2. Get ThongTin data (for tinh)
                     callAPI('ThongTin', `Filter(ThongTin, [Ngay_hieu_luc] <= "${currentDate}")`)
