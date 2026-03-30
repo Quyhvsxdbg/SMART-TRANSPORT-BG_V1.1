@@ -520,7 +520,14 @@
             const tableBody = document.getElementById('table-body');
             tableBody.innerHTML = '';
 
-            data.forEach((item, index) => {
+            // Sort 2 cấp: Tên đơn vị A-Z → Ngày hết hạn tăng dần
+            const sortedData = [...data].sort((a, b) => {
+                const tenCmp = (a.Ten_don_vi || '').localeCompare(b.Ten_don_vi || '', 'vi', { sensitivity: 'base' });
+                if (tenCmp !== 0) return tenCmp;
+                return new Date(a.NgayHetHan || 0) - new Date(b.NgayHetHan || 0);
+            });
+
+            sortedData.forEach((item, index) => {
                 const row = document.createElement('tr');
 
                 row.innerHTML = `
