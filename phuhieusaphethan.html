@@ -345,14 +345,12 @@
                 <table>
                     <thead>
                         <tr>
-                            <th style="width: 5%;">STT</th>
-                            <th style="width: 10%;">Biển số</th>
-                            <th style="width: 10%;">Số Phù hiệu</th>
-                            <th style="width: 10%;">Loại PH</th>
-                            <th style="width: 10%;">Ngày cấp</th>
-                            <th style="width: 10%;">Hạn Phù hiệu</th>
-                            <th style="width: 22%;">Tên đơn vị</th>
-                            <th style="width: 23%;">Địa chỉ</th>
+                            <th style="width: 6%;">STT</th>
+                            <th style="width: 16%;">Biển số</th>
+                            <th style="width: 20%;">Số Phù hiệu</th>
+                            <th style="width: 14%;">Loại PH</th>
+                            <th style="width: 14%;">Ngày cấp</th>
+                            <th style="width: 14%;">Hạn Phù hiệu</th>
                         </tr>
                     </thead>
                     <tbody id="table-body">
@@ -515,61 +513,54 @@
                 `DANH SÁCH CÁC PHƯƠNG TIỆN SẼ HẾT HẠN PHÙ HIỆU VẬN TẢI TRONG THÁNG ${formattedNextMonth}/${year}`;
         }
 
-        // Populate table data for page 2 (có rowspan gom cùng đơn vị)
+        // Populate table data - nhóm theo Tên đơn vị
         function populateTableData(data) {
             const tableBody = document.getElementById('table-body');
             tableBody.innerHTML = '';
 
-            // Sort 2 cấp: Tên đơn vị A-Z → Ngày hết hạn tăng dần
             const sortedData = [...data].sort((a, b) => {
                 const tenCmp = (a.Ten_don_vi || '').localeCompare(b.Ten_don_vi || '', 'vi', { sensitivity: 'base' });
                 if (tenCmp !== 0) return tenCmp;
                 return new Date(a.NgayHetHan || 0) - new Date(b.NgayHetHan || 0);
             });
 
-            let stt = 1;
+            const groups = [];
             let i = 0;
             while (i < sortedData.length) {
-                const item = sortedData[i];
-                const tenDonVi = item.Ten_don_vi || '';
-                const diaChi = item['Địa chỉ'] || '';
-
-                // Đếm số dòng liên tiếp cùng đơn vị
-                let j = i + 1;
-                while (j < sortedData.length && (sortedData[j].Ten_don_vi || '') === tenDonVi) j++;
-                const rowspan = j - i;
-
-                // Dòng đầu: có ô Tên đơn vị + Địa chỉ với rowspan
-                const firstRow = document.createElement('tr');
-                firstRow.innerHTML = `
-                    <td>${stt++}</td>
-                    <td>${item.BienSo || ''}</td>
-                    <td>${item.SoPhuHieu || ''}</td>
-                    <td>${item.LoaiPH || ''}</td>
-                    <td>${formatDate(item.NgayCap)}</td>
-                    <td>${formatDate(item.NgayHetHan)}</td>
-                    <td class="text-left" rowspan="${rowspan}" style="vertical-align:middle">${tenDonVi}</td>
-                    <td class="text-left" rowspan="${rowspan}" style="vertical-align:middle">${diaChi}</td>
-                `;
-                tableBody.appendChild(firstRow);
-
-                // Các dòng sau: không có ô Tên đơn vị và Địa chỉ
-                for (let k = i + 1; k < j; k++) {
-                    const sub = sortedData[k];
-                    const subRow = document.createElement('tr');
-                    subRow.innerHTML = `
-                        <td>${stt++}</td>
-                        <td>${sub.BienSo || ''}</td>
-                        <td>${sub.SoPhuHieu || ''}</td>
-                        <td>${sub.LoaiPH || ''}</td>
-                        <td>${formatDate(sub.NgayCap)}</td>
-                        <td>${formatDate(sub.NgayHetHan)}</td>
-                    `;
-                    tableBody.appendChild(subRow);
+                const tenDonVi = sortedData[i].Ten_don_vi || '';
+                const diaChi = sortedData[i]['Địa chỉ'] || '';
+                const items = [];
+                while (i < sortedData.length && (sortedData[i].Ten_don_vi || '') === tenDonVi) {
+                    items.push(sortedData[i]);
+                    i++;
                 }
-
-                i = j;
+                groups.push({ tenDonVi, diaChi, items });
             }
+
+            let stt = 1;
+            groups.forEach((group, gIdx) => {
+                const headerRow = document.createElement('tr');
+                headerRow.innerHTML = `
+                    <td colspan="6" class="text-left" style="font-weight:bold; background-color:#dde8f0; padding: 6px 8px;">
+                        ${gIdx + 1}. ${group.tenDonVi}
+                        ${group.diaChi ? '<span style="font-weight:normal"> &nbsp;(Địa chỉ: ' + group.diaChi + ')</span>' : ''}
+                    </td>
+                `;
+                tableBody.appendChild(headerRow);
+
+                group.items.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${stt++}</td>
+                        <td>${item.BienSo || ''}</td>
+                        <td>${item.SoPhuHieu || ''}</td>
+                        <td>${item.LoaiPH || ''}</td>
+                        <td>${formatDate(item.NgayCap)}</td>
+                        <td>${formatDate(item.NgayHetHan)}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            });
         }
 
         // Hide loading message
@@ -608,21 +599,33 @@
                     if (tenCmp !== 0) return tenCmp;
                     return new Date(a.NgayHetHan || 0) - new Date(b.NgayHetHan || 0);
                 });
-                // Word: chỉ hiện Tên đơn vị & Địa chỉ ở dòng đầu mỗi nhóm, các dòng sau để trống
-                const donViList = sortedForWord.map((item, index) => {
-                    const isFirst = index === 0 ||
-                        (sortedForWord[index - 1].Ten_don_vi || '') !== (item.Ten_don_vi || '');
-                    return {
-                        stt: (index + 1).toString(),
-                        bien_so: item.BienSo || '',
-                        so_phu_hieu: item.SoPhuHieu || '',
-                        loai_phu_hieu: item.LoaiPH || '',
-                        ngay_cap: formatDate(item.NgayCap),
-                        ngay_het_han: formatDate(item.NgayHetHan),
-                        ten_don_vi: isFirst ? (item.Ten_don_vi || '') : '',
-                        dia_chi: isFirst ? (item['Địa chỉ'] || '') : ''
-                    };
-                });
+
+                const nhomList = [];
+                let wi = 0;
+                while (wi < sortedForWord.length) {
+                    const tenDonVi = sortedForWord[wi].Ten_don_vi || '';
+                    const diaChi = sortedForWord[wi]['Địa chỉ'] || '';
+                    const xeList = [];
+                    let sttXe = 1;
+                    while (wi < sortedForWord.length && (sortedForWord[wi].Ten_don_vi || '') === tenDonVi) {
+                        const it = sortedForWord[wi];
+                        xeList.push({
+                            stt: sttXe++,
+                            bien_so: it.BienSo || '',
+                            so_phu_hieu: it.SoPhuHieu || '',
+                            loai_phu_hieu: it.LoaiPH || '',
+                            ngay_cap: formatDate(it.NgayCap),
+                            ngay_het_han: formatDate(it.NgayHetHan)
+                        });
+                        wi++;
+                    }
+                    nhomList.push({
+                        stt_nhom: nhomList.length + 1,
+                        ten_don_vi: tenDonVi,
+                        dia_chi: diaChi,
+                        xe_list: xeList
+                    });
+                }
 
                 const response = await fetch('https://hoangmv.github.io/templates_QUY/thong_bao_phu_hieu_sap_het_han_template.docx');
                 if (!response.ok) {
@@ -655,9 +658,9 @@
                     ngayKy: ngayKy,
                     thangKy: formattedThangKy, // Chỉ pad zero cho tháng 1 và 2
                     nam: today.getFullYear(),
-                    thang_het_han: thang_het_han, // Chỉ pad zero cho tháng 1 và 2
+                    thang_het_han: thang_het_han,
                     nam_het_han: year,
-                    don_vi_list: donViList
+                    nhom_list: nhomList
                 };
 
                 // Render template
