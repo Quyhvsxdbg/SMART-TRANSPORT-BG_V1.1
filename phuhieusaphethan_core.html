@@ -515,7 +515,7 @@
                 `DANH SÁCH CÁC PHƯƠNG TIỆN SẼ HẾT HẠN PHÙ HIỆU VẬN TẢI TRONG THÁNG ${formattedNextMonth}/${year}`;
         }
 
-        // Populate table data for page 2
+        // Populate table data for page 2 (có rowspan gom cùng đơn vị)
         function populateTableData(data) {
             const tableBody = document.getElementById('table-body');
             tableBody.innerHTML = '';
@@ -527,22 +527,49 @@
                 return new Date(a.NgayHetHan || 0) - new Date(b.NgayHetHan || 0);
             });
 
-            sortedData.forEach((item, index) => {
-                const row = document.createElement('tr');
+            let stt = 1;
+            let i = 0;
+            while (i < sortedData.length) {
+                const item = sortedData[i];
+                const tenDonVi = item.Ten_don_vi || '';
+                const diaChi = item['Địa chỉ'] || '';
 
-                row.innerHTML = `
-                    <td>${index + 1}</td>
+                // Đếm số dòng liên tiếp cùng đơn vị
+                let j = i + 1;
+                while (j < sortedData.length && (sortedData[j].Ten_don_vi || '') === tenDonVi) j++;
+                const rowspan = j - i;
+
+                // Dòng đầu: có ô Tên đơn vị + Địa chỉ với rowspan
+                const firstRow = document.createElement('tr');
+                firstRow.innerHTML = `
+                    <td>${stt++}</td>
                     <td>${item.BienSo || ''}</td>
                     <td>${item.SoPhuHieu || ''}</td>
                     <td>${item.LoaiPH || ''}</td>
                     <td>${formatDate(item.NgayCap)}</td>
                     <td>${formatDate(item.NgayHetHan)}</td>
-                    <td class="text-left">${item.Ten_don_vi || ''}</td>
-                    <td class="text-left">${item['Địa chỉ'] || ''}</td>
+                    <td class="text-left" rowspan="${rowspan}" style="vertical-align:middle">${tenDonVi}</td>
+                    <td class="text-left" rowspan="${rowspan}" style="vertical-align:middle">${diaChi}</td>
                 `;
+                tableBody.appendChild(firstRow);
 
-                tableBody.appendChild(row);
-            });
+                // Các dòng sau: không có ô Tên đơn vị và Địa chỉ
+                for (let k = i + 1; k < j; k++) {
+                    const sub = sortedData[k];
+                    const subRow = document.createElement('tr');
+                    subRow.innerHTML = `
+                        <td>${stt++}</td>
+                        <td>${sub.BienSo || ''}</td>
+                        <td>${sub.SoPhuHieu || ''}</td>
+                        <td>${sub.LoaiPH || ''}</td>
+                        <td>${formatDate(sub.NgayCap)}</td>
+                        <td>${formatDate(sub.NgayHetHan)}</td>
+                    `;
+                    tableBody.appendChild(subRow);
+                }
+
+                i = j;
+            }
         }
 
         // Hide loading message
@@ -576,7 +603,15 @@
                 }
 
                 // Prepare data for Word template
-                const donViList = globalPhSapHetHanData.map((item, index) => {
+                const sortedForWord = [...globalPhSapHetHanData].sort((a, b) => {
+                    const tenCmp = (a.Ten_don_vi || '').localeCompare(b.Ten_don_vi || '', 'vi', { sensitivity: 'base' });
+                    if (tenCmp !== 0) return tenCmp;
+                    return new Date(a.NgayHetHan || 0) - new Date(b.NgayHetHan || 0);
+                });
+                // Word: chỉ hiện Tên đơn vị & Địa chỉ ở dòng đầu mỗi nhóm, các dòng sau để trống
+                const donViList = sortedForWord.map((item, index) => {
+                    const isFirst = index === 0 ||
+                        (sortedForWord[index - 1].Ten_don_vi || '') !== (item.Ten_don_vi || '');
                     return {
                         stt: (index + 1).toString(),
                         bien_so: item.BienSo || '',
@@ -584,8 +619,8 @@
                         loai_phu_hieu: item.LoaiPH || '',
                         ngay_cap: formatDate(item.NgayCap),
                         ngay_het_han: formatDate(item.NgayHetHan),
-                        ten_don_vi: item.Ten_don_vi || '',
-                        dia_chi: item['Địa chỉ'] || ''
+                        ten_don_vi: isFirst ? (item.Ten_don_vi || '') : '',
+                        dia_chi: isFirst ? (item['Địa chỉ'] || '') : ''
                     };
                 });
 
