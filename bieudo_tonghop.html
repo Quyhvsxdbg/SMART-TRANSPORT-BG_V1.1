@@ -368,6 +368,35 @@
                     </tbody>
                 </table>
             </div>
+            <!-- Phân trang tab TRA CỨU XE THEO TUYẾN -->
+            <div id="vehiclePagination"
+                class="flex items-center justify-between px-8 py-3 bg-gray-50 border-t border-gray-200">
+                <div class="flex items-center gap-2 text-xs text-gray-600">
+                    <span>Hiển thị</span>
+                    <select id="vehiclePageSize" onchange="changeVehiclePageSize(this.value)"
+                        class="border border-gray-300 rounded px-2 py-1 text-xs bg-white">
+                        <option value="30" selected>30</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                        <option value="200">200</option>
+                        <option value="0">Tất cả</option>
+                    </select>
+                    <span>dòng / trang</span>
+                    <span class="ml-2 text-gray-500" id="vehiclePageInfo"></span>
+                </div>
+                <div class="flex items-center gap-1" id="vehiclePageButtons"></div>
+            </div>
+            <!-- Chú thích trạng thái (tab TRA CỨU XE THEO TUYẾN) -->
+            <div class="bg-blue-50 px-8 py-3 border-t">
+                <div class="text-sm font-medium text-gray-700 mb-2">Chú thích trạng thái:</div>
+                <div class="flex flex-wrap gap-4 text-xs">
+                    <div class="flex items-center gap-1"><span>🟢</span><span>Đầy đủ (có tuyến và thông báo)</span>
+                    </div>
+                    <div class="flex items-center gap-1"><span>🟡</span><span>Có thông báo, chưa có tuyến</span></div>
+                    <div class="flex items-center gap-1"><span>🔴</span><span>Thông báo không hợp lệ</span></div>
+                    <div class="flex items-center gap-1"><span>⚪</span><span>Chưa có thông báo</span></div>
+                </div>
+            </div>
         </div>
 
         <!-- Advanced search panel -->
@@ -503,6 +532,25 @@
                 </tbody>
             </table>
         </div>
+        <!-- Phân trang tab TUYẾN CÔNG BỐ -->
+        <div id="routePagination"
+            class="flex items-center justify-between px-8 py-3 bg-gray-50 border-t border-gray-200"
+            style="display:none;">
+            <div class="flex items-center gap-2 text-xs text-gray-600">
+                <span>Hiển thị</span>
+                <select id="routePageSize" onchange="changeRoutePageSize(this.value)"
+                    class="border border-gray-300 rounded px-2 py-1 text-xs bg-white">
+                    <option value="30" selected>30</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                    <option value="200">200</option>
+                    <option value="0">Tất cả</option>
+                </select>
+                <span>dòng / trang</span>
+                <span class="ml-2 text-gray-500" id="routePageInfo"></span>
+            </div>
+            <div class="flex items-center gap-1" id="routePageButtons"></div>
+        </div>
 
         <!-- TRA CỨU TUYẾN CỐ ĐỊNH (2 lớp) -->
         <div id="tuyenCoDinhContent" style="display: none;">
@@ -596,7 +644,8 @@
                 <div class="mt-4 pt-3 border-t border-dashed border-gray-200">
                     <button onclick="toggleTCFilter()" type="button"
                         class="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wider hover:text-blue-600 transition-colors cursor-pointer bg-transparent border-none p-0">
-                        <span id="tcFilterArrow" class="transition-transform duration-200" style="display:inline-block;">▶</span>
+                        <span id="tcFilterArrow" class="transition-transform duration-200"
+                            style="display:inline-block;">▶</span>
                         Lọc kết quả (tuỳ chọn)
                     </button>
                     <div id="tcFilterPanel" style="display:none; overflow:hidden;">
@@ -709,7 +758,11 @@
                         </div>
                         <button onclick="tcExportXeToExcel()" id="btnExportXe" style="display:none;"
                             class="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded-lg transition-colors shadow-sm">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                </path>
+                            </svg>
                             Xuất Excel
                         </button>
                     </div>
@@ -739,28 +792,7 @@
             </div>
         </div>
 
-        <!-- Status legend -->
-        <div class="bg-blue-50 px-8 py-3 border-t">
-            <div class="text-sm font-medium text-gray-700 mb-2">Chú thích trạng thái:</div>
-            <div class="flex flex-wrap gap-4 text-xs">
-                <div class="flex items-center gap-1">
-                    <span>🟢</span>
-                    <span>Đầy đủ (có tuyến và thông báo)</span>
-                </div>
-                <div class="flex items-center gap-1">
-                    <span>🟡</span>
-                    <span>Có thông báo, chưa có tuyến</span>
-                </div>
-                <div class="flex items-center gap-1">
-                    <span>🔴</span>
-                    <span>Thông báo không hợp lệ</span>
-                </div>
-                <div class="flex items-center gap-1">
-                    <span>⚪</span>
-                    <span>Chưa có thông báo</span>
-                </div>
-            </div>
-        </div>
+
 
         <!-- Footer thông tin -->
         <div class="gradient-primary text-white py-5 text-center">
@@ -922,6 +954,12 @@
         let filteredVehicleData = [];
 
         // Progress tracking
+        // Phân trang
+        let routeCurrentPage = 1;
+        let routePageSize = 30;
+        let vehicleCurrentPage = 1;
+        let vehiclePageSize = 30;
+
         function updateProgress(percentage, text) {
             document.getElementById('progressFill').style.width = percentage + '%';
             document.getElementById('loadingText').textContent = text;
@@ -1020,7 +1058,8 @@
             // Find table containers
             const routeTableContainer = document.querySelector('.overflow-x-auto.px-8:has(#routeTableBody)');
             const routeCountContainer = document.querySelector('.bg-gray-50.px-6.py-2.border-b.px-8:has(#routeCount)');
-            const statusLegend = document.querySelector('.bg-blue-50.px-8.py-3.border-t');
+            const routePagination = document.getElementById('routePagination');
+            const vehiclePagination = document.getElementById('vehiclePagination');
 
             // Reset tất cả tab về trạng thái inactive
             [tabTuyen, tabXe, tabTuyenCoDinh].forEach(tab => {
@@ -1036,7 +1075,8 @@
             if (tuyenCoDinhContent) tuyenCoDinhContent.style.display = 'none';
             if (routeTableContainer) routeTableContainer.style.display = 'none';
             if (routeCountContainer) routeCountContainer.style.display = 'none';
-            if (statusLegend) statusLegend.style.display = 'none';
+            if (routePagination) routePagination.style.display = 'none';
+            if (vehiclePagination) vehiclePagination.style.display = 'none';
 
             // Đóng bộ lọc nâng cao khi chuyển tab
             const advPanel = document.getElementById('advancedSearchPanel');
@@ -1049,13 +1089,14 @@
                 if (routeSearchContent) routeSearchContent.style.display = 'block';
                 if (routeTableContainer) routeTableContainer.style.display = 'block';
                 if (routeCountContainer) routeCountContainer.style.display = 'block';
-                if (statusLegend) statusLegend.style.display = 'block';
+                if (routePagination) routePagination.style.display = 'flex';
 
             } else if (tabName === 'xe') {
                 // Kích hoạt tab xe
                 if (tabXe) { tabXe.classList.remove('bg-blue-600'); tabXe.classList.add('bg-blue-500'); }
 
                 if (vehicleSearchContent) vehicleSearchContent.style.display = 'block';
+                if (vehiclePagination) vehiclePagination.style.display = 'flex';
 
                 // Load vehicle data nếu chưa có
                 if (allVehicleData.length === 0) {
@@ -1618,11 +1659,22 @@
                        </td>
                    </tr>
                `;
+                renderPaginationButtons('route', 0, 0);
                 return;
             }
 
+            // Phân trang
+            const total = tuyenList.length;
+            const pageSize = routePageSize === 0 ? total : routePageSize;
+            const totalPages = Math.ceil(total / pageSize);
+            if (routeCurrentPage > totalPages) routeCurrentPage = totalPages;
+            const start = (routeCurrentPage - 1) * pageSize;
+            const end = Math.min(start + pageSize, total);
+            const pageData = tuyenList.slice(start, end);
+
             let html = '';
-            tuyenList.forEach((tuyen, index) => {
+            pageData.forEach((tuyen, idx) => {
+                const index = start + idx;
                 const chuyenThucTe = calculateActualTrips(tuyen.MaSoTuyen);
                 const remainingCapacity = getRemainingCapacity(tuyen);
                 const status = getRouteStatus(tuyen);
@@ -1652,6 +1704,7 @@
             });
 
             tableBody.innerHTML = html;
+            renderPaginationButtons('route', totalPages, total);
         }
 
         // Setup filter options
@@ -1861,6 +1914,7 @@
                     matchesDonVi && matchesTinhTrang && matchesLoaiDonVi;
             });
 
+            routeCurrentPage = 1;
             displayRouteList(filteredTuyenData);
 
             // Show applied filters if any advanced filter is used
@@ -1883,6 +1937,7 @@
                 return matchesSearch;
             });
 
+            vehicleCurrentPage = 1;
             displayVehicleList(filteredVehicleData);
         }
 
@@ -1901,6 +1956,7 @@
 
             // Reset to all data
             filteredTuyenData = allTuyenData;
+            routeCurrentPage = 1;
             displayRouteList(filteredTuyenData);
         }
 
@@ -2424,15 +2480,10 @@
 
         // Function to display vehicle list with clear status indicators
         function displayVehicleList(vehicleList) {
-            console.log('🚗 Displaying vehicle list:', vehicleList.length, 'vehicles');
-
             const tableBody = document.getElementById('vehicleTableBody');
             const vehicleCount = document.getElementById('vehicleCount');
 
-            if (!vehicleCount || !tableBody) {
-                console.error('❌ Missing DOM elements for vehicle display');
-                return;
-            }
+            if (!vehicleCount || !tableBody) return;
 
             vehicleCount.textContent = vehicleList.length;
 
@@ -2445,37 +2496,43 @@
                 </td>
             </tr>
         `;
+                renderPaginationButtons('vehicle', 0, 0);
                 return;
             }
 
+            // Phân trang
+            const total = vehicleList.length;
+            const pageSize = vehiclePageSize === 0 ? total : vehiclePageSize;
+            const totalPages = Math.ceil(total / pageSize);
+            if (vehicleCurrentPage > totalPages) vehicleCurrentPage = totalPages;
+            const start = (vehicleCurrentPage - 1) * pageSize;
+            const end = Math.min(start + pageSize, total);
+            const pageData = vehicleList.slice(start, end);
+
             let html = '';
-            vehicleList.forEach((vehicle, index) => {
-                // Determine styling based on data status
+            pageData.forEach((vehicle, idx) => {
+                const index = start + idx;
                 let rowClass = 'route-row border-b border-gray-200';
                 let statusIcon = '';
                 let routeColor = '';
                 let notificationColor = '';
 
                 if (!vehicle.RefThongBaoOriginal) {
-                    // No reference to notification
                     rowClass += ' bg-gray-50 hover:bg-gray-100';
                     statusIcon = '⚪';
                     routeColor = 'text-gray-500';
                     notificationColor = 'text-gray-500';
                 } else if (!vehicle.HasValidThongBao) {
-                    // Has reference but notification not found
                     rowClass += ' bg-red-50 hover:bg-red-100';
                     statusIcon = '🔴';
                     routeColor = 'text-red-500';
                     notificationColor = 'text-red-600 font-medium';
                 } else if (!vehicle.HasValidRoute) {
-                    // Has notification but route not found
                     rowClass += ' bg-yellow-50 hover:bg-yellow-100';
                     statusIcon = '🟡';
                     routeColor = 'text-yellow-600';
                     notificationColor = 'text-blue-600 font-medium';
                 } else {
-                    // Complete data chain
                     rowClass += ' bg-green-50 hover:bg-green-100';
                     statusIcon = '🟢';
                     routeColor = 'text-green-700 font-medium';
@@ -2515,18 +2572,89 @@
             });
 
             tableBody.innerHTML = html;
-            console.log('✅ Vehicle table updated with SoThongBao display');
+            renderPaginationButtons('vehicle', totalPages, total);
+        }
 
-            // Show summary in console
-            const summary = {
-                total: vehicleList.length,
-                noRef: vehicleList.filter(v => !v.RefThongBaoOriginal).length,
-                invalidNotification: vehicleList.filter(v => v.RefThongBaoOriginal && !v.HasValidThongBao).length,
-                validNotification: vehicleList.filter(v => v.HasValidThongBao).length,
-                completeChain: vehicleList.filter(v => v.HasValidRoute).length
-            };
+        // ===== HÀM PHÂN TRANG DÙNG CHUNG =====
+        function renderPaginationButtons(type, totalPages, totalItems) {
+            const infoEl = document.getElementById(type + 'PageInfo');
+            const buttonsEl = document.getElementById(type + 'PageButtons');
+            const currentPage = type === 'route' ? routeCurrentPage : vehicleCurrentPage;
+            const pageSize = type === 'route' ? routePageSize : vehiclePageSize;
 
-            console.log('📊 Display Summary:', summary);
+            if (!infoEl || !buttonsEl) return;
+
+            if (totalItems === 0) {
+                infoEl.textContent = '';
+                buttonsEl.innerHTML = '';
+                return;
+            }
+
+            const actualPageSize = pageSize === 0 ? totalItems : pageSize;
+            const start = (currentPage - 1) * actualPageSize + 1;
+            const end = Math.min(currentPage * actualPageSize, totalItems);
+            infoEl.textContent = `Đang hiển thị ${start}–${end} / ${totalItems}`;
+
+            if (pageSize === 0 || totalPages <= 1) {
+                buttonsEl.innerHTML = '';
+                return;
+            }
+
+            let btns = '';
+            const btnClass = 'px-2 py-1 text-xs rounded border transition-colors';
+            const activeClass = 'bg-blue-600 text-white border-blue-600';
+            const normalClass = 'bg-white text-gray-700 border-gray-300 hover:bg-blue-50';
+
+            // Prev
+            btns += `<button onclick="goToPage('${type}', ${currentPage - 1})" class="${btnClass} ${currentPage === 1 ? 'opacity-40 cursor-not-allowed' : normalClass}" ${currentPage === 1 ? 'disabled' : ''}>◀</button>`;
+
+            // Page numbers (max 7 shown)
+            let pages = [];
+            if (totalPages <= 7) {
+                for (let i = 1; i <= totalPages; i++) pages.push(i);
+            } else {
+                pages.push(1);
+                if (currentPage > 3) pages.push('...');
+                for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) pages.push(i);
+                if (currentPage < totalPages - 2) pages.push('...');
+                pages.push(totalPages);
+            }
+
+            pages.forEach(p => {
+                if (p === '...') {
+                    btns += `<span class="px-1 text-xs text-gray-400">…</span>`;
+                } else {
+                    btns += `<button onclick="goToPage('${type}', ${p})" class="${btnClass} ${p === currentPage ? activeClass : normalClass}">${p}</button>`;
+                }
+            });
+
+            // Next
+            btns += `<button onclick="goToPage('${type}', ${currentPage + 1})" class="${btnClass} ${currentPage === totalPages ? 'opacity-40 cursor-not-allowed' : normalClass}" ${currentPage === totalPages ? 'disabled' : ''}>▶</button>`;
+
+            buttonsEl.innerHTML = btns;
+        }
+
+        function goToPage(type, page) {
+            if (page < 1) return;
+            if (type === 'route') {
+                routeCurrentPage = page;
+                displayRouteList(filteredTuyenData);
+            } else {
+                vehicleCurrentPage = page;
+                displayVehicleList(filteredVehicleData);
+            }
+        }
+
+        function changeRoutePageSize(val) {
+            routePageSize = parseInt(val);
+            routeCurrentPage = 1;
+            displayRouteList(filteredTuyenData);
+        }
+
+        function changeVehiclePageSize(val) {
+            vehiclePageSize = parseInt(val);
+            vehicleCurrentPage = 1;
+            displayVehicleList(filteredVehicleData);
         }
 
         // Open AppSheet file
