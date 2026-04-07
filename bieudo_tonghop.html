@@ -707,6 +707,11 @@
                             Danh sách xe cụ thể
                             <span class="text-xs font-normal text-gray-400 ml-1" id="tcXeListLabel"></span>
                         </div>
+                        <button onclick="tcExportXeToExcel()" id="btnExportXe" style="display:none;"
+                            class="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded-lg transition-colors shadow-sm">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            Xuất Excel
+                        </button>
                     </div>
                     <div class="overflow-x-auto rounded-lg border border-gray-200">
                         <table class="w-full text-sm border-collapse">
@@ -3543,6 +3548,10 @@
 
             label.textContent = `(${list.length} xe)`;
 
+            // Hiện/ẩn nút xuất Excel
+            const btnExport = document.getElementById('btnExportXe');
+            if (btnExport) btnExport.style.display = list.length ? 'flex' : 'none';
+
             if (!list.length) {
                 tbody.innerHTML = `<tr><td colspan="4" class="text-center py-6 text-gray-400 italic">
                     Không có xe nào phù hợp
@@ -3602,6 +3611,99 @@
         // Hiện lại toàn bộ xe
         function tcShowAllXe() {
             tcRenderXeTable(_tcCurrentXeList);
+        }
+
+        // Xuất danh sách xe cụ thể ra Excel
+        async function tcExportXeToExcel() {
+            if (!_tcCurrentXeList || !_tcCurrentXeList.length) return;
+
+            // Lấy danh sách xe đang hiển thị (đã lọc)
+            let list = [..._tcCurrentXeList];
+            const fBienSo = (document.getElementById('tcFilterBienSo').value || '').toLowerCase().trim();
+            if (fBienSo) list = list.filter(x => (x.BienSo || '').toLowerCase().includes(fBienSo));
+
+            const fDV = (document.getElementById('tcFilterDonVi').value || '').toLowerCase().trim();
+            const fLoai = document.getElementById('tcFilterLoaiDV').value;
+            const fTinh = document.getElementById('tcFilterTinhDV').value.toLowerCase().trim();
+            if (fDV) list = list.filter(x => (x.tenDV || '').toLowerCase().includes(fDV));
+            if (fLoai) list = list.filter(x => classifyDonVi(x.diaChi) === fLoai);
+            if (fTinh) list = list.filter(x => extractTinhFromDiaChi(x.diaChi).toLowerCase().includes(fTinh));
+
+            if (!list.length) return;
+
+            // Sắp xếp
+            list.sort((a, b) =>
+                (a.tenDV || '').localeCompare(b.tenDV || '') ||
+                (a.BienSo || '').localeCompare(b.BienSo || '')
+            );
+
+            const workbook = new ExcelJS.Workbook();
+            const ws = workbook.addWorksheet('Danh sách xe');
+
+            // Tên tuyến làm tiêu đề
+            const tuyen = _idxTuyenByMa[_tcCurrentMaTuyen];
+            const tenTuyen = tuyen ? (tuyen.TenTuyen || _tcCurrentMaTuyen) : _tcCurrentMaTuyen;
+
+            // Tiêu đề
+            ws.mergeCells('A1:D1');
+            const titleCell = ws.getCell('A1');
+            titleCell.value = `DANH SÁCH XE - TUYẾN: ${tenTuyen} (${_tcCurrentMaTuyen})`;
+            titleCell.font = { bold: true, size: 13, color: { argb: 'FF1E40AF' } };
+            titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+            ws.getRow(1).height = 30;
+
+            // Header
+            const headers = ['STT', 'Biển số xe', 'Tên đơn vị', 'Hạn phù hiệu'];
+            const headerRow = ws.addRow(headers);
+            headerRow.eachCell(cell => {
+                cell.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11 };
+                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF15803D' } };
+                cell.alignment = { horizontal: 'center', vertical: 'middle' };
+                cell.border = {
+                    top: { style: 'thin' }, bottom: { style: 'thin' },
+                    left: { style: 'thin' }, right: { style: 'thin' }
+                };
+            });
+
+            // Dữ liệu
+            list.forEach((x, idx) => {
+                let hanPH = '';
+                if (x.NgayHetHan) {
+                    try {
+                        const d = new Date(x.NgayHetHan);
+                        if (!isNaN(d.getTime())) hanPH = d.toLocaleDateString('vi-VN');
+                    } catch (e) { hanPH = x.NgayHetHan; }
+                }
+                const row = ws.addRow([idx + 1, x.BienSo || '', x.tenDV || '', hanPH]);
+                row.eachCell(cell => {
+                    cell.border = {
+                        top: { style: 'thin' }, bottom: { style: 'thin' },
+                        left: { style: 'thin' }, right: { style: 'thin' }
+                    };
+                    cell.alignment = { vertical: 'middle' };
+                });
+                row.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
+                row.getCell(2).alignment = { horizontal: 'center', vertical: 'middle' };
+                row.getCell(2).font = { bold: true, color: { argb: 'FF1D4ED8' } };
+                row.getCell(4).alignment = { horizontal: 'center', vertical: 'middle' };
+            });
+
+            // Độ rộng cột
+            ws.getColumn(1).width = 6;
+            ws.getColumn(2).width = 16;
+            ws.getColumn(3).width = 40;
+            ws.getColumn(4).width = 18;
+
+            // Xuất file
+            const buffer = await workbook.xlsx.writeBuffer();
+            const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            const safeFileName = _tcCurrentMaTuyen.replace(/[^a-zA-Z0-9._-]/g, '_');
+            link.download = `DanhSachXe_${safeFileName}_${new Date().toISOString().split('T')[0]}.xlsx`;
+            link.click();
+            URL.revokeObjectURL(url);
         }
 
         // Áp dụng bộ lọc nâng cao (đơn vị / loại ĐV / tỉnh / biển số)
