@@ -1111,44 +1111,34 @@
                     let thongBao = null;
                     let tuyen = null;
                     let soThongBaoDisplay = 'Chưa có thông báo';
-                    let maTuyen = 'N/A';
-                    let tenTuyen = 'Không xác định';
-                    let donViKhaiThac = 'Không xác định';
 
-                    // If vehicle has Ref_ThongBao, find the notification by ID_TB
+                    // Ưu tiên lấy trực tiếp từ PHUHIEUXE
+                    let maTuyen = vehicle.Ref_Tuyen || 'N/A';
+                    let tenTuyen = vehicle['Tuyến khai thác'] || '';
+                    let donViKhaiThac = vehicle.Ten_don_vi || 'Không xác định';
+
+                    // Nếu chưa có tên tuyến → tra từ DANHMUCTUYENCODINH
+                    if (!tenTuyen && maTuyen !== 'N/A') {
+                        tuyen = allTuyenData.find(t => t.MaSoTuyen === maTuyen);
+                        if (tuyen) tenTuyen = tuyen.TenTuyen || maTuyen;
+                        else tenTuyen = `Tuyến ${maTuyen}`;
+                    }
+
+                    // Nếu có Ref_ThongBao → bổ sung thêm SoThongBao
                     if (vehicle.Ref_ThongBao && vehicle.Ref_ThongBao.trim() !== '') {
-
-                        // LOGIC: Ref_ThongBao trỏ đến ID_TB trong THONGBAO_KHAITHAC
                         thongBao = allThongBaoData.find(tb =>
                             tb.ID_TB === vehicle.Ref_ThongBao &&
                             (!tb.TrangThai || tb.TrangThai !== 'Hết hiệu lực')
                         );
 
                         if (thongBao) {
-                            // Hiển thị SoThongBao thay vì ID_TB
                             soThongBaoDisplay = thongBao.SoThongBao || 'Không có số TB';
-
-                            // Lấy tuyến từ Ref_Tuyen
-                            if (thongBao.Ref_Tuyen) {
-                                tuyen = allTuyenData.find(t => t.MaSoTuyen === thongBao.Ref_Tuyen);
-
-                                if (tuyen) {
-                                    maTuyen = tuyen.MaSoTuyen;
-                                    tenTuyen = tuyen.TenTuyen || tuyen.MaSoTuyen;
-                                } else {
-                                    console.log(`Route not found for Ref_Tuyen: ${thongBao.Ref_Tuyen}`);
-                                    maTuyen = thongBao.Ref_Tuyen;
-                                    tenTuyen = `Tuyến ${thongBao.Ref_Tuyen} (chưa có thông tin)`;
-                                }
+                            // Fallback đơn vị nếu PHUHIEUXE chưa có
+                            if (donViKhaiThac === 'Không xác định') {
+                                donViKhaiThac = thongBao['Đơn vị kinh doanh vận tải'] || 'Không xác định';
                             }
-
-                            // Lấy thông tin đơn vị
-                            donViKhaiThac = thongBao['Đơn vị kinh doanh vận tải'] || 'Không xác định';
-
-                            console.log(`✓ Vehicle ${vehicle.BienSo}: ID_TB=${vehicle.Ref_ThongBao} -> SoTB=${soThongBaoDisplay}, Route=${maTuyen}`);
                         } else {
-                            console.log(`✗ No notification found for vehicle ${vehicle.BienSo} with ID_TB=${vehicle.Ref_ThongBao}`);
-                            soThongBaoDisplay = `ID_TB: ${vehicle.Ref_ThongBao} (không tìm thấy)`;
+                            soThongBaoDisplay = `Chưa có thông báo`;
                         }
                     }
 
@@ -1165,14 +1155,14 @@
                         MaSoTuyen: maTuyen,
                         TenTuyen: tenTuyen,
                         DonViKhaiThac: donViKhaiThac,
-                        SoThongBaoDisplay: soThongBaoDisplay, // Hiển thị SoThongBao
+                        SoThongBaoDisplay: soThongBaoDisplay,
                         LoaiPH: vehicle.LoaiPH || '',
                         TrangThai: vehicle.TrangThai || '',
 
                         // Debug info
-                        RefThongBaoOriginal: vehicle.Ref_ThongBao || '', // ID_TB gốc
+                        RefThongBaoOriginal: vehicle.Ref_ThongBao || '',
                         HasValidThongBao: thongBao !== null,
-                        HasValidRoute: tuyen !== null
+                        HasValidRoute: maTuyen !== 'N/A'
                     };
                 });
 
@@ -2887,6 +2877,8 @@
         let _idxTBbyTuyen = {};
         // Map: ID_TB → [record PHUHIEUXE]  (index ngược từ phù hiệu)
         let _idxPHbyTBID = {};
+        // Map: Ref_Tuyen → [record PHUHIEUXE]  (index trực tiếp theo tuyến)
+        let _idxPHbyTuyen = {};
         // Map: MaSoTuyen → DANHMUCTUYENCODINH
         let _idxTuyenByMa = {};
         // Danh sách tỉnh/TP của ĐV (để populate filter)
@@ -2903,6 +2895,7 @@
             _idxTBbyID = {};
             _idxTBbyTuyen = {};
             _idxPHbyTBID = {};
+            _idxPHbyTuyen = {};
             _idxTuyenByMa = {};
             _dsTinhDV = new Set();
 
@@ -2925,11 +2918,20 @@
                 }
             });
 
-            // Index PHUHIEUXE theo Ref_ThongBao (= ID_TB)
+            // Index PHUHIEUXE theo Ref_ThongBao (= ID_TB) — cho các record có Ref_ThongBao
             rawPhuHieu.forEach(ph => {
-                if (!ph.BienSo || !ph.Ref_ThongBao) return;
-                if (!_idxPHbyTBID[ph.Ref_ThongBao]) _idxPHbyTBID[ph.Ref_ThongBao] = [];
-                _idxPHbyTBID[ph.Ref_ThongBao].push(ph);
+                if (!ph.BienSo) return;
+                if (ph.Ref_ThongBao) {
+                    if (!_idxPHbyTBID[ph.Ref_ThongBao]) _idxPHbyTBID[ph.Ref_ThongBao] = [];
+                    _idxPHbyTBID[ph.Ref_ThongBao].push(ph);
+                }
+            });
+
+            // Index PHUHIEUXE theo Ref_Tuyen — lấy TẤT CẢ xe có BienSo (không cần Ref_ThongBao)
+            rawPhuHieu.forEach(ph => {
+                if (!ph.BienSo || !ph.Ref_Tuyen) return;
+                if (!_idxPHbyTuyen[ph.Ref_Tuyen]) _idxPHbyTuyen[ph.Ref_Tuyen] = [];
+                _idxPHbyTuyen[ph.Ref_Tuyen].push(ph);
             });
 
             // Index DANHMUCTUYENCODINH
@@ -2941,6 +2943,7 @@
             console.log('[TC-Index] Built: TB=', Object.keys(_idxTBbyID).length,
                 '| TB/Tuyến=', Object.keys(_idxTBbyTuyen).length,
                 '| PH/TB=', Object.keys(_idxPHbyTBID).length,
+                '| PH/Tuyến=', Object.keys(_idxPHbyTuyen).length,
                 '| Tuyến=', Object.keys(_idxTuyenByMa).length);
         }
 
@@ -3384,31 +3387,35 @@
             // Lấy danh sách thông báo còn hiệu lực của tuyến (từ index)
             const tbList = _idxTBbyTuyen[maTuyen] || [];
 
-            // Từ mỗi thông báo → lấy xe từ index PHUHIEUXE
-            // Mỗi phù hiệu được map thêm thông tin đơn vị từ thông báo của nó
-            const xeRaw = []; // [{BienSo, LoaiPH, TrangThai, tenDV, diaChi, soTB, idTB}]
-            tbList.forEach(tb => {
-                const dsXe = _idxPHbyTBID[tb.ID_TB] || [];
-                dsXe.forEach(ph => {
-                    xeRaw.push({
-                        BienSo: ph.BienSo || '',
-                        LoaiPH: ph.LoaiPH || '',
-                        TrangThai: ph.TrangThai || '',
-                        NgayHetHan: ph.NgayHetHan || '',
-                        tenDV: tb['Đơn vị kinh doanh vận tải'] || '',
-                        diaChi: tb['Địa chỉ sau xác nhập DVKDVT'] || '',
-                        soTB: tb.SoThongBao || '',
-                        idTB: tb.ID_TB || ''
-                    });
-                });
+            // Lấy xe trực tiếp từ index PHUHIEUXE theo Ref_Tuyen
+            // (không phụ thuộc Ref_ThongBao — bắt được cả xe chưa nhập Ref_ThongBao)
+            const dsXeTuyen = _idxPHbyTuyen[maTuyen] || [];
+
+            const xeRaw = dsXeTuyen.map(ph => {
+                // Ưu tiên Ten_don_vi và Địa chỉ trực tiếp từ PHUHIEUXE
+                let tenDV = ph.Ten_don_vi || '';
+                let diaChi = ph['Địa chỉ'] || '';
+                let soTB = '';
+                let idTB = '';
+                // Nếu có Ref_ThongBao → bổ sung thêm số thông báo
+                if (ph.Ref_ThongBao && _idxTBbyID[ph.Ref_ThongBao]) {
+                    const tb = _idxTBbyID[ph.Ref_ThongBao];
+                    if (!tenDV) tenDV = tb['Đơn vị kinh doanh vận tải'] || '';
+                    if (!diaChi) diaChi = tb['Địa chỉ sau xác nhập DVKDVT'] || '';
+                    soTB = tb.SoThongBao || '';
+                    idTB = tb.ID_TB || '';
+                }
+                return {
+                    BienSo: ph.BienSo || '',
+                    LoaiPH: ph.LoaiPH || '',
+                    TrangThai: ph.TrangThai || '',
+                    NgayHetHan: ph.NgayHetHan || '',
+                    tenDV, diaChi, soTB, idTB
+                };
             });
 
-            // Lọc phù hiệu còn hiệu lực (TrangThai không phải hết/thu hồi/hủy)
-            const xeHieuLuc = xeRaw.filter(x => {
-                const tt = x.TrangThai.toLowerCase();
-                return !tt.includes('hết hiệu lực') && !tt.includes('thu hồi') &&
-                    !tt.includes('hủy') && tt !== 'hết hl';
-            });
+            // Slice PHTUYENCD_HIEULUC đã lọc sẵn TrangThai=Hiệu lực, nên không cần lọc lại
+            const xeHieuLuc = xeRaw;
 
             // Deduplicate biển số (1 xe có thể có 2 phù hiệu, chỉ đếm 1 lần)
             const bienSoSeen = new Set();
