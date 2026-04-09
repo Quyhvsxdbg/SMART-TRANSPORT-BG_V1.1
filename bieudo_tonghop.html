@@ -606,7 +606,7 @@
                                     oninput="onTCBenDiInput()" onfocus="onTCBenDiFocus()"
                                     class="w-full px-3 py-2 pr-8 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white">
                                 <button onclick="clearTCBenDi()" title="Xóa bến đi"
-                                    class="tc-clear-btn absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors text-sm leading-none hidden">✕</button>
+                                    class="tc-clear-btn absolute right-2 top-0 bottom-0 my-auto w-5 h-5 flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors text-sm hidden" style="line-height:1;padding:0;border:none;background:none;">✕</button>
                             </div>
                             <input type="hidden" id="tcBenDiValue">
                         </div>
@@ -618,7 +618,7 @@
                                     oninput="onTCBenDenInput()" onfocus="onTCBenDenFocus()"
                                     class="w-full px-3 py-2 pr-8 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white">
                                 <button onclick="clearTCBenDen()" title="Xóa bến đến"
-                                    class="tc-clear-btn absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors text-sm leading-none hidden">✕</button>
+                                    class="tc-clear-btn absolute right-2 top-0 bottom-0 my-auto w-5 h-5 flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors text-sm hidden" style="line-height:1;padding:0;border:none;background:none;">✕</button>
                             </div>
                             <input type="hidden" id="tcBenDenValue">
                         </div>
@@ -630,7 +630,7 @@
                                     oninput="onTCSearchMa(false)" onfocus="onTCSearchMa(true)"
                                     class="w-full px-3 py-2 pr-8 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
                                 <button onclick="clearTCMa()" title="Xóa mã số tuyến"
-                                    class="tc-clear-btn absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors text-sm leading-none hidden">✕</button>
+                                    class="tc-clear-btn absolute right-2 top-0 bottom-0 my-auto w-5 h-5 flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors text-sm hidden" style="line-height:1;padding:0;border:none;background:none;">✕</button>
                             </div>
                         </div>
                         <!-- Tìm ĐV / Biển số (gộp chung) -->
@@ -641,7 +641,7 @@
                                     oninput="tcApplyFilters()"
                                     class="w-full px-3 py-2 pr-8 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
                                 <button onclick="clearTCFilterSearch()" title="Xóa"
-                                    class="tc-clear-btn absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors text-sm leading-none hidden">✕</button>
+                                    class="tc-clear-btn absolute right-2 top-0 bottom-0 my-auto w-5 h-5 flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors text-sm hidden" style="line-height:1;padding:0;border:none;background:none;">✕</button>
                             </div>
                         </div>
                         <!-- Loại ĐV -->
@@ -702,28 +702,34 @@
                     </div>
                 </div>
 
-                <!-- Bảng đơn vị khai thác -->
+                <!-- ═══ BẢNG 1: TỔNG HỢP ĐƠN VỊ VẬN TẢI ═══ -->
                 <div class="px-8 py-4">
                     <div class="flex items-center justify-between mb-2">
-                        <div
-                            class="text-sm font-bold text-gray-700 uppercase tracking-wide border-l-4 border-blue-500 pl-3">
-                            Danh sách đơn vị đang khai thác
+                        <div class="text-sm font-bold text-gray-700 uppercase tracking-wide border-l-4 border-blue-500 pl-3">
+                            Tổng hợp đơn vị vận tải đang khai thác tuyến cố định
                             <span class="text-xs font-normal text-gray-400 ml-2">(theo phù hiệu còn hiệu lực)</span>
                         </div>
-                        <div id="tcDVFilterInfo" class="text-xs text-blue-600"></div>
+                        <div class="flex items-center gap-2">
+                            <div id="tcDVFilterInfo" class="text-xs text-blue-600"></div>
+                            <button onclick="tcExportSection('donvi')" class="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded-lg transition-colors shadow-sm">
+                                📥 Xuất Excel
+                            </button>
+                        </div>
                     </div>
                     <div class="overflow-x-auto rounded-lg border border-gray-200">
                         <table class="w-full text-sm border-collapse">
                             <thead>
                                 <tr class="gradient-primary text-white text-xs" id="tcDonViTableHead">
                                     <th class="px-3 py-3 text-center border-r border-blue-600 w-10">STT</th>
-                                    <th class="px-3 py-3 text-left border-r border-blue-600 min-w-[220px]">Tên đơn vị
-                                        kinh doanh vận tải</th>
-                                    <th class="px-3 py-3 text-center border-r border-blue-600 w-24">Loại ĐV</th>
-                                    <th class="px-3 py-3 text-center border-r border-blue-600 w-24">Số xe bố trí</th>
-                                    <th class="px-3 py-3 text-center border-r border-blue-600 w-28">Số chuyến KT</th>
-                                    <th class="px-3 py-3 text-center border-r border-blue-600 min-w-[140px]">Số thông
-                                        báo</th>
+                                    <th class="px-3 py-3 text-left border-r border-blue-600 min-w-[200px]">Tên đơn vị KDVT</th>
+                                    <th class="px-3 py-3 text-left border-r border-blue-600 min-w-[180px]">Địa chỉ</th>
+                                    <th class="px-3 py-3 text-center border-r border-blue-600 w-[110px]">SĐT</th>
+                                    <th class="px-3 py-3 text-center border-r border-blue-600 w-[120px]">Người đại diện</th>
+                                    <th class="px-3 py-3 text-center border-r border-blue-600 w-[130px]">Số GCN ĐKKD</th>
+                                    <th class="px-3 py-3 text-center border-r border-blue-600 w-[130px]">Số GP KDVT</th>
+                                    <th class="px-3 py-3 text-center border-r border-blue-600 w-20">Số tuyến KT</th>
+                                    <th class="px-3 py-3 text-center border-r border-blue-600 w-20">Số xe KT</th>
+                                    <th class="px-3 py-3 text-center w-24">Số chuyến KT</th>
                                 </tr>
                             </thead>
                             <tbody id="tcDonViTableBody"></tbody>
@@ -731,22 +737,68 @@
                     </div>
                 </div>
 
-                <!-- Bảng xe cụ thể -->
+                <!-- ═══ BẢNG 2: DANH SÁCH CÁC TUYẾN ĐANG HOẠT ĐỘNG ═══ -->
+                <div class="px-8 py-4 border-t">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="text-sm font-bold text-gray-700 uppercase tracking-wide border-l-4 border-indigo-500 pl-3">
+                            Danh sách các tuyến đang hoạt động
+                        </div>
+                        <button onclick="tcExportSection('tuyen')" class="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded-lg transition-colors shadow-sm">
+                            📥 Xuất Excel
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto rounded-lg border border-gray-200">
+                        <table class="w-full text-sm border-collapse">
+                            <thead>
+                                <tr class="bg-indigo-700 text-white text-xs">
+                                    <th class="px-3 py-2 text-center border-r border-indigo-800 w-10">STT</th>
+                                    <th class="px-3 py-2 text-left border-r border-indigo-800 min-w-[250px]">Tên tuyến</th>
+                                    <th class="px-3 py-2 text-center border-r border-indigo-800 w-28">Số đơn vị khai thác</th>
+                                    <th class="px-3 py-2 text-center border-r border-indigo-800 w-28">Số xe khai thác</th>
+                                    <th class="px-3 py-2 text-center w-32">Số chuyến KT/tháng</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tcTuyenTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ═══ BẢNG 3: CHI TIẾT ĐƠN VỊ KHAI THÁC THEO TỪNG TUYẾN ═══ -->
+                <div class="px-8 py-4 border-t">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="text-sm font-bold text-gray-700 uppercase tracking-wide border-l-4 border-amber-500 pl-3">
+                            Chi tiết đơn vị khai thác theo từng tuyến
+                        </div>
+                        <button onclick="tcExportSection('chitiet')" class="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded-lg transition-colors shadow-sm">
+                            📥 Xuất Excel
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto rounded-lg border border-gray-200">
+                        <table class="w-full text-sm border-collapse">
+                            <thead>
+                                <tr class="bg-amber-600 text-white text-xs">
+                                    <th class="px-3 py-2 text-center border-r border-amber-700 w-10">STT</th>
+                                    <th class="px-3 py-2 text-left border-r border-amber-700 min-w-[200px]">Tên tuyến</th>
+                                    <th class="px-3 py-2 text-left border-r border-amber-700 min-w-[220px]">Tên đơn vị</th>
+                                    <th class="px-3 py-2 text-center border-r border-amber-700 w-24">Số lượng xe</th>
+                                    <th class="px-3 py-2 text-center w-32">Số chuyến KT/tháng</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tcChiTietTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ═══ BẢNG 4: DANH SÁCH XE ĐANG KHAI THÁC TRÊN TUYẾN ═══ -->
                 <div class="px-8 pb-6 border-t">
                     <div class="flex items-center justify-between mt-4 mb-2">
-                        <div
-                            class="text-sm font-bold text-gray-700 uppercase tracking-wide border-l-4 border-green-500 pl-3">
-                            Danh sách xe cụ thể
+                        <div class="text-sm font-bold text-gray-700 uppercase tracking-wide border-l-4 border-green-500 pl-3">
+                            Danh sách xe đang khai thác trên tuyến
                             <span class="text-xs font-normal text-gray-400 ml-1" id="tcXeListLabel"></span>
                         </div>
-                        <button onclick="tcExportXeToExcel()" id="btnExportXe" style="display:none;"
+                        <button onclick="tcExportSection('xe')" id="btnExportXe" style="display:none;"
                             class="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded-lg transition-colors shadow-sm">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                                </path>
-                            </svg>
-                            Xuất Excel
+                            📥 Xuất Excel
                         </button>
                     </div>
                     <div class="overflow-x-auto rounded-lg border border-gray-200">
@@ -754,10 +806,9 @@
                             <thead>
                                 <tr class="bg-green-700 text-white text-xs" id="tcXeTableHead">
                                     <th class="px-3 py-2 text-center border-r border-green-800 w-10">STT</th>
-                                    <th class="px-3 py-2 text-center border-r border-green-800 min-w-[110px]">Biển số xe
-                                    </th>
-                                    <th class="px-3 py-2 text-left border-r border-green-800 min-w-[200px]">Tên đơn vị
-                                    </th>
+                                    <th class="px-3 py-2 text-center border-r border-green-800 min-w-[110px]">Biển số xe</th>
+                                    <th class="px-3 py-2 text-left border-r border-green-800 min-w-[200px]">Tên đơn vị</th>
+                                    <th class="px-3 py-2 text-left border-r border-green-800 min-w-[200px]">Tên tuyến</th>
                                     <th class="px-3 py-2 text-center min-w-[120px]">Hạn Phù hiệu</th>
                                 </tr>
                             </thead>
@@ -3141,6 +3192,15 @@
         }
 
         // ============================================================
+        // HÀM BỎ DẤU TIẾNG VIỆT — phục vụ tìm kiếm không dấu
+        // ============================================================
+        function removeDiacritics(str) {
+            if (!str) return '';
+            return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .replace(/đ/g, 'd').replace(/Đ/g, 'D');
+        }
+
+        // ============================================================
         // SEARCHABLE DROPDOWN — Dùng chung cho Bến đi & Bến đến
         // ============================================================
 
@@ -3160,9 +3220,14 @@
         function _tcShowBenDropdown(inputId, ddId, options, pickFn) {
             const inputEl = document.getElementById(inputId);
             const keyword = (inputEl.value || '').toLowerCase().trim();
+            const keywordND = removeDiacritics(keyword);
 
-            // Lọc danh sách theo keyword
-            const filtered = options.filter(b => !keyword || b.toLowerCase().includes(keyword));
+            // Lọc danh sách theo keyword (hỗ trợ tìm không dấu)
+            const filtered = options.filter(b => {
+                if (!keyword) return true;
+                const bLower = b.toLowerCase();
+                return bLower.includes(keyword) || removeDiacritics(bLower).includes(keywordND);
+            });
 
             const dd = _tcGetOrCreateDropdown(ddId);
 
@@ -3273,6 +3338,7 @@
             _tcToggleClearBtns();
 
             const keyword = (document.getElementById('tcSearchMa').value || '').toLowerCase().trim();
+            const keywordND = removeDiacritics(keyword);
             const benDi = (document.getElementById('tcBenDiValue').value || '').trim();
             const benDen = (document.getElementById('tcBenDenValue').value || '').trim();
             const hasBenFilter = benDi || benDen;
@@ -3284,7 +3350,9 @@
                     const matchBenDen = !benDen || t.BenDen === benDen || t.BenDi === benDen;
                     const matchKw = !keyword ||
                         (t.MaSoTuyen || '').toLowerCase().includes(keyword) ||
-                        (t.TenTuyen || '').toLowerCase().includes(keyword);
+                        (t.TenTuyen || '').toLowerCase().includes(keyword) ||
+                        removeDiacritics((t.MaSoTuyen || '').toLowerCase()).includes(keywordND) ||
+                        removeDiacritics((t.TenTuyen || '').toLowerCase()).includes(keywordND);
                     return matchBenDi && matchBenDen && matchKw;
                 }).sort((a, b) => (a.MaSoTuyen || '').localeCompare(b.MaSoTuyen || ''));
 
@@ -3418,6 +3486,7 @@
             const benDi = (document.getElementById('tcBenDiValue').value || '').trim();
             const benDen = (document.getElementById('tcBenDenValue').value || '').trim();
             const keyword = (document.getElementById('tcSearchMa').value || '').toLowerCase().trim();
+            const keywordND = removeDiacritics(keyword);
 
             const matched = allTuyenData.filter(t => {
                 const matchBenDi = !benDi || t.BenDi === benDi || t.BenDen === benDi;
@@ -3428,7 +3497,13 @@
                     (t.BenDi || '').toLowerCase().includes(keyword) ||
                     (t.BenDen || '').toLowerCase().includes(keyword) ||
                     (t.TinhDi || '').toLowerCase().includes(keyword) ||
-                    (t.TinhDen || '').toLowerCase().includes(keyword);
+                    (t.TinhDen || '').toLowerCase().includes(keyword) ||
+                    removeDiacritics((t.MaSoTuyen || '').toLowerCase()).includes(keywordND) ||
+                    removeDiacritics((t.TenTuyen || '').toLowerCase()).includes(keywordND) ||
+                    removeDiacritics((t.BenDi || '').toLowerCase()).includes(keywordND) ||
+                    removeDiacritics((t.BenDen || '').toLowerCase()).includes(keywordND) ||
+                    removeDiacritics((t.TinhDi || '').toLowerCase()).includes(keywordND) ||
+                    removeDiacritics((t.TinhDen || '').toLowerCase()).includes(keywordND);
                 return matchBenDi && matchBenDen && matchKw;
             }).sort((a, b) => (a.MaSoTuyen || '').localeCompare(b.MaSoTuyen || ''));
 
@@ -3512,6 +3587,9 @@
             _tcCurrentMatchedRoutes = matchedRoutes;
             _tcCurrentMaTuyen = '__MULTI__';
 
+            // Reset các filter phụ khi chuyển tra cứu mới
+            _tcResetSubFilters();
+
             // Xác định tên hiển thị
             const headerParts = [];
             if (benDi) headerParts.push('Bến đi: ' + benDi);
@@ -3524,27 +3602,8 @@
             document.getElementById('tcResultHanhTrinh').textContent =
                 matchedRoutes.map(t => t.MaSoTuyen).join(', ');
 
-            // Cập nhật header bảng đơn vị (thêm cột Mã tuyến)
-            const dvHead = document.getElementById('tcDonViTableHead');
-            dvHead.innerHTML = `
-                <th class="px-3 py-3 text-center border-r border-blue-600 w-10">STT</th>
-                <th class="px-3 py-3 text-left border-r border-blue-600 min-w-[220px]">Tên đơn vị kinh doanh vận tải</th>
-                <th class="px-3 py-3 text-center border-r border-blue-600 w-28">Loại ĐV</th>
-                <th class="px-3 py-3 text-center border-r border-blue-600 min-w-[120px]">Tuyến khai thác</th>
-                <th class="px-3 py-3 text-center border-r border-blue-600 w-24">Số xe bố trí</th>
-                <th class="px-3 py-3 text-center border-r border-blue-600 w-28">Số chuyến KT</th>
-                <th class="px-3 py-3 text-center border-r border-blue-600 min-w-[140px]">Số thông báo</th>
-            `;
 
-            // Cập nhật header bảng xe (thêm cột Mã tuyến)
-            const xeHead = document.getElementById('tcXeTableHead');
-            xeHead.innerHTML = `
-                <th class="px-3 py-2 text-center border-r border-green-800 w-10">STT</th>
-                <th class="px-3 py-2 text-center border-r border-green-800 min-w-[110px]">Biển số xe</th>
-                <th class="px-3 py-2 text-center border-r border-green-800 min-w-[100px]">Mã tuyến</th>
-                <th class="px-3 py-2 text-left border-r border-green-800 min-w-[200px]">Tên đơn vị</th>
-                <th class="px-3 py-2 text-center min-w-[120px]">Hạn Phù hiệu</th>
-            `;
+
 
             // Gom xe từ tất cả tuyến
             let allXeRaw = [];
@@ -3558,6 +3617,10 @@
                 dsXeTuyen.forEach(ph => {
                     let tenDV = ph.Ten_don_vi || '';
                     let diaChi = ph['Địa chỉ'] || '';
+                    let soDienThoai = ph['Số điện thoại'] || ph['So_dien_thoai'] || '';
+                    let nguoiDaiDien = ph['Người đại diện'] || ph['Nguoi_dai_dien'] || '';
+                    let soDKKD = ph['Số Giấy chứng nhận ĐKKD'] || ph['So_DKKD'] || '';
+                    let soGPKDVT = ph['Số Giấy phép KDVT'] || ph['So_GPKDVT'] || '';
                     let soTB = '';
                     let idTB = '';
                     if (ph.Ref_ThongBao && _idxTBbyID[ph.Ref_ThongBao]) {
@@ -3566,6 +3629,10 @@
                         if (!diaChi) diaChi = tb['Địa chỉ sau xác nhập DVKDVT'] || '';
                         soTB = tb.SoThongBao || '';
                         idTB = tb.ID_TB || '';
+                        if (!soDienThoai) soDienThoai = tb['Số điện thoại'] || '';
+                        if (!nguoiDaiDien) nguoiDaiDien = tb['Người đại diện'] || '';
+                        if (!soDKKD) soDKKD = tb['Số Giấy chứng nhận ĐKKD'] || '';
+                        if (!soGPKDVT) soGPKDVT = tb['Số Giấy phép KDVT'] || '';
                     }
                     allXeRaw.push({
                         BienSo: ph.BienSo || '',
@@ -3573,6 +3640,7 @@
                         TrangThai: ph.TrangThai || '',
                         NgayHetHan: ph.NgayHetHan || '',
                         tenDV, diaChi, soTB, idTB,
+                        soDienThoai, nguoiDaiDien, soDKKD, soGPKDVT,
                         maTuyen: maTuyen
                     });
                 });
@@ -3597,7 +3665,7 @@
             xeUnique.forEach(x => {
                 const dv = x.tenDV || 'Không xác định';
                 if (!donViMap[dv]) {
-                    donViMap[dv] = { tenDV: dv, diaChi: x.diaChi, bienSoList: [], soTBSet: new Set(), tuyenSet: new Set() };
+                    donViMap[dv] = { tenDV: dv, diaChi: x.diaChi, bienSoList: [], soTBSet: new Set(), tuyenSet: new Set(), soDienThoai: x.soDienThoai || '', nguoiDaiDien: x.nguoiDaiDien || '', soDKKD: x.soDKKD || '', soGPKDVT: x.soGPKDVT || '' };
                 }
                 donViMap[dv].bienSoList.push(x);
                 if (x.soTB) donViMap[dv].soTBSet.add(x.soTB);
@@ -3627,19 +3695,21 @@
             document.getElementById('tcResSoChuyen').textContent = tongSoChuyen;
             document.getElementById('tcResLuuLuong').textContent = tongLuuLuong;
 
-            // Render bảng
+            // Render 4 bảng
             tcRenderDonViTableMulti(Object.values(donViMap));
+            tcRenderTuyenTable(matchedRoutes, xeUnique);
+            tcRenderChiTietTable(matchedRoutes, xeUnique);
             tcRenderXeTableMulti(xeUnique);
 
             document.getElementById('tuyenCoDinhPlaceholder').style.display = 'none';
             document.getElementById('tuyenCoDinhResult').style.display = 'block';
         }
 
-        // Render bảng đơn vị — chế độ multi-route (thêm cột Tuyến)
+        // Render bảng đơn vị — thống nhất cho cả single và multi
         function tcRenderDonViTableMulti(dvList) {
             const tbody = document.getElementById('tcDonViTableBody');
             if (!dvList || dvList.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-gray-400 italic">
+                tbody.innerHTML = `<tr><td colspan="10" class="text-center py-6 text-gray-400 italic">
                     Chưa có đơn vị nào đang khai thác (không có phù hiệu còn hiệu lực)
                 </td></tr>`;
                 return;
@@ -3653,31 +3723,24 @@
 
             let html = '';
             dvList.forEach((dv, idx) => {
-                const loai = classifyDonVi(dv.diaChi);
-                const loaiTag = loai === 'trongtỉnh'
-                    ? '<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs font-semibold">Trong tỉnh</span>'
-                    : loai === 'ngoaitỉnh'
-                        ? '<span class="bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full text-xs font-semibold">Ngoài tỉnh</span>'
-                        : '<span class="bg-gray-100 text-gray-400 px-2 py-0.5 rounded-full text-xs">Chưa rõ</span>';
-
                 const soXe = dv.bienSoList.length;
                 const soTBArr = Array.from(dv.soTBSet);
                 const soChuyenDV = tinhSoChuyenDonVi(soTBArr);
-                const soTBDisplay = soTBArr.join(', ') || '--';
-                const tuyenLinks = Array.from(dv.tuyenSet || []).sort().map(t =>
-                    `<a href="javascript:void(0)" onclick="tcPickTuyen('${t}')" class="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer">${t}</a>`
-                ).join(', ') || '--';
+                const soTuyen = dv.tuyenSet ? dv.tuyenSet.size : 0;
                 const rowBg = idx % 2 === 0 ? 'bg-white' : 'bg-blue-50';
 
                 html += `
                 <tr class="${rowBg} hover:bg-blue-100 transition-colors text-sm">
-                    <td class="px-3 py-3 text-center border-b border-gray-200">${idx + 1}</td>
-                    <td class="px-3 py-3 border-b border-gray-200 font-medium text-gray-800">${dv.tenDV}</td>
-                    <td class="px-3 py-3 text-center border-b border-gray-200">${loaiTag}</td>
-                    <td class="px-3 py-3 text-center border-b border-gray-200 text-xs font-mono font-semibold">${tuyenLinks}</td>
-                    <td class="px-3 py-3 text-center border-b border-gray-200 font-bold text-blue-700 text-lg">${soXe}</td>
-                    <td class="px-3 py-3 text-center border-b border-gray-200 font-bold text-emerald-600 text-lg">${soChuyenDV}</td>
-                    <td class="px-3 py-3 border-b border-gray-200 text-xs text-gray-500">${soTBDisplay}</td>
+                    <td class="px-3 py-2 text-center border-b border-gray-200">${idx + 1}</td>
+                    <td class="px-3 py-2 border-b border-gray-200 font-medium text-gray-800">${dv.tenDV}</td>
+                    <td class="px-3 py-2 border-b border-gray-200 text-gray-600 text-xs">${dv.diaChi || '--'}</td>
+                    <td class="px-3 py-2 text-center border-b border-gray-200 text-xs">${dv.soDienThoai || '--'}</td>
+                    <td class="px-3 py-2 text-center border-b border-gray-200 text-xs">${dv.nguoiDaiDien || '--'}</td>
+                    <td class="px-3 py-2 text-center border-b border-gray-200 text-xs">${dv.soDKKD || '--'}</td>
+                    <td class="px-3 py-2 text-center border-b border-gray-200 text-xs">${dv.soGPKDVT || '--'}</td>
+                    <td class="px-3 py-2 text-center border-b border-gray-200 font-bold text-indigo-600">${soTuyen}</td>
+                    <td class="px-3 py-2 text-center border-b border-gray-200 font-bold text-blue-700">${soXe}</td>
+                    <td class="px-3 py-2 text-center border-b border-gray-200 font-bold text-emerald-600">${soChuyenDV}</td>
                 </tr>`;
             });
 
@@ -3721,7 +3784,7 @@
             list.forEach((x, idx) => {
                 const isNewTuyen = x.maTuyen !== lastTuyen;
                 lastTuyen = x.maTuyen;
-                const rowBg = isNewTuyen && idx > 0 ? 'bg-white border-t-2 border-blue-200' : (idx % 2 === 0 ? 'bg-white' : 'bg-green-50');
+                const rowBg = idx % 2 === 0 ? 'bg-white' : 'bg-green-50';
 
                 let hanPH = '--';
                 if (x.NgayHetHan) {
@@ -3738,16 +3801,104 @@
                     } catch (e) { hanPH = x.NgayHetHan; }
                 }
 
+                const tuyen = _idxTuyenByMa[x.maTuyen];
+                const tenTuyen = tuyen ? (tuyen.TenTuyen || x.maTuyen) : x.maTuyen;
+
                 html += `
                 <tr class="${rowBg} hover:bg-green-50 transition-colors text-xs">
                     <td class="px-3 py-2 text-center border-b border-gray-100">${idx + 1}</td>
                     <td class="px-3 py-2 text-center border-b border-gray-100 font-bold text-blue-700 text-sm">${x.BienSo}</td>
-                    <td class="px-3 py-2 text-center border-b border-gray-100 font-mono font-semibold"><a href="javascript:void(0)" onclick="tcPickTuyen('${x.maTuyen}')" class="text-indigo-600 hover:text-indigo-800 hover:underline cursor-pointer">${x.maTuyen || '--'}</a></td>
                     <td class="px-3 py-2 border-b border-gray-100 text-gray-700">${x.tenDV}</td>
+                    <td class="px-3 py-2 border-b border-gray-100 text-gray-600">${tenTuyen} - <span class="font-mono font-semibold">${x.maTuyen || ''}</span></td>
                     <td class="px-3 py-2 text-center border-b border-gray-100">${hanPH}</td>
                 </tr>`;
             });
 
+            tbody.innerHTML = html;
+        }
+
+        // ── Render bảng 2: Danh sách tuyến đang hoạt động ──
+        function tcRenderTuyenTable(matchedRoutes, xeList) {
+            const tbody = document.getElementById('tcTuyenTableBody');
+            if (!matchedRoutes || !matchedRoutes.length) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-gray-400 italic">Không có tuyến nào</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            let stt = 0;
+            matchedRoutes.forEach((tuyen) => {
+                const maTuyen = tuyen.MaSoTuyen;
+                const tenTuyen = tuyen.TenTuyen || maTuyen;
+                const dvTrenTuyen = new Set();
+                const xeTrenTuyen = xeList.filter(x => x.maTuyen === maTuyen);
+                xeTrenTuyen.forEach(x => { if (x.tenDV) dvTrenTuyen.add(x.tenDV); });
+                const soChuyen = calculateActualTrips(maTuyen);
+
+                // Chỉ hiển thị tuyến có đơn vị hoặc xe khai thác
+                if (dvTrenTuyen.size === 0 && xeTrenTuyen.length === 0) return;
+
+                stt++;
+                const rowBg = stt % 2 === 0 ? 'bg-indigo-50' : 'bg-white';
+
+                html += `
+                <tr class="${rowBg} hover:bg-indigo-100 transition-colors text-sm">
+                    <td class="px-3 py-2 text-center border-b border-gray-200">${stt}</td>
+                    <td class="px-3 py-2 border-b border-gray-200 font-medium">
+                        <a href="javascript:void(0)" onclick="tcPickTuyen('${maTuyen}')" class="text-indigo-700 hover:text-indigo-900 hover:underline">${tenTuyen}</a>
+                        <span class="text-gray-400 text-xs ml-1 font-mono">${maTuyen}</span>
+                    </td>
+                    <td class="px-3 py-2 text-center border-b border-gray-200 font-bold text-blue-700">${dvTrenTuyen.size}</td>
+                    <td class="px-3 py-2 text-center border-b border-gray-200 font-bold text-green-700">${xeTrenTuyen.length}</td>
+                    <td class="px-3 py-2 text-center border-b border-gray-200 font-bold text-orange-600">${soChuyen}</td>
+                </tr>`;
+            });
+
+            if (!html) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-gray-400 italic">Không có tuyến nào đang khai thác</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = html;
+        }
+
+        // ── Render bảng 3: Chi tiết đơn vị khai thác theo từng tuyến ──
+        function tcRenderChiTietTable(matchedRoutes, xeList) {
+            const tbody = document.getElementById('tcChiTietTableBody');
+            if (!matchedRoutes || !matchedRoutes.length) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-gray-400 italic">Không có dữ liệu</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            let stt = 0;
+            matchedRoutes.forEach(tuyen => {
+                const maTuyen = tuyen.MaSoTuyen;
+                const tenTuyen = tuyen.TenTuyen || maTuyen;
+                // Nhóm xe theo đơn vị trên tuyến này
+                const dvXeMap = {};
+                xeList.filter(x => x.maTuyen === maTuyen).forEach(x => {
+                    const dv = x.tenDV || 'Không xác định';
+                    if (!dvXeMap[dv]) dvXeMap[dv] = { tenDV: dv, soTBSet: new Set(), count: 0 };
+                    dvXeMap[dv].count++;
+                    if (x.soTB) dvXeMap[dv].soTBSet.add(x.soTB);
+                });
+                Object.values(dvXeMap).sort((a, b) => a.tenDV.localeCompare(b.tenDV)).forEach(dvInfo => {
+                    stt++;
+                    const soChuyen = tinhSoChuyenDonVi(Array.from(dvInfo.soTBSet));
+                    const rowBg = stt % 2 === 0 ? 'bg-white' : 'bg-amber-50';
+                    html += `
+                    <tr class="${rowBg} hover:bg-amber-100 transition-colors text-sm">
+                        <td class="px-3 py-2 text-center border-b border-gray-200">${stt}</td>
+                        <td class="px-3 py-2 border-b border-gray-200">
+                            <span class="font-medium">${tenTuyen}</span>
+                            <span class="text-gray-400 text-xs ml-1 font-mono">${maTuyen}</span>
+                        </td>
+                        <td class="px-3 py-2 border-b border-gray-200 text-gray-800">${dvInfo.tenDV}</td>
+                        <td class="px-3 py-2 text-center border-b border-gray-200 font-bold text-blue-700">${dvInfo.count}</td>
+                        <td class="px-3 py-2 text-center border-b border-gray-200 font-bold text-emerald-600">${soChuyen}</td>
+                    </tr>`;
+                });
+            });
             tbody.innerHTML = html;
         }
 
@@ -3834,25 +3985,8 @@
             const tuyen = _idxTuyenByMa[maTuyen];
             if (!tuyen) return;
 
-            // Khôi phục header bảng đơn vị (không có cột Tuyến)
-            const dvHead = document.getElementById('tcDonViTableHead');
-            dvHead.innerHTML = `
-                <th class="px-3 py-3 text-center border-r border-blue-600 w-10">STT</th>
-                <th class="px-3 py-3 text-left border-r border-blue-600 min-w-[220px]">Tên đơn vị kinh doanh vận tải</th>
-                <th class="px-3 py-3 text-center border-r border-blue-600 w-24">Loại ĐV</th>
-                <th class="px-3 py-3 text-center border-r border-blue-600 w-24">Số xe bố trí</th>
-                <th class="px-3 py-3 text-center border-r border-blue-600 w-28">Số chuyến KT</th>
-                <th class="px-3 py-3 text-center border-r border-blue-600 min-w-[140px]">Số thông báo</th>
-            `;
-
-            // Khôi phục header bảng xe (không có cột Mã tuyến)
-            const xeHead = document.getElementById('tcXeTableHead');
-            xeHead.innerHTML = `
-                <th class="px-3 py-2 text-center border-r border-green-800 w-10">STT</th>
-                <th class="px-3 py-2 text-center border-r border-green-800 min-w-[110px]">Biển số xe</th>
-                <th class="px-3 py-2 text-left border-r border-green-800 min-w-[200px]">Tên đơn vị</th>
-                <th class="px-3 py-2 text-center min-w-[120px]">Hạn Phù hiệu</th>
-            `;
+            // Reset các filter phụ khi chuyển tra cứu mới
+            _tcResetSubFilters();
 
             // Hiển thị header
             document.getElementById('tcResultTenTuyen').textContent = tuyen.TenTuyen || maTuyen;
@@ -3869,25 +4003,35 @@
             const dsXeTuyen = _idxPHbyTuyen[maTuyen] || [];
 
             const xeRaw = dsXeTuyen.map(ph => {
-                // Ưu tiên Ten_don_vi và Địa chỉ trực tiếp từ PHUHIEUXE
+                // Ưu tiên lấy từ PHUHIEUXE (ph)
                 let tenDV = ph.Ten_don_vi || '';
                 let diaChi = ph['Địa chỉ'] || '';
+                let soDienThoai = ph['Số điện thoại'] || ph['So_dien_thoai'] || '';
+                let nguoiDaiDien = ph['Người đại diện'] || ph['Nguoi_dai_dien'] || '';
+                let soDKKD = ph['Số Giấy chứng nhận ĐKKD'] || ph['So_DKKD'] || '';
+                let soGPKDVT = ph['Số Giấy phép KDVT'] || ph['So_GPKDVT'] || '';
                 let soTB = '';
                 let idTB = '';
-                // Nếu có Ref_ThongBao → bổ sung thêm số thông báo
+                // Fallback sang ThongBao nếu PHUHIEUXE thiếu
                 if (ph.Ref_ThongBao && _idxTBbyID[ph.Ref_ThongBao]) {
                     const tb = _idxTBbyID[ph.Ref_ThongBao];
                     if (!tenDV) tenDV = tb['Đơn vị kinh doanh vận tải'] || '';
                     if (!diaChi) diaChi = tb['Địa chỉ sau xác nhập DVKDVT'] || '';
                     soTB = tb.SoThongBao || '';
                     idTB = tb.ID_TB || '';
+                    if (!soDienThoai) soDienThoai = tb['Số điện thoại'] || '';
+                    if (!nguoiDaiDien) nguoiDaiDien = tb['Người đại diện'] || '';
+                    if (!soDKKD) soDKKD = tb['Số Giấy chứng nhận ĐKKD'] || '';
+                    if (!soGPKDVT) soGPKDVT = tb['Số Giấy phép KDVT'] || '';
                 }
                 return {
                     BienSo: ph.BienSo || '',
                     LoaiPH: ph.LoaiPH || '',
                     TrangThai: ph.TrangThai || '',
                     NgayHetHan: ph.NgayHetHan || '',
-                    tenDV, diaChi, soTB, idTB
+                    tenDV, diaChi, soTB, idTB,
+                    soDienThoai, nguoiDaiDien, soDKKD, soGPKDVT,
+                    maTuyen: maTuyen
                 };
             });
 
@@ -3903,6 +4047,7 @@
             });
 
             _tcCurrentXeList = xeUnique;
+            _tcCurrentMatchedRoutes = [tuyen];
 
             // Tính số chuyến và lưu lượng
             const tongSoChuyen = calculateActualTrips(maTuyen);
@@ -3913,10 +4058,11 @@
             xeUnique.forEach(x => {
                 const dv = x.tenDV || 'Không xác định';
                 if (!donViMap[dv]) {
-                    donViMap[dv] = { tenDV: dv, diaChi: x.diaChi, bienSoList: [], soTBSet: new Set() };
+                    donViMap[dv] = { tenDV: dv, diaChi: x.diaChi, bienSoList: [], soTBSet: new Set(), tuyenSet: new Set(), soDienThoai: x.soDienThoai || '', nguoiDaiDien: x.nguoiDaiDien || '', soDKKD: x.soDKKD || '', soGPKDVT: x.soGPKDVT || '' };
                 }
                 donViMap[dv].bienSoList.push(x);
                 if (x.soTB) donViMap[dv].soTBSet.add(x.soTB);
+                if (x.maTuyen) donViMap[dv].tuyenSet.add(x.maTuyen);
             });
 
             // Populate filter tỉnh (từ xe của tuyến này)
@@ -3939,60 +4085,15 @@
             document.getElementById('tcResSoChuyen').textContent = tongSoChuyen;
             document.getElementById('tcResLuuLuong').textContent = luuLuong;
 
-            // Render bảng
-            tcRenderDonViTable(Object.values(donViMap), maTuyen);
-            tcRenderXeTable(xeUnique);
+            // Render 4 bảng
+            tcRenderDonViTableMulti(Object.values(donViMap));
+            tcRenderTuyenTable([tuyen], xeUnique);
+            tcRenderChiTietTable([tuyen], xeUnique);
+            tcRenderXeTableMulti(xeUnique);
 
             document.getElementById('tuyenCoDinhPlaceholder').style.display = 'none';
             document.getElementById('tuyenCoDinhResult').style.display = 'block';
             document.getElementById('tuyenCoDinhResult').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-
-        // Render bảng đơn vị khai thác
-        function tcRenderDonViTable(dvList, maTuyen) {
-            const tbody = document.getElementById('tcDonViTableBody');
-            if (!dvList || dvList.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-gray-400 italic">
-                    Chưa có đơn vị nào đang khai thác tuyến này (không có phù hiệu còn hiệu lực)
-                </td></tr>`;
-                return;
-            }
-
-            // Sắp xếp: trong tỉnh trước → ngoài tỉnh → chưa rõ
-            dvList.sort((a, b) => {
-                const rankA = classifyDonVi(a.diaChi) === 'trongtỉnh' ? 0 : 1;
-                const rankB = classifyDonVi(b.diaChi) === 'trongtỉnh' ? 0 : 1;
-                return rankA - rankB || a.tenDV.localeCompare(b.tenDV);
-            });
-
-            let html = '';
-            dvList.forEach((dv, idx) => {
-                const loai = classifyDonVi(dv.diaChi);
-                const loaiTag = loai === 'trongtỉnh'
-                    ? '<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs font-semibold">Trong tỉnh</span>'
-                    : loai === 'ngoaitỉnh'
-                        ? '<span class="bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full text-xs font-semibold">Ngoài tỉnh</span>'
-                        : '<span class="bg-gray-100 text-gray-400 px-2 py-0.5 rounded-full text-xs">Chưa rõ</span>';
-
-                const soXe = dv.bienSoList.length;
-                const soTBArr = Array.from(dv.soTBSet);
-                const soChuyenDV = tinhSoChuyenDonVi(soTBArr);
-                const soTBDisplay = soTBArr.join(', ') || '--';
-                const rowBg = idx % 2 === 0 ? 'bg-white' : 'bg-blue-50';
-                const tenDVEsc = dv.tenDV.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-
-                html += `
-                <tr class="${rowBg} hover:bg-blue-100 transition-colors text-sm">
-                    <td class="px-3 py-3 text-center border-b border-gray-200">${idx + 1}</td>
-                    <td class="px-3 py-3 border-b border-gray-200 font-medium text-gray-800">${dv.tenDV}</td>
-                    <td class="px-3 py-3 text-center border-b border-gray-200">${loaiTag}</td>
-                    <td class="px-3 py-3 text-center border-b border-gray-200 font-bold text-blue-700 text-lg">${soXe}</td>
-                    <td class="px-3 py-3 text-center border-b border-gray-200 font-bold text-emerald-600 text-lg">${soChuyenDV}</td>
-                    <td class="px-3 py-3 border-b border-gray-200 text-xs text-gray-500">${soTBDisplay}</td>
-                </tr>`;
-            });
-
-            tbody.innerHTML = html;
         }
 
         // Tính số chuyến theo danh sách SoThongBao
@@ -4019,180 +4120,194 @@
             return Math.round(slot / 2);
         }
 
-        // Render bảng xe
-        function tcRenderXeTable(xeList) {
-            const tbody = document.getElementById('tcXeTableBody');
-            const label = document.getElementById('tcXeListLabel');
-
-            let list = xeList;
-
-            // Áp dụng filter gộp (ĐV + biển số)
-            const fSearch = (document.getElementById('tcFilterSearch').value || '').toLowerCase().trim();
-            if (fSearch) list = list.filter(x =>
-                (x.BienSo || '').toLowerCase().includes(fSearch) ||
-                (x.tenDV || '').toLowerCase().includes(fSearch)
-            );
-
-            label.textContent = `(${list.length} xe)`;
-
-            // Hiện/ẩn nút xuất Excel
-            const btnExport = document.getElementById('btnExportXe');
-            if (btnExport) btnExport.style.display = list.length ? 'flex' : 'none';
-
-            if (!list.length) {
-                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-6 text-gray-400 italic">
-                    Không có xe nào phù hợp
-                </td></tr>`;
-                return;
-            }
-
-            // Sắp xếp: theo đơn vị → biển số
-            list.sort((a, b) =>
-                (a.tenDV || '').localeCompare(b.tenDV || '') ||
-                (a.BienSo || '').localeCompare(b.BienSo || '')
-            );
-
-            let html = '';
-            let lastDV = null;
-            list.forEach((x, idx) => {
-                const isNewDV = x.tenDV !== lastDV;
-                lastDV = x.tenDV;
-                const rowBg = isNewDV && idx > 0 ? 'bg-white border-t-2 border-blue-200' : (idx % 2 === 0 ? 'bg-white' : 'bg-green-50');
-
-                // Format hạn phù hiệu
-                let hanPH = '--';
-                if (x.NgayHetHan) {
-                    try {
-                        const d = new Date(x.NgayHetHan);
-                        if (!isNaN(d.getTime())) {
-                            hanPH = d.toLocaleDateString('vi-VN');
-                            // Kiểm tra sắp hết hạn (trong 30 ngày)
-                            const now = new Date();
-                            const diff = (d - now) / (1000 * 60 * 60 * 24);
-                            if (diff < 0) hanPH = `<span class="text-red-500 font-semibold">${hanPH} (Hết hạn)</span>`;
-                            else if (diff <= 30) hanPH = `<span class="text-orange-500 font-semibold">${hanPH}</span>`;
-                            else hanPH = `<span class="text-green-600">${hanPH}</span>`;
-                        }
-                    } catch (e) { hanPH = x.NgayHetHan; }
-                }
-
-                html += `
-                <tr class="${rowBg} hover:bg-green-50 transition-colors text-xs">
-                    <td class="px-3 py-2 text-center border-b border-gray-100">${idx + 1}</td>
-                    <td class="px-3 py-2 text-center border-b border-gray-100 font-bold text-blue-700 text-sm">${x.BienSo}</td>
-                    <td class="px-3 py-2 border-b border-gray-100 text-gray-700">${x.tenDV}</td>
-                    <td class="px-3 py-2 text-center border-b border-gray-100">${hanPH}</td>
-                </tr>`;
-            });
-
-            tbody.innerHTML = html;
-        }
-
         // Lọc xe khi bấm nút "Xem X xe" ở bảng đơn vị
         function tcFilterXeByDonVi(tenDV) {
-            tcRenderXeTable(_tcCurrentXeList);
+            tcRenderXeTableMulti(_tcCurrentXeList);
             document.getElementById('tcXeTableBody').closest('.overflow-x-auto')
                 .scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         // Hiện lại toàn bộ xe
         function tcShowAllXe() {
-            tcRenderXeTable(_tcCurrentXeList);
+            tcRenderXeTableMulti(_tcCurrentXeList);
         }
 
-        // Xuất danh sách xe cụ thể ra Excel
-        async function tcExportXeToExcel() {
+        // ── Xuất Excel RIÊNG cho từng section ──
+        async function tcExportSection(type) {
             if (!_tcCurrentXeList || !_tcCurrentXeList.length) return;
 
-            // Lấy danh sách xe đang hiển thị (đã lọc)
-            let list = [..._tcCurrentXeList];
-            // Áp dụng bộ lọc gộp (ĐV + biển số)
-            const fSearch = (document.getElementById('tcFilterSearch').value || '').toLowerCase().trim();
-            if (fSearch) list = list.filter(x =>
-                (x.BienSo || '').toLowerCase().includes(fSearch) ||
-                (x.tenDV || '').toLowerCase().includes(fSearch)
-            );
-
-            const fLoai = document.getElementById('tcFilterLoaiDV').value;
-            const fTinh = document.getElementById('tcFilterTinhDV').value.toLowerCase().trim();
-            if (fLoai) list = list.filter(x => classifyDonVi(x.diaChi) === fLoai);
-            if (fTinh) list = list.filter(x => extractTinhFromDiaChi(x.diaChi).toLowerCase().includes(fTinh));
-
-            if (!list.length) return;
-
-            // Sắp xếp
-            list.sort((a, b) =>
-                (a.tenDV || '').localeCompare(b.tenDV || '') ||
-                (a.BienSo || '').localeCompare(b.BienSo || '')
-            );
-
             const workbook = new ExcelJS.Workbook();
-            const ws = workbook.addWorksheet('Danh sách xe');
+            const thinBorder = {
+                top: { style: 'thin' }, bottom: { style: 'thin' },
+                left: { style: 'thin' }, right: { style: 'thin' }
+            };
+            const headerFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E40AF' } };
+            const headerFont = { bold: true, color: { argb: 'FFFFFFFF' }, size: 10 };
+            const sectionFont = { bold: true, size: 12, color: { argb: 'FF1E3A5F' } };
 
-            // Tên tuyến làm tiêu đề
-            const tuyen = _idxTuyenByMa[_tcCurrentMaTuyen];
-            const tenTuyen = tuyen ? (tuyen.TenTuyen || _tcCurrentMaTuyen) : _tcCurrentMaTuyen;
-
-            // Tiêu đề
-            ws.mergeCells('A1:D1');
-            const titleCell = ws.getCell('A1');
-            titleCell.value = `DANH SÁCH XE - TUYẾN: ${tenTuyen} (${_tcCurrentMaTuyen})`;
-            titleCell.font = { bold: true, size: 13, color: { argb: 'FF1E40AF' } };
-            titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
-            ws.getRow(1).height = 30;
-
-            // Header
-            const headers = ['STT', 'Biển số xe', 'Tên đơn vị', 'Hạn phù hiệu'];
-            const headerRow = ws.addRow(headers);
-            headerRow.eachCell(cell => {
-                cell.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11 };
-                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF15803D' } };
-                cell.alignment = { horizontal: 'center', vertical: 'middle' };
-                cell.border = {
-                    top: { style: 'thin' }, bottom: { style: 'thin' },
-                    left: { style: 'thin' }, right: { style: 'thin' }
-                };
-            });
-
-            // Dữ liệu
-            list.forEach((x, idx) => {
-                let hanPH = '';
-                if (x.NgayHetHan) {
-                    try {
-                        const d = new Date(x.NgayHetHan);
-                        if (!isNaN(d.getTime())) hanPH = d.toLocaleDateString('vi-VN');
-                    } catch (e) { hanPH = x.NgayHetHan; }
-                }
-                const row = ws.addRow([idx + 1, x.BienSo || '', x.tenDV || '', hanPH]);
+            function addTitle(ws, title, colSpan) {
+                const row = ws.addRow([title]);
+                ws.mergeCells(row.number, 1, row.number, colSpan);
+                row.getCell(1).font = sectionFont;
+                row.getCell(1).alignment = { vertical: 'middle' };
+                row.height = 26;
+            }
+            function addHeader(ws, headers) {
+                const row = ws.addRow(headers);
                 row.eachCell(cell => {
-                    cell.border = {
-                        top: { style: 'thin' }, bottom: { style: 'thin' },
-                        left: { style: 'thin' }, right: { style: 'thin' }
-                    };
+                    cell.font = headerFont;
+                    cell.fill = headerFill;
+                    cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+                    cell.border = thinBorder;
+                });
+                row.height = 28;
+            }
+            function addData(ws, data) {
+                const row = ws.addRow(data);
+                row.eachCell(cell => {
+                    cell.border = thinBorder;
                     cell.alignment = { vertical: 'middle' };
                 });
-                row.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
-                row.getCell(2).alignment = { horizontal: 'center', vertical: 'middle' };
-                row.getCell(2).font = { bold: true, color: { argb: 'FF1D4ED8' } };
-                row.getCell(4).alignment = { horizontal: 'center', vertical: 'middle' };
-            });
+                return row;
+            }
 
-            // Độ rộng cột
-            ws.getColumn(1).width = 6;
-            ws.getColumn(2).width = 16;
-            ws.getColumn(3).width = 40;
-            ws.getColumn(4).width = 18;
+            const allXe = [..._tcCurrentXeList];
+            const matchedRoutes = _tcCurrentMatchedRoutes || [];
+            let fileName = '';
 
-            // Xuất file
+            // ── SECTION: ĐƠNVỊ ──
+            if (type === 'donvi') {
+                const ws = workbook.addWorksheet('Tổng hợp đơn vị');
+                const donViMap = {};
+                allXe.forEach(x => {
+                    const dv = x.tenDV || 'Không xác định';
+                    if (!donViMap[dv]) donViMap[dv] = { tenDV: dv, diaChi: x.diaChi || '', bienSoList: [], soTBSet: new Set(), tuyenSet: new Set(), soDienThoai: x.soDienThoai || '', nguoiDaiDien: x.nguoiDaiDien || '', soDKKD: x.soDKKD || '', soGPKDVT: x.soGPKDVT || '' };
+                    donViMap[dv].bienSoList.push(x);
+                    if (x.soTB) donViMap[dv].soTBSet.add(x.soTB);
+                    if (x.maTuyen) donViMap[dv].tuyenSet.add(x.maTuyen);
+                });
+                const donViList = Object.values(donViMap).sort((a, b) => a.tenDV.localeCompare(b.tenDV));
+
+                addTitle(ws, 'TỔNG HỢP ĐƠN VỊ VẬN TẢI ĐANG KHAI THÁC TUYẾN CỐ ĐỊNH', 10);
+                addHeader(ws, ['STT', 'Tên đơn vị', 'Địa chỉ', 'Số điện thoại', 'Người đại diện',
+                    'Số Giấy chứng nhận ĐKKD', 'Số Giấy phép KDVT',
+                    'Tổng số tuyến đang KT', 'Tổng số xe đang KT', 'Số chuyến KT/tháng']);
+
+                donViList.forEach((dv, idx) => {
+                    const row = addData(ws, [idx + 1, dv.tenDV, dv.diaChi, dv.soDienThoai, dv.nguoiDaiDien, dv.soDKKD, dv.soGPKDVT, dv.tuyenSet.size, dv.bienSoList.length, tinhSoChuyenDonVi(Array.from(dv.soTBSet))]);
+                    row.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
+                    [8, 9, 10].forEach(c => row.getCell(c).alignment = { horizontal: 'center', vertical: 'middle' });
+                });
+
+                ws.getColumn(1).width = 6; ws.getColumn(2).width = 35; ws.getColumn(3).width = 30;
+                ws.getColumn(4).width = 15; ws.getColumn(5).width = 18; ws.getColumn(6).width = 22;
+                ws.getColumn(7).width = 22; ws.getColumn(8).width = 16; ws.getColumn(9).width = 16; ws.getColumn(10).width = 18;
+                fileName = 'TongHopDonVi';
+            }
+
+            // ── SECTION: TUYẾN ──
+            else if (type === 'tuyen') {
+                const ws = workbook.addWorksheet('Danh sách tuyến');
+                addTitle(ws, 'DANH SÁCH CÁC TUYẾN ĐANG HOẠT ĐỘNG', 5);
+                addHeader(ws, ['STT', 'Tên tuyến', 'Số đơn vị khai thác', 'Số xe khai thác', 'Số chuyến KT/tháng']);
+
+                let sttT = 0;
+                matchedRoutes.forEach((tuyen) => {
+                    const maTuyen = tuyen.MaSoTuyen;
+                    const dvSet = new Set();
+                    const xeTuyen = allXe.filter(x => x.maTuyen === maTuyen);
+                    xeTuyen.forEach(x => { if (x.tenDV) dvSet.add(x.tenDV); });
+                    // Bỏ qua tuyến không có đơn vị và xe
+                    if (dvSet.size === 0 && xeTuyen.length === 0) return;
+                    sttT++;
+                    const row = addData(ws, [sttT, `${tuyen.TenTuyen || maTuyen} - ${maTuyen}`, dvSet.size, xeTuyen.length, calculateActualTrips(maTuyen)]);
+                    row.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
+                    [3, 4, 5].forEach(c => row.getCell(c).alignment = { horizontal: 'center', vertical: 'middle' });
+                });
+
+                ws.getColumn(1).width = 6; ws.getColumn(2).width = 45; ws.getColumn(3).width = 18;
+                ws.getColumn(4).width = 16; ws.getColumn(5).width = 20;
+                fileName = 'DanhSachTuyen';
+            }
+
+            // ── SECTION: CHITIET ──
+            else if (type === 'chitiet') {
+                const ws = workbook.addWorksheet('Chi tiết ĐV theo tuyến');
+                addTitle(ws, 'CHI TIẾT ĐƠN VỊ KHAI THÁC THEO TỪNG TUYẾN', 5);
+                addHeader(ws, ['STT', 'Tên tuyến', 'Tên đơn vị', 'Số lượng xe', 'Số chuyến KT/tháng']);
+
+                let stt = 0;
+                matchedRoutes.forEach(tuyen => {
+                    const maTuyen = tuyen.MaSoTuyen;
+                    const dvXeMap = {};
+                    allXe.filter(x => x.maTuyen === maTuyen).forEach(x => {
+                        const dv = x.tenDV || 'Không xác định';
+                        if (!dvXeMap[dv]) dvXeMap[dv] = { tenDV: dv, soTBSet: new Set(), count: 0 };
+                        dvXeMap[dv].count++;
+                        if (x.soTB) dvXeMap[dv].soTBSet.add(x.soTB);
+                    });
+                    Object.values(dvXeMap).sort((a, b) => a.tenDV.localeCompare(b.tenDV)).forEach(dvInfo => {
+                        stt++;
+                        const row = addData(ws, [stt, `${tuyen.TenTuyen || maTuyen} - ${maTuyen}`, dvInfo.tenDV, dvInfo.count, tinhSoChuyenDonVi(Array.from(dvInfo.soTBSet))]);
+                        row.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
+                        [4, 5].forEach(c => row.getCell(c).alignment = { horizontal: 'center', vertical: 'middle' });
+                    });
+                });
+
+                ws.getColumn(1).width = 6; ws.getColumn(2).width = 40; ws.getColumn(3).width = 35;
+                ws.getColumn(4).width = 14; ws.getColumn(5).width = 20;
+                fileName = 'ChiTietDVTheoTuyen';
+            }
+
+            // ── SECTION: XE ──
+            else if (type === 'xe') {
+                const ws = workbook.addWorksheet('Danh sách xe');
+                addTitle(ws, 'DANH SÁCH XE ĐANG KHAI THÁC TRÊN TUYẾN', 5);
+                addHeader(ws, ['STT', 'Biển số', 'Tên đơn vị', 'Tên tuyến', 'Hạn Phù hiệu']);
+
+                const xeSorted = [...allXe].sort((a, b) => (a.tenDV || '').localeCompare(b.tenDV || '') || (a.BienSo || '').localeCompare(b.BienSo || ''));
+                xeSorted.forEach((x, idx) => {
+                    let hanPH = '';
+                    if (x.NgayHetHan) {
+                        try { const d = new Date(x.NgayHetHan); if (!isNaN(d.getTime())) hanPH = d.toLocaleDateString('vi-VN'); }
+                        catch (e) { hanPH = x.NgayHetHan; }
+                    }
+                    const tuyen = _idxTuyenByMa[x.maTuyen || ''];
+                    const tenTuyen = tuyen ? `${tuyen.TenTuyen || x.maTuyen} - ${x.maTuyen}` : (x.maTuyen || '');
+                    const row = addData(ws, [idx + 1, x.BienSo || '', x.tenDV || '', tenTuyen, hanPH]);
+                    row.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
+                    row.getCell(2).font = { bold: true, color: { argb: 'FF1D4ED8' } };
+                    row.getCell(2).alignment = { horizontal: 'center', vertical: 'middle' };
+                    row.getCell(5).alignment = { horizontal: 'center', vertical: 'middle' };
+                });
+
+                ws.getColumn(1).width = 6; ws.getColumn(2).width = 16; ws.getColumn(3).width = 35;
+                ws.getColumn(4).width = 40; ws.getColumn(5).width = 18;
+                fileName = 'DanhSachXe';
+            }
+
+            // ── Xuất file ──
             const buffer = await workbook.xlsx.writeBuffer();
             const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            const safeFileName = _tcCurrentMaTuyen.replace(/[^a-zA-Z0-9._-]/g, '_');
-            link.download = `DanhSachXe_${safeFileName}_${new Date().toISOString().split('T')[0]}.xlsx`;
+            link.download = `${fileName}_${new Date().toISOString().split('T')[0]}.xlsx`;
             link.click();
             URL.revokeObjectURL(url);
+        }
+
+        // Reset các filter phụ (ĐV/Biển số, Loại ĐV, Tỉnh/TP) khi chuyển tra cứu mới
+        function _tcResetSubFilters() {
+            const el1 = document.getElementById('tcFilterSearch');
+            const el2 = document.getElementById('tcFilterLoaiDV');
+            const el3 = document.getElementById('tcFilterTinhDV');
+            if (el1) el1.value = '';
+            if (el2) el2.value = '';
+            if (el3) el3.value = '';
+            _tcToggleFilterSearchClearBtn();
+            const infoEl = document.getElementById('tcDVFilterInfo');
+            if (infoEl) infoEl.textContent = '';
         }
 
         // Áp dụng bộ lọc nâng cao (đơn vị / loại ĐV / tỉnh / biển số)
@@ -4202,16 +4317,21 @@
             // Toggle nút ✕ cho ô tìm kiếm
             _tcToggleFilterSearchClearBtn();
 
-            // Ô tìm kiếm gộp: tìm cả Tên đơn vị + Biển số
+            // Ô tìm kiếm gộp: tìm cả Tên đơn vị + Biển số (hỗ trợ không dấu)
             const fSearch = (document.getElementById('tcFilterSearch').value || '').toLowerCase().trim();
+            const fSearchND = removeDiacritics(fSearch);
             const fLoai = document.getElementById('tcFilterLoaiDV').value;
             const fTinh = document.getElementById('tcFilterTinhDV').value.toLowerCase().trim();
 
             let xeFiltered = _tcCurrentXeList.filter(x => {
-                // Tìm kiếm gộp: match nếu tên ĐV hoặc biển số chứa từ khóa
+                // Tìm kiếm gộp: match nếu tên ĐV hoặc biển số chứa từ khóa (có dấu hoặc không dấu)
+                const tenDVLower = (x.tenDV || '').toLowerCase();
+                const bienSoLower = (x.BienSo || '').toLowerCase();
                 const matchSearch = !fSearch ||
-                    (x.tenDV || '').toLowerCase().includes(fSearch) ||
-                    (x.BienSo || '').toLowerCase().includes(fSearch);
+                    tenDVLower.includes(fSearch) ||
+                    bienSoLower.includes(fSearch) ||
+                    removeDiacritics(tenDVLower).includes(fSearchND) ||
+                    removeDiacritics(bienSoLower).includes(fSearchND);
                 const loai = classifyDonVi(x.diaChi);
                 const matchLoai = !fLoai || loai === fLoai;
                 const tinh = extractTinhFromDiaChi(x.diaChi).toLowerCase();
@@ -4224,7 +4344,7 @@
             xeFiltered.forEach(x => {
                 const dv = x.tenDV || 'Không xác định';
                 if (!donViMap[dv]) {
-                    donViMap[dv] = { tenDV: dv, diaChi: x.diaChi, bienSoList: [], soTBSet: new Set(), tuyenSet: new Set() };
+                    donViMap[dv] = { tenDV: dv, diaChi: x.diaChi, bienSoList: [], soTBSet: new Set(), tuyenSet: new Set(), soDienThoai: x.soDienThoai || '', nguoiDaiDien: x.nguoiDaiDien || '', soDKKD: x.soDKKD || '', soGPKDVT: x.soGPKDVT || '' };
                 }
                 donViMap[dv].bienSoList.push(x);
                 if (x.soTB) donViMap[dv].soTBSet.add(x.soTB);
@@ -4233,10 +4353,16 @@
 
             if (_tcIsMultiMode) {
                 tcRenderDonViTableMulti(Object.values(donViMap));
+                tcRenderTuyenTable(_tcCurrentMatchedRoutes, xeFiltered);
+                tcRenderChiTietTable(_tcCurrentMatchedRoutes, xeFiltered);
                 tcRenderXeTableMulti(xeFiltered);
             } else {
-                tcRenderDonViTable(Object.values(donViMap), _tcCurrentMaTuyen);
-                tcRenderXeTable(xeFiltered);
+                tcRenderDonViTableMulti(Object.values(donViMap));
+                const tuyen = _idxTuyenByMa[_tcCurrentMaTuyen];
+                const routes = tuyen ? [tuyen] : [];
+                tcRenderTuyenTable(routes, xeFiltered);
+                tcRenderChiTietTable(routes, xeFiltered);
+                tcRenderXeTableMulti(xeFiltered);
             }
 
             // Cập nhật chỉ số nhanh
@@ -4502,12 +4628,7 @@
             border: 1px solid #e5e7eb;
         }
 
-        .route-row:nth-child(even) {
-            background-color: #f9fafb;
-        }
-
         .route-row:hover {
-            background-color: #eff6ff !important;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
