@@ -3157,7 +3157,11 @@
                         TrangThai: v.TrangThai,
                         Ten_don_vi: v.Ten_don_vi || v.DonViKhaiThac || '',
                         'Địa chỉ': v['Địa chỉ'] || '',
-                        NgayHetHan: v.NgayHetHan || ''
+                        NgayHetHan: v.NgayHetHan || '',
+                        'Số điện thoại': v['Số điện thoại'] || '',
+                        'Người đại diện': v['Người đại diện'] || '',
+                        'Số Giấy chứng nhận ĐKKD': v['Số Giấy chứng nhận ĐKKD'] || '',
+                        'Số Giấy phép KDVT': v['Số Giấy phép KDVT'] || ''
                     }));
                 } else {
                     // Fetch raw: chỉ lấy Tuyến cố định + Hiệu lực
@@ -3666,6 +3670,13 @@
                 const dv = x.tenDV || 'Không xác định';
                 if (!donViMap[dv]) {
                     donViMap[dv] = { tenDV: dv, diaChi: x.diaChi, bienSoList: [], soTBSet: new Set(), tuyenSet: new Set(), soDienThoai: x.soDienThoai || '', nguoiDaiDien: x.nguoiDaiDien || '', soDKKD: x.soDKKD || '', soGPKDVT: x.soGPKDVT || '' };
+                } else {
+                    // Bổ sung các trường còn trống từ xe tiếp theo của cùng đơn vị
+                    if (!donViMap[dv].soDienThoai && x.soDienThoai) donViMap[dv].soDienThoai = x.soDienThoai;
+                    if (!donViMap[dv].nguoiDaiDien && x.nguoiDaiDien) donViMap[dv].nguoiDaiDien = x.nguoiDaiDien;
+                    if (!donViMap[dv].soDKKD && x.soDKKD) donViMap[dv].soDKKD = x.soDKKD;
+                    if (!donViMap[dv].soGPKDVT && x.soGPKDVT) donViMap[dv].soGPKDVT = x.soGPKDVT;
+                    if (!donViMap[dv].diaChi && x.diaChi) donViMap[dv].diaChi = x.diaChi;
                 }
                 donViMap[dv].bienSoList.push(x);
                 if (x.soTB) donViMap[dv].soTBSet.add(x.soTB);
@@ -4059,6 +4070,13 @@
                 const dv = x.tenDV || 'Không xác định';
                 if (!donViMap[dv]) {
                     donViMap[dv] = { tenDV: dv, diaChi: x.diaChi, bienSoList: [], soTBSet: new Set(), tuyenSet: new Set(), soDienThoai: x.soDienThoai || '', nguoiDaiDien: x.nguoiDaiDien || '', soDKKD: x.soDKKD || '', soGPKDVT: x.soGPKDVT || '' };
+                } else {
+                    // Bổ sung các trường còn trống từ xe tiếp theo của cùng đơn vị
+                    if (!donViMap[dv].soDienThoai && x.soDienThoai) donViMap[dv].soDienThoai = x.soDienThoai;
+                    if (!donViMap[dv].nguoiDaiDien && x.nguoiDaiDien) donViMap[dv].nguoiDaiDien = x.nguoiDaiDien;
+                    if (!donViMap[dv].soDKKD && x.soDKKD) donViMap[dv].soDKKD = x.soDKKD;
+                    if (!donViMap[dv].soGPKDVT && x.soGPKDVT) donViMap[dv].soGPKDVT = x.soGPKDVT;
+                    if (!donViMap[dv].diaChi && x.diaChi) donViMap[dv].diaChi = x.diaChi;
                 }
                 donViMap[dv].bienSoList.push(x);
                 if (x.soTB) donViMap[dv].soTBSet.add(x.soTB);
