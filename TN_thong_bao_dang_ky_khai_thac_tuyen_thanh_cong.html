@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Công Văn Xin Ý Kiến - Tuyến Trong Danh Mục</title>
+    <title>Thông báo đăng ký khai thác tuyến thành công</title>
 
-    <!-- Thêm các thư viện cần thiết cho xuất Word -->
+    <!-- Thư viện xuất Word -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.37.11/docxtemplater.js"></script>
     <script src="https://unpkg.com/pizzip@3.1.4/dist/pizzip.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
@@ -116,7 +116,6 @@
             display: none;
         }
 
-        /* Document header styling */
         .document-header {
             display: flex;
             justify-content: space-between;
@@ -132,6 +131,7 @@
 
         .header-left .ubnd {
             margin-bottom: 2px;
+            font-weight: bold;
         }
 
         .header-left .so-name {
@@ -175,33 +175,21 @@
             font-style: italic;
         }
 
-        /* Subject line */
-        .subject-line {
-            margin: 15px 0;
-            display: flex;
-        }
-
-        .subject-line .label {
-            width: 40%;
-            font-style: italic;
-            font-size: 13px;
-        }
-
-        .subject-line .content {
-            width: 55%;
-        }
-
-        /* Recipient */
-        .recipient {
-            margin: 20px 0;
+        .title-section {
             text-align: center;
+            margin-top: 15px;
+            margin-bottom: 10px;
         }
 
-        .recipient .kinh-gui {
+        .title-section .title {
             font-weight: bold;
+            text-transform: uppercase;
         }
 
-        /* Content styling */
+        .title-section .subtitle {
+            margin-top: 5px;
+        }
+
         .document-content {
             margin: 15px 0;
             text-align: justify;
@@ -215,7 +203,6 @@
 
         .document-content .no-indent {
             text-indent: 0;
-            margin-left: 20px;
         }
 
         .document-content .sub-item {
@@ -223,7 +210,6 @@
             margin-left: 40px;
         }
 
-        /* Footer/Signature section */
         .footer-section {
             margin-top: 30px;
             display: flex;
@@ -282,14 +268,6 @@
                 margin: 20px auto;
             }
         }
-
-        .bold {
-            font-weight: bold;
-        }
-
-        .italic {
-            font-style: italic;
-        }
     </style>
 </head>
 
@@ -302,9 +280,10 @@
         </div>
 
         <div class="date-input-container">
-            <label for="ngay-ho-so">Ngày nhận hồ sơ:</label>
+            <label for="ngay-ho-so">Ngày thông báo (NgayHS):</label>
             <input type="date" id="ngay-ho-so" />
         </div>
+
         <button class="button print-button" onclick="window.print()">
             <i class="fas fa-print"></i> In Tài Liệu
         </button>
@@ -319,138 +298,119 @@
     <!-- Document Content -->
     <div class="document-header">
         <div class="header-left">
-            <div class="ubnd">UBND TỈNH <span id="ref-tinh-di-upper">...</span></div>
-            <div class="so-name">SỞ GIAO THÔNG VẬN TẢI</div>
+            <div class="ubnd">UBND TỈNH <span id="RefTinhdi_upper">...</span></div>
+            <div class="so-name">SỞ XÂY DỰNG</div>
             <div class="underline"></div>
-            <div class="so-vb">Số: <span id="so-thong-bao">...</span>/SGTVT-VT</div>
+            <div class="so-vb">Số: <span id="SoThongBao">...</span>/TB-SXD</div>
         </div>
         <div class="header-right">
             <div class="country">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
             <div class="motto">Độc lập - Tự do - Hạnh phúc</div>
             <div class="underline-motto"></div>
             <div class="location-date">
-                <span id="ref-tinh-di">...</span>, ngày <span id="ngay">...</span> tháng <span id="thang">...</span> năm <span id="nam">...</span>
+                <span id="RefTinhdi">...</span>, ngày <span id="ngay">...</span> tháng <span id="thang">...</span> năm <span id="nam">...</span>
             </div>
         </div>
     </div>
 
-    <div class="subject-line">
-        <div class="label">
-            V/v đăng ký khai thác tuyến<br>
-            <span id="ref-ben-di">...</span> đi <span id="ref-ben-den">...</span>
-        </div>
-        <div class="content"></div>
-    </div>
-
-    <div class="recipient">
-        <span class="kinh-gui">Kính gửi:</span> Sở Giao thông vận tải <span id="ref-tinh-den">...</span>
+    <div class="title-section">
+        <div class="title">THÔNG BÁO</div>
+        <div class="subtitle">ĐƠN VỊ ĐĂNG KÝ KHAI THÁC TUYẾN THÀNH CÔNG</div>
     </div>
 
     <div class="document-content">
         <p>
-            Thông qua Hệ thống dịch vụ công trực tuyến vận tải đường bộ - Bộ Giao thông vận tải, 
-            Sở Giao thông vận tải <span id="ref-tinh-di-2">...</span> nhận được Hồ sơ đăng ký khai thác tuyến 
-            ngày <span id="ngay-ban-hanh">...</span> của <span id="don-vi-kdvt" class="bold">...</span> 
-            <span class="italic">(Có hồ sơ kèm theo)</span>, thông tin tuyến đăng ký khai thác cụ thể như sau:
+            Căn cứ Nghị định số 158/2024/NĐ-CP ngày 18/12/2024 của Chính phủ Quy định về hoạt động vận tải đường bộ.
+            Sở Xây dựng <span id="RefTinhdi_2">...</span> thông báo về việc đăng ký khai thác tuyến vận tải khách cố định
+            thành công với các nội dung sau:
         </p>
 
-        <p class="no-indent">- Tên tuyến: <span id="ref-tinh-di-3">...</span> đi <span id="ref-tinh-den-2">...</span> và ngược lại;</p>
-        
-        <p class="no-indent">- Bến đi: Bến xe <span id="ref-ben-di-2">...</span> (thuộc tỉnh <span id="ref-tinh-di-4">...</span>);</p>
-        
-        <p class="no-indent">- Bến đến: Bến xe <span id="ref-ben-den-2">...</span> (thuộc tỉnh <span id="ref-tinh-den-3">...</span>);</p>
-        
-        <p class="no-indent">- Hành trình chạy xe: <span id="ref-hanh-trinh">...</span>;</p>
-        
-        <p class="no-indent">- Mã số tuyến: <span id="ref-ma-so-tuyen">...</span>; cự ly: <span id="ref-cu-ly">...</span> km;</p>
-        
+        <p class="no-indent">1. Tên đơn vị: <span id="DonViKDVT">...</span></p>
+        <p class="no-indent">2. Địa chỉ: <span id="DiaChiDVKDVT">...</span></p>
+        <p class="no-indent">3. Số điện thoại (Fax): <span id="SoDienThoai">...</span></p>
+        <p class="no-indent">
+            4. Giấy phép kinh doanh vận tải bằng xe ô tô số <span id="SoGiayPhepKDVT">...</span>
+            do Sở Xây dựng Bắc Ninh cấp ngày <span id="NgayCapGiayPhepKDVT">...</span>.
+            Được tham gia khai thác tuyến vận tải khách cố định liên tỉnh kể từ ngày
+            <span id="NgayHS">...</span>, cụ thể:
+        </p>
+
+        <p class="no-indent">- Tên tuyến: <span id="RefTinhdi_3">...</span> đi <span id="RefTinhden">...</span> và ngược lại;</p>
+        <p class="no-indent">- Bến đi: Bến xe <span id="RefBendi">...</span> (thuộc tỉnh <span id="RefTinhdi_4">...</span>);</p>
+        <p class="no-indent">- Bến đến: Bến xe <span id="RefBenden">...</span> (thuộc tỉnh <span id="RefTinhden_2">...</span>);</p>
+        <p class="no-indent">- Hành trình chạy xe: <span id="RefHanhtrinh">...</span>;</p>
+        <p class="no-indent">- Mã số tuyến: <span id="RefMasotuyen">...</span>;</p>
+        <p class="no-indent">- Cự ly vận chuyển: <span id="RefCuly">...</span> km;</p>
+        <p class="no-indent">- Số chuyến chạy xe/tháng: <span id="TongChuyenThang">...</span> chuyến;</p>
+        <p class="no-indent">- Kiểu lịch: <span id="RefKieulich">...</span>;</p>
         <p class="no-indent">- Giờ xe xuất bến, tại:</p>
-        
-        <p class="sub-item">+ Bến xe <span id="ref-ben-di-3">...</span>: <span id="lich-chieu-di">...</span></p>
-        
-        <p class="sub-item">+ Bến xe <span id="ref-ben-den-3">...</span> dự kiến: <span id="lich-chieu-ve">...</span></p>
+        <p class="sub-item">+ Bến xe <span id="RefBendi_2">...</span>: <span id="LichChieuDi">...</span></p>
+        <p class="sub-item">+ Bến xe <span id="RefBenden_2">...</span>: <span id="LichChieuVe">...</span></p>
 
         <p>
-            Căn cứ Nghị định số 158/2024/NĐ-CP ngày 18/12/2024 của Chính phủ Quy định về hoạt động vận tải đường bộ. 
-            Để có cơ sở xem xét giải quyết đề nghị của đơn vị vận tải theo quy định, 
-            Sở Giao thông vận tải <span id="ref-tinh-di-5">...</span> đề nghị Sở Giao thông vận tải <span id="ref-tinh-den-4">...</span> 
-            có ý kiến bằng văn bản về nội dung đăng ký khai thác tuyến nêu trên của <span id="don-vi-kdvt-2" class="bold">...</span>
-        </p>
-
-        <p>
-            Sở Giao thông vận tải <span id="ref-tinh-di-6">...</span> đề nghị Quý Sở quan tâm phối hợp./.
+            Trong thời gian 60 ngày kể từ ngày thông báo,
+            <span id="DonViKDVT_2">...</span> có trách nhiệm đưa xe vào khai thác. Trường hợp sau 60 ngày kể từ ngày thông báo,
+            nếu <span id="DonViKDVT_3">...</span> không thực hiện đưa xe vào khai thác thì thông báo này không còn hiệu lực./.
         </p>
     </div>
 
     <div class="footer-section">
         <div class="footer-left">
             <p><span class="noi-nhan">Nơi nhận:</span></p>
-            <p>- Như trên;</p>
+            <p>- Cục Đường bộ Việt Nam (b/c);</p>
+            <p>- Sở Xây dựng <span id="RefTinhden_3">...</span> (p/h);</p>
             <p>- Giám đốc Sở (b/c);</p>
-            <p>- Lưu: VT, VT&ATGT.</p>
+            <p>- <span id="DonViKDVT_4">...</span> (t/h);</p>
+            <p>- Các bến xe: <span id="RefBendi_3">...</span>, <span id="RefBenden_3">...</span> (t/h);</p>
+            <p>- Văn phòng Sở (đăng Website);</p>
+            <p>- Lưu: VT, VT&amp;ATGT.</p>
         </div>
         <div class="footer-right">
             <div class="title">KT. GIÁM ĐỐC</div>
             <div class="sub-title">PHÓ GIÁM ĐỐC</div>
-            <div class="name" id="nguoi-ky">Nguyễn Quốc Ân</div>
+            <div class="name" id="NguoiKy">Nguyễn Quốc Ân</div>
         </div>
     </div>
 
     <script>
-        // Constants for AppSheet connection
-        const appId = '7ee20176-7cb1-4ad4-9d13-e541c8b1b3dc';
-        const accessKey = 'V2-EYFgE-X83x3-xFTsK-y3eTp-L9F22-MKoI1-TGU28-sWcWd';
+        const appId = '085eef9b-92f5-4f86-9eb7-b8324e02fc2b';
+        const accessKey = 'V2-AGscv-ApGpI-R0L7E-JCxeh-ms3pa-2WqWn-0H4ZG-datL7';
         const region = 'www';
 
-        // Biến toàn cục để lưu dữ liệu
         let globalDocumentData = null;
 
-        // Function to get ID_TB from URL
         function getIDFromURL() {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get('ID_TB') || urlParams.get('id_tb');
         }
 
-        // Function to fetch data from AppSheet
         async function fetchAppSheetData(tableName, filter = null) {
-            try {
-                const selector = filter || `Filter(${tableName}, true)`;
-                console.log(`🔍 Executing selector for ${tableName}:`, selector);
+            const selector = filter || `Filter(${tableName}, true)`;
+            const body = {
+                Action: 'Find',
+                Properties: {},
+                Selector: selector
+            };
 
-                const body = {
-                    Action: 'Find',
-                    Properties: {},
-                    Selector: selector
-                };
+            const response = await fetch(`https://${region}.appsheet.com/api/v2/apps/${appId}/tables/${tableName}/Action`, {
+                method: 'POST',
+                headers: {
+                    'ApplicationAccessKey': accessKey,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(body)
+            });
 
-                const response = await fetch(`https://${region}.appsheet.com/api/v2/apps/${appId}/tables/${tableName}/Action`, {
-                    method: 'POST',
-                    headers: {
-                        'ApplicationAccessKey': accessKey,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(body)
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const data = await response.json();
-                console.log(`🔍 Response for ${tableName}:`, data);
-                return Array.isArray(data) ? data : [];
-            } catch (error) {
-                console.error(`Failed to fetch ${tableName}:`, error);
-                throw error;
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
+
+            const data = await response.json();
+            return Array.isArray(data) ? data : [];
         }
 
-        // Format date từ Date thành dd/mm/yyyy
         function formatDateShort(dateString) {
-            if (!dateString || dateString === '') {
-                return '';
-            }
-
+            if (!dateString) return '';
             let date;
             if (typeof dateString === 'string') {
                 if (dateString.includes('/')) {
@@ -467,25 +427,18 @@
                     date = new Date(dateString);
                 }
             } else if (dateString instanceof Date) {
-                date = dateString;
             } else {
                 return dateString.toString();
             }
-
-            if (isNaN(date.getTime())) {
-                return dateString.toString();
-            }
+            if (isNaN(date.getTime())) return dateString.toString();
 
             const day = date.getDate().toString().padStart(2, '0');
             const month = date.getMonth() + 1;
             const year = date.getFullYear();
-
             const monthStr = (month === 1 || month === 2) ? month.toString().padStart(2, '0') : month.toString();
-
             return `${day}/${monthStr}/${year}`;
         }
 
-        // Get current date components
         function getCurrentDateComponents() {
             const today = new Date();
             const month = today.getMonth() + 1;
@@ -496,7 +449,6 @@
             };
         }
 
-        // Get NgayHS from user input
         function getNgayHSFromInput() {
             const input = document.getElementById('ngay-ho-so');
             if (!input.value) {
@@ -507,74 +459,101 @@
             const day = date.getDate().toString().padStart(2, '0');
             const month = date.getMonth() + 1;
             const year = date.getFullYear();
-
             const monthStr = (month === 1 || month === 2) ? month.toString().padStart(2, '0') : month.toString();
-
             return `${day}/${monthStr}/${year}`;
         }
 
-        // Load data from AppSheet
+        // ==== HÀM MỚI: tính tổng chuyến từ LichChieuDi ====
+        // Ví dụ chuỗi:
+        // "06:00, 19:15, vào các ngày 1, 2, 3, ..., 30."
+        function calculateTongChuyenThang(lichChieuDi) {
+            if (!lichChieuDi || typeof lichChieuDi !== 'string') {
+                return 0;
+            }
+
+            // Tách 2 phần: trước và sau "vào các ngày"
+            const parts = lichChieuDi.split('vào các ngày');
+            const hoursPart = parts[0] || '';
+            let daysPart = parts[1] || '';
+
+            // --- 1. Đếm số khung giờ trong ngày ---
+            // bỏ dấu chấm nếu lỡ có
+            const hoursClean = hoursPart.replace(/\./g, '');
+            // tách theo dấu phẩy, lấy token có dạng "hh:mm"
+            const hourTokens = hoursClean.split(',')
+                .map(s => s.trim())
+                .filter(s => /^\d{1,2}:\d{2}$/.test(s));
+            const hoursCount = hourTokens.length;
+
+            // --- 2. Đếm số ngày chạy ---
+            daysPart = daysPart.replace(/\./g, '');
+            const dayTokens = daysPart.split(',')
+                .map(s => s.trim())
+                .filter(s => s !== '');
+
+            let daysCount = 0;
+            dayTokens.forEach(token => {
+                const numMatch = token.match(/\d+/);
+                if (numMatch) {
+                    daysCount++;
+                }
+            });
+
+            // Tổng chuyến = số giờ * số ngày
+            return hoursCount * daysCount;
+        }
+
         async function loadData() {
             try {
                 const idTB = getIDFromURL();
-                console.log('🔍 ID từ URL:', idTB);
-
                 if (!idTB) {
                     throw new Error('Không tìm thấy ID_TB trong URL');
                 }
 
                 const thongbaoList = await fetchAppSheetData('THONGBAO_KHAITHAC');
 
-                console.log('📋 Tất cả dữ liệu:', thongbaoList);
-                console.log('📋 Số lượng records:', thongbaoList.length);
-                
-                if (thongbaoList.length > 0) {
-                    console.log('📋 Mẫu record đầu tiên:', thongbaoList[0]);
-                    console.log('📋 Các key:', Object.keys(thongbaoList[0]));
-                }
-
                 if (!thongbaoList || thongbaoList.length === 0) {
-                    throw new Error('Không tìm thấy dữ liệu trong bảng THONGBAO_KHAITHAC');
+                    throw new Error('Không có dữ liệu trong bảng THONGBAO_KHAITHAC');
                 }
 
                 const thongbaoData = thongbaoList.find(item => {
                     const itemId = item['ID_TB'] || item.ID_TB || '';
-                    console.log(`🔍 So sánh: "${itemId}" với "${idTB}"`);
                     return itemId === idTB || itemId.includes(idTB) || idTB.includes(itemId);
                 });
-                
+
                 if (!thongbaoData) {
-                    console.log('❌ Không tìm thấy record với ID:', idTB);
-                    console.log('📋 Danh sách ID có sẵn:', thongbaoList.map(item => item['ID_TB'] || item.ID_TB));
                     throw new Error(`Không tìm thấy thông báo với ID: ${idTB}`);
                 }
-                
-                console.log('📋 Dữ liệu thông báo:', thongbaoData);
-                console.log('📋 Các key có trong dữ liệu:', Object.keys(thongbaoData));
 
                 const currentDate = getCurrentDateComponents();
+
+                const lichChieuDiStr = thongbaoData['LichChieuDi'] || '';
+                const tongChuyenThang = calculateTongChuyenThang(lichChieuDiStr);
 
                 globalDocumentData = {
                     ID_TB: thongbaoData['ID_TB'] || '',
                     SoThongBao: thongbaoData['SoThongBao'] || '',
-                    NgayBanHanh: formatDateShort(thongbaoData['NgayBanHanh']),
-                    NgayBatDau: formatDateShort(thongbaoData['NgayBatDau']),
-                    CQBanHanh: thongbaoData['CQBanHanh'] || '',
-                    TrangThai: thongbaoData['TrangThai'] || '',
-                    GhiChu: thongbaoData['GhiChu'] || '',
-                    DonViKDVT: thongbaoData['Đơn vị kinh doanh vận tải'] || '',
-                    DiaChiDVKDVT: thongbaoData['Địa chỉ sau xác nhập DVKDVT'] || '',
-                    RefBendi: thongbaoData['RefBendi'] || '',
-                    RefBenden: thongbaoData['RefBenden'] || '',
                     RefTinhdi: thongbaoData['RefTinhdi'] || '',
                     RefTinhden: thongbaoData['RefTinhden'] || '',
                     RefTinhdi_upper: (thongbaoData['RefTinhdi'] || '').toUpperCase(),
+
+                    DonViKDVT: thongbaoData['Đơn vị kinh doanh vận tải'] || '',
+                    DiaChiDVKDVT: thongbaoData['Địa chỉ sau xác nhập DVKDVT'] || '',
+                    SoDienThoai: thongbaoData['Số điện thoại'] || '',
+                    SoGiayPhepKDVT: thongbaoData['Số Giấy phép KDVT'] || '',
+                    NgayCapGiayPhepKDVT: formatDateShort(thongbaoData['Ngày cấp giấy phép KDVT']),
+
+                    RefBendi: thongbaoData['RefBendi'] || '',
+                    RefBenden: thongbaoData['RefBenden'] || '',
                     RefHanhtrinh: thongbaoData['RefHanhtrinh'] || '',
                     RefMasotuyen: thongbaoData['RefMasotuyen'] || '',
                     RefCuly: thongbaoData['RefCuly'] || '',
-                    LichChieuDi: thongbaoData['LichChieuDi'] || '',
+                    RefKieulich: thongbaoData['RefKieulich'] || '',
+                    LichChieuDi: lichChieuDiStr,
                     LichChieuVe: thongbaoData['LichChieuVe'] || '',
-                    ThongBaoHienThi: thongbaoData['ThongBaoHienThi'] || '',
+
+                    TongChuyenThang: tongChuyenThang,
+
                     Ngay: currentDate.day,
                     Thang: currentDate.month,
                     Nam: currentDate.year,
@@ -582,12 +561,9 @@
                     thang: currentDate.month,
                     nam: currentDate.year
                 };
-                
-                console.log('📋 Dữ liệu đã xử lý:', globalDocumentData);
 
                 populateHTML(globalDocumentData);
                 hideLoadingMessage();
-
             } catch (error) {
                 console.error('Error loading data:', error);
                 hideLoadingMessage();
@@ -595,7 +571,6 @@
             }
         }
 
-        // Populate HTML with data
         function populateHTML(data) {
             const setText = (id, value) => {
                 const element = document.getElementById(id);
@@ -610,53 +585,54 @@
                 donViInput.value = data.DonViKDVT;
             }
 
-            setText('ref-tinh-di-upper', data.RefTinhdi_upper);
-            setText('so-thong-bao', data.SoThongBao);
-            setText('ref-tinh-di', data.RefTinhdi);
+            setText('RefTinhdi_upper', data.RefTinhdi_upper);
+            setText('SoThongBao', data.SoThongBao);
+            setText('RefTinhdi', data.RefTinhdi);
+            setText('RefTinhdi_2', data.RefTinhdi);
+            setText('RefTinhdi_3', data.RefTinhdi);
+            setText('RefTinhdi_4', data.RefTinhdi);
+
+            setText('RefTinhden', data.RefTinhden);
+            setText('RefTinhden_2', data.RefTinhden);
+            setText('RefTinhden_3', data.RefTinhden);
+
             setText('ngay', data.Ngay);
             setText('thang', data.Thang);
             setText('nam', data.Nam);
 
-            setText('ref-ben-di', data.RefBendi);
-            setText('ref-ben-den', data.RefBenden);
+            setText('DonViKDVT', data.DonViKDVT);
+            setText('DonViKDVT_2', data.DonViKDVT);
+            setText('DonViKDVT_3', data.DonViKDVT);
+            setText('DonViKDVT_4', data.DonViKDVT);
 
-            setText('ref-tinh-den', data.RefTinhden);
+            setText('DiaChiDVKDVT', data.DiaChiDVKDVT);
+            setText('SoDienThoai', data.SoDienThoai);
+            setText('SoGiayPhepKDVT', data.SoGiayPhepKDVT);
+            setText('NgayCapGiayPhepKDVT', data.NgayCapGiayPhepKDVT);
 
-            setText('ref-tinh-di-2', data.RefTinhdi);
-            setText('ngay-ban-hanh', data.NgayBanHanh);
-            setText('don-vi-kdvt', data.DonViKDVT);
+            setText('RefBendi', data.RefBendi);
+            setText('RefBendi_2', data.RefBendi);
+            setText('RefBendi_3', data.RefBendi);
 
-            setText('ref-tinh-di-3', data.RefTinhdi);
-            setText('ref-tinh-den-2', data.RefTinhden);
+            setText('RefBenden', data.RefBenden);
+            setText('RefBenden_2', data.RefBenden);
+            setText('RefBenden_3', data.RefBenden);
 
-            setText('ref-ben-di-2', data.RefBendi);
-            setText('ref-tinh-di-4', data.RefTinhdi);
+            setText('RefHanhtrinh', data.RefHanhtrinh);
+            setText('RefMasotuyen', data.RefMasotuyen);
+            setText('RefCuly', data.RefCuly);
+            setText('RefKieulich', data.RefKieulich);
+            setText('LichChieuDi', data.LichChieuDi);
+            setText('LichChieuVe', data.LichChieuVe);
 
-            setText('ref-ben-den-2', data.RefBenden);
-            setText('ref-tinh-den-3', data.RefTinhden);
-
-            setText('ref-hanh-trinh', data.RefHanhtrinh);
-            setText('ref-ma-so-tuyen', data.RefMasotuyen);
-            setText('ref-cu-ly', data.RefCuly);
-
-            setText('ref-ben-di-3', data.RefBendi);
-            setText('lich-chieu-di', data.LichChieuDi);
-
-            setText('ref-ben-den-3', data.RefBenden);
-            setText('lich-chieu-ve', data.LichChieuVe);
-
-            setText('ref-tinh-di-5', data.RefTinhdi);
-            setText('ref-tinh-den-4', data.RefTinhden);
-            setText('don-vi-kdvt-2', data.DonViKDVT);
-
-            setText('ref-tinh-di-6', data.RefTinhdi);
+            setText('TongChuyenThang', data.TongChuyenThang);
+            setText('NgayHS', '...');
         }
 
-        // Export to Word template
         async function exportToWordTemplate() {
             try {
                 if (!globalDocumentData) {
-                    alert('Dữ liệu chưa được tải. Vui lòng đợi dữ liệu tải xong.');
+                    alert('Dữ liệu chưa được tải. Vui lòng đợi.');
                     return;
                 }
 
@@ -670,14 +646,14 @@
                 }
 
                 if (!ngayHS) {
-                    alert('Vui lòng chọn ngày nhận hồ sơ trước khi xuất file.');
+                    alert('Vui lòng chọn NgayHS (ngày thông báo) trước khi xuất file.');
                     return;
                 }
 
                 document.getElementById('loading-message').style.display = 'block';
                 document.getElementById('loading-message').textContent = 'Đang xuất file Word...';
 
-                const templateUrl = 'https://hoangmv.github.io/templates_QUY/xinykien_tuyentrongDM.docx';
+                const templateUrl = 'https://hoangmv.github.io/templates_BG/thong_bao_dang_ky_khai_thac_tuyen_thanh_cong.docx';
 
                 const response = await fetch(templateUrl);
                 if (!response.ok) {
@@ -697,8 +673,6 @@
                     NgayHS: ngayHS
                 };
 
-                console.log('📋 Dữ liệu gửi vào template Word:', exportData);
-
                 doc.setData(exportData);
                 doc.render();
                 const blob = doc.getZip().generate({
@@ -706,7 +680,7 @@
                     mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 });
 
-                const fileName = `CongVan_XinYKien_${globalDocumentData.RefBendi || ''}_${globalDocumentData.RefBenden || ''}.docx`;
+                const fileName = `ThongBao_KhaiThacThanhCong_${globalDocumentData.RefBendi || ''}_${globalDocumentData.RefBenden || ''}.docx`;
                 saveAs(blob, fileName);
 
                 hideLoadingMessage();
@@ -718,49 +692,10 @@
             }
         }
 
-        // Update display when date input changes
-        document.addEventListener('DOMContentLoaded', function () {
-            const donViInput = document.getElementById('don-vi-kdvt-input');
-            const dateInput = document.getElementById('ngay-ho-so');
-
-            // Cập nhật DonViKDVT realtime
-            donViInput.addEventListener('input', function() {
-                const donViKDVT = donViInput.value;
-
-                // Cập nhật cả 2 vị trí
-                const elements = ['don-vi-kdvt', 'don-vi-kdvt-2'];
-                elements.forEach(id => {
-                    const element = document.getElementById(id);
-                    if (element) {
-                        element.textContent = donViKDVT || '...';
-                    }
-                });
-
-                // Update global data
-                if (globalDocumentData) {
-                    globalDocumentData.DonViKDVT = donViKDVT;
-                }
-            });
-
-            dateInput.addEventListener('change', function() {
-                const ngayHS = getNgayHSFromInput();
-                const element = document.getElementById('ngay-ban-hanh');
-                if (element) {
-                    element.textContent = ngayHS || '...';
-                }
-            });
-
-            setTimeout(() => {
-                initialize();
-            }, 500);
-        });
-
-        // Hide loading message
         function hideLoadingMessage() {
             document.getElementById('loading-message').classList.add('hidden');
         }
 
-        // Initialize application
         async function initialize() {
             try {
                 const idTB = getIDFromURL();
@@ -776,24 +711,51 @@
             }
         }
 
-        // Disable right-click and F12
+        document.addEventListener('DOMContentLoaded', function () {
+            const donViInput = document.getElementById('don-vi-kdvt-input');
+            const dateInput = document.getElementById('ngay-ho-so');
+
+            // Cập nhật DonViKDVT realtime
+            donViInput.addEventListener('input', function () {
+                const donViKDVT = donViInput.value;
+
+                // Cập nhật tất cả 4 vị trí
+                const elements = ['DonViKDVT', 'DonViKDVT_2', 'DonViKDVT_3', 'DonViKDVT_4'];
+                elements.forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.textContent = donViKDVT || '...';
+                    }
+                });
+
+                // Update global data
+                if (globalDocumentData) {
+                    globalDocumentData.DonViKDVT = donViKDVT;
+                }
+            });
+
+            dateInput.addEventListener('change', function () {
+                const ngayHS = getNgayHSFromInput();
+                const element = document.getElementById('NgayHS');
+                if (element) {
+                    element.textContent = ngayHS || '...';
+                }
+            });
+
+            setTimeout(() => {
+                initialize();
+            }, 500);
+        });
+
         document.addEventListener('contextmenu', function (e) {
             e.preventDefault();
         }, false);
 
         document.onkeydown = function (e) {
-            if (e.keyCode == 123) {
-                return false;
-            }
-            if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) {
-                return false;
-            }
-            if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) {
-                return false;
-            }
-            if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) {
-                return false;
-            }
+            if (e.keyCode == 123) return false;
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false;
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false;
+            if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
         };
     </script>
 </body>

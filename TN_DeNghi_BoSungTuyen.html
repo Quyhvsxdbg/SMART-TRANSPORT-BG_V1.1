@@ -4,14 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Văn Bản Trả Lời - Sở đối lưu</title>
+    <title>Công Văn Bổ Sung Tuyến Vào Danh Mục</title>
 
-    <!-- Thư viện xuất Word -->
+    <!-- Thêm các thư viện cần thiết cho xuất Word -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.37.11/docxtemplater.js"></script>
     <script src="https://unpkg.com/pizzip@3.1.4/dist/pizzip.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
     <style>
         * {
@@ -45,29 +44,40 @@
             flex-direction: column;
             gap: 10px;
             z-index: 1000;
+            max-width: 250px;
         }
 
-        .date-input-container {
+        .input-container {
             background: white;
             padding: 15px;
             border-radius: 5px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .date-input-container label {
+        .input-container label {
             display: block;
             margin-bottom: 5px;
             font-size: 13px;
             font-weight: bold;
         }
 
-        .date-input-container input {
+        .input-container input {
             width: 100%;
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 3px;
             font-family: "Times New Roman", serif;
             font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .input-container input:last-child {
+            margin-bottom: 0;
+        }
+
+        .input-container input::placeholder {
+            color: #999;
+            font-style: italic;
         }
 
         .button {
@@ -179,17 +189,13 @@
         /* Subject line */
         .subject-line {
             margin: 15px 0;
-            display: flex;
+            text-align: left;
         }
 
         .subject-line .label {
-            width: 40%;
             font-style: italic;
             font-size: 13px;
-        }
-
-        .subject-line .content {
-            width: 55%;
+            margin-bottom: 3px;
         }
 
         /* Recipient */
@@ -215,6 +221,10 @@
 
         .document-content .no-indent {
             text-indent: 0;
+        }
+
+        .document-content .numbered-item {
+            text-indent: 0;
             margin-left: 20px;
         }
 
@@ -222,6 +232,45 @@
             text-indent: 0;
             margin-left: 40px;
         }
+
+        /* Table styling - theo mẫu Word */
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 12px;
+        }
+
+        .info-table th,
+        .info-table td {
+            border: 1px solid #000;
+            padding: 6px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .info-table th {
+            font-weight: bold;
+            background-color: #f0f0f0;
+        }
+
+        .info-table .text-left {
+            text-align: left;
+        }
+
+        .info-table .text-center {
+            text-align: center;
+        }
+
+        /* Specific column widths theo mẫu */
+        .col-tt { width: 5%; }
+        .col-ma-so { width: 10%; }
+        .col-tinh { width: 12%; }
+        .col-ben { width: 12%; }
+        .col-hanh-trinh { width: 25%; }
+        .col-cu-ly { width: 8%; }
+        .col-luu-luong { width: 10%; }
+        .col-gian-cach { width: 8%; }
 
         /* Footer/Signature section */
         .footer-section {
@@ -294,23 +343,18 @@
 </head>
 
 <body>
-    <!-- Button Container -->
+    <!-- Button Container - 3 TRƯỜNG NHẬP -->
     <div class="button-container">
-        <div class="date-input-container">
+        <div class="input-container">
             <label for="don-vi-kdvt-input">Đơn vị kinh doanh vận tải:</label>
             <input type="text" id="don-vi-kdvt-input" placeholder="Tự động từ dữ liệu" />
-        </div>
 
-        <div class="date-input-container">
-            <label for="ngay-ho-so">Ngày nhận hồ sơ:</label>
-            <input type="date" id="ngay-ho-so" />
-        </div>
+            <label for="cv-so-hs">Số công văn hồ sơ:</label>
+            <input type="text" id="cv-so-hs" placeholder="Nhập số công văn (VD: 12/CV)" />
 
-        <div class="date-input-container">
-            <label for="cv-so-hs">Công văn số:</label>
-            <input type="text" id="cv-so-hs" placeholder="VD: 123/SXD-QLXD" />
+            <label for="ngay-hs">Ngày hồ sơ:</label>
+            <input type="date" id="ngay-hs" />
         </div>
-
         <button class="button print-button" onclick="window.print()">
             <i class="fas fa-print"></i> In Tài Liệu
         </button>
@@ -328,25 +372,24 @@
             <div class="ubnd">UBND TỈNH <span id="ref-tinh-di-upper">...</span></div>
             <div class="so-name">SỞ XÂY DỰNG</div>
             <div class="underline"></div>
-            <div class="so-vb">Số: <span id="so-thong-bao">...</span>/SXD-VTATGT</div>
+            <div class="so-vb">Số: <span id="so-cong-van">...</span>/SXD-VT&ATGT</div>
         </div>
         <div class="header-right">
             <div class="country">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
             <div class="motto">Độc lập - Tự do - Hạnh phúc</div>
             <div class="underline-motto"></div>
             <div class="location-date">
-                <span id="ref-tinh-di">...</span>, ngày <span id="ngay">...</span> tháng
-                <span id="thang">...</span> năm <span id="nam">...</span>
+                <span id="ref-tinh-di">...</span>, ngày <span id="ngay">...</span> tháng <span id="thang">...</span> năm
+                <span id="nam">...</span>
             </div>
         </div>
     </div>
 
     <div class="subject-line">
         <div class="label">
-            V/v đăng ký khai thác tuyến<br>
-            Bến xe <span id="ref-ben-di">...</span> đi Bến xe <span id="ref-ben-den">...</span>
+            V/v bổ sung tuyến Bến xe <span id="ref-ben-di">...</span> đi Bến xe <span id="ref-ben-den">...</span><br>
+            vào Danh mục tuyến VTHKCĐ liên tỉnh
         </div>
-        <div class="content"></div>
     </div>
 
     <div class="recipient">
@@ -355,48 +398,87 @@
 
     <div class="document-content">
         <p>
-            Sở Xây dựng <span id="ref-tinh-di-2">...</span> nhận được Công văn số
-            <span id="cv-so-hs-display">...</span> ngày
-            <span id="ngay-ho-so-display">...</span> của Sở Xây dựng
-            <span id="ref-tinh-den-2">...</span> về việc đăng ký khai thác tuyến vận tải cố định của tuyến
-            <span id="ref-ma-so-tuyen">...</span>.
+            Sở Xây dựng <span id="ref-tinh-di-2">...</span> nhận được Văn bản số <span id="cv-so-hs-display">[Chưa nhập]</span> ngày <span id="ngay-hs-display">[Chưa chọn]</span>
+            <span class="italic">(Có hồ sơ kèm theo)</span> của <span id="don-vi-kdvt" class="bold">...</span>
+            về việc đề nghị xem xét bổ sung tuyến vận tải vào Danh mục chi tiết tuyến vận tải liên tỉnh toàn quốc.
         </p>
 
         <p>
-            Căn cứ: (i) Nghị định số 158/2024/NĐ-CP ngày 18/12/2024 của Chính phủ Quy định về hoạt động vận tải
-            đường bộ; (ii) Tình hình hoạt động vận tải trên địa bàn tỉnh.
+            Căn cứ Nghị định số 158/2024/NĐ-CP ngày 18/12/2024 của Chính phủ Quy định về hoạt động vận tải đường bộ.
+            Để có cơ sở xem xét đề nghị của đơn vị vận tải, Sở Xây dựng <span id="ref-tinh-di-3">...</span>
+            đề nghị Sở Xây dựng <span id="ref-tinh-den-2">...</span> xem xét và có ý kiến bằng văn bản về việc:
+        </p>
+
+        <p class="numbered-item">
+            <span class="bold">1.</span> Đề xuất bổ sung tuyến vận tải (thông tin tuyến theo phụ lục kèm theo)
+            vào Danh mục chi tiết tuyến VTHKCĐ liên tỉnh bằng xe ô tô toàn quốc.
+        </p>
+
+        <p class="numbered-item">
+            <span class="bold">2.</span> Công ty <span id="don-vi-kdvt-2" class="bold">...</span>
+            đăng ký khai thác tuyến nêu tại Mục 1, biểu đồ chạy xe như sau:
+        </p>
+
+        <p class="sub-item">
+            - Số chuyến đăng ký khai thác: <span id="TongChuyenThang">...</span> chuyến/tháng;
+        </p>
+
+        <p class="sub-item">
+            - Nốt (giờ) chạy xe tại:
+        </p>
+
+        <p class="sub-item" style="margin-left: 60px;">
+            + Bến xe <span id="ref-ben-di-2">...</span>: <span id="gio-chieu-di">...</span> hàng ngày;
+        </p>
+
+        <p class="sub-item" style="margin-left: 60px;">
+            + Tại Bến xe <span id="ref-ben-den-2">...</span> dự kiến: <span id="gio-chieu-ve">...</span> hàng ngày.
         </p>
 
         <p>
-            Sở Xây dựng <span id="ref-tinh-di-3">...</span> thống nhất việc
-            <span id="don-vi-kdvt" class="bold">...</span> khai thác tuyến vận tải sau:
+            Sở Xây dựng <span id="ref-tinh-di-4">...</span> đề nghị Quý Sở quan tâm phối hợp./.
         </p>
+    </div>
 
-        <p class="no-indent">- Tên tuyến: <span id="ref-tinh-di-4">...</span> đi
-            <span id="ref-tinh-den-3">...</span> và ngược lại;
-        </p>
+    <!-- Phụ lục thông tin tuyến - THEO MẪU WORD -->
+    <div style="page-break-before: always; margin-top: 30px;">
+        <h3 style="text-align: center; font-weight: bold; margin-bottom: 20px;">
+            THÔNG TIN TUYẾN VẬN TẢI
+        </h3>
 
-        <p class="no-indent">- Bến đi: Bến xe <span id="ref-ben-di-2">...</span> (thuộc tỉnh
-            <span id="ref-tinh-di-5">...</span>);
-        </p>
-
-        <p class="no-indent">- Bến đến: Bến xe <span id="ref-ben-den-2">...</span> (thuộc tỉnh
-            <span id="ref-tinh-den-4">...</span>);
-        </p>
-
-        <p class="no-indent">- Hành trình chạy xe: <span id="ref-hanh-trinh">...</span>;</p>
-
-        <p class="no-indent">- Mã số tuyến: <span id="ref-ma-so-tuyen-2">...</span>; cự ly:
-            <span id="ref-cu-ly">...</span> km;
-        </p>
-
-        <p class="no-indent">- Giờ xe xuất bến, tại Bến xe <span id="ref-ben-di-3">...</span>:
-            <span id="lich-chieu-di">...</span>.
-        </p>
-
-        <p>
-            Sở Xây dựng <span id="ref-tinh-di-6">...</span> trân trọng phúc đáp./.
-        </p>
+        <table class="info-table">
+            <thead>
+                <tr>
+                    <th rowspan="2" class="col-tt">TT</th>
+                    <th rowspan="2" class="col-ma-so">Mã số tuyến</th>
+                    <th colspan="4">Tên tuyến VTHK cố định liên tỉnh</th>
+                    <th rowspan="2" class="col-hanh-trinh">Hành trình chạy xe điều chỉnh</th>
+                    <th rowspan="2" class="col-cu-ly">Cự ly tuyến (km)</th>
+                    <th rowspan="2" class="col-luu-luong">Lưu lượng QH (xe xuất bến/tháng)</th>
+                    <th rowspan="2" class="col-gian-cach">Thời gian giãn cách giữa các chuyến xe liền kề</th>
+                </tr>
+                <tr>
+                    <th class="col-tinh">Tỉnh đi</th>
+                    <th class="col-tinh">Tỉnh đến</th>
+                    <th class="col-ben">BX đi</th>
+                    <th class="col-ben">BX đến</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="text-center">1</td>
+                    <td class="text-center" id="table-ma-so-tuyen">...</td>
+                    <td class="text-center" id="table-tinh-di">...</td>
+                    <td class="text-center" id="table-tinh-den">...</td>
+                    <td class="text-center" id="table-ben-di">...</td>
+                    <td class="text-center" id="table-ben-den">...</td>
+                    <td class="text-left" id="table-hanh-trinh">...</td>
+                    <td class="text-center" id="table-cu-ly">...</td>
+                    <td class="text-center" id="table-luu-luong">...</td>
+                    <td class="text-center" id="table-gian-cach">...</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 
     <div class="footer-section">
@@ -404,7 +486,7 @@
             <p><span class="noi-nhan">Nơi nhận:</span></p>
             <p>- Như trên;</p>
             <p>- Giám đốc Sở (b/c);</p>
-            <p>- Lưu: VT, VTATGT.</p>
+            <p>- Lưu: VT, VT&ATGT.</p>
         </div>
         <div class="footer-right">
             <div class="title">KT. GIÁM ĐỐC</div>
@@ -414,24 +496,26 @@
     </div>
 
     <script>
-        // ===== AppSheet constants =====
-        const appId = '7ee20176-7cb1-4ad4-9d13-e541c8b1b3dc';
-        const accessKey = 'V2-EYFgE-X83x3-xFTsK-y3eTp-L9F22-MKoI1-TGU28-sWcWd';
+        // Constants for AppSheet connection
+        const appId = '085eef9b-92f5-4f86-9eb7-b8324e02fc2b';
+        const accessKey = 'V2-AGscv-ApGpI-R0L7E-JCxeh-ms3pa-2WqWn-0H4ZG-datL7';
         const region = 'www';
 
-        // Biến toàn cục
+        // Biến toàn cục để lưu dữ liệu
         let globalDocumentData = null;
 
-        // Lấy ID_TB từ URL
+        // Function to get ID_TB from URL
         function getIDFromURL() {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get('ID_TB') || urlParams.get('id_tb');
         }
 
-        // Gọi AppSheet
+        // Function to fetch data from AppSheet
         async function fetchAppSheetData(tableName, filter = null) {
             try {
                 const selector = filter || `Filter(${tableName}, true)`;
+                console.log(`🔍 Executing selector for ${tableName}:`, selector);
+
                 const body = {
                     Action: 'Find',
                     Properties: {},
@@ -452,6 +536,7 @@
                 }
 
                 const data = await response.json();
+                console.log(`🔍 Response for ${tableName}:`, data);
                 return Array.isArray(data) ? data : [];
             } catch (error) {
                 console.error(`Failed to fetch ${tableName}:`, error);
@@ -459,93 +544,101 @@
             }
         }
 
-        // Format date dd/mm/yyyy
-        function formatDateShort(dateString) {
-            if (!dateString || dateString === '') {
-                return '';
+        // ===== HÀM FORMAT NGÀY THÁNG THEO QUY TẮC =====
+        function formatDateComponents(date) {
+            if (!date || isNaN(date.getTime())) {
+                const today = new Date();
+                date = today;
             }
 
-            let date;
-            if (typeof dateString === 'string') {
-                if (dateString.includes('/')) {
-                    const parts = dateString.split('/');
-                    if (parts.length === 3) {
-                        const month = parseInt(parts[0]);
-                        const day = parseInt(parts[1]);
-                        const year = parseInt(parts[2]);
-                        date = new Date(year, month - 1, day);
-                    }
-                } else if (dateString.includes('-')) {
-                    date = new Date(dateString);
-                } else {
-                    date = new Date(dateString);
-                }
-            } else if (dateString instanceof Date) {
-                date = dateString;
+            const day = date.getDate().toString().padStart(2, '0'); // Luôn có 2 chữ số
+            const month = date.getMonth() + 1; // 1-12
+            const year = date.getFullYear(); // 4 chữ số
+
+            // Quy tắc tháng: 1,2 có số 0, 3-12 không có số 0
+            let monthStr;
+            if (month === 1 || month === 2) {
+                monthStr = month.toString().padStart(2, '0'); // "01", "02"
             } else {
-                return dateString.toString();
+                monthStr = month.toString(); // "3", "4", ..., "12"
             }
 
-            if (isNaN(date.getTime())) {
-                return dateString.toString();
-            }
-
-            const day = date.getDate().toString().padStart(2, '0');
-            const month = date.getMonth() + 1;
-            const year = date.getFullYear();
-            const monthStr = (month === 1 || month === 2)
-                ? month.toString().padStart(2, '0')
-                : month.toString();
-
-            return `${day}/${monthStr}/${year}`;
-        }
-
-        // Ngày hiện tại
-        function getCurrentDateComponents() {
-            const today = new Date();
-            const month = today.getMonth() + 1;
             return {
-                day: today.getDate().toString().padStart(2, '0'),
-                month: (month === 1 || month === 2)
-                    ? month.toString().padStart(2, '0')
-                    : month.toString(),
-                year: today.getFullYear()
+                day: day,
+                month: monthStr,
+                year: year
             };
         }
 
-        // Lấy NgàyHS từ input
+        // Format ngày hiện tại theo quy tắc
+        function getCurrentDateComponents() {
+            const today = new Date();
+            return formatDateComponents(today);
+        }
+
+        // Get CV So HS from input - TRỐNG NẾU CHƯA NHẬP
+        function getCVSoHSFromInput() {
+            const input = document.getElementById('cv-so-hs');
+            return input.value.trim() || '';
+        }
+
+        // Get NgayHS from input - TRỐNG NẾU CHƯA CHỌN
         function getNgayHSFromInput() {
-            const input = document.getElementById('ngay-ho-so');
+            const input = document.getElementById('ngay-hs');
             if (!input.value) {
                 return '';
             }
 
             const date = new Date(input.value);
-            const day = date.getDate().toString().padStart(2, '0');
-            const month = date.getMonth() + 1;
-            const year = date.getFullYear();
-            const monthStr = (month === 1 || month === 2)
-                ? month.toString().padStart(2, '0')
-                : month.toString();
-
-            return `${day}/${monthStr}/${year}`;
+            const components = formatDateComponents(date);
+            
+            return `${components.day}/${components.month}/${components.year}`;
         }
 
-        // Lấy Công văn số từ input
-        function getCVsoHSFromInput() {
-            const input = document.getElementById('cv-so-hs');
-            return (input && input.value) ? input.value.trim() : '';
+        // Calculate total trips from LichChieuDi
+        function calculateTongChuyenThang(lichChieuDi) {
+            if (!lichChieuDi || typeof lichChieuDi !== 'string') {
+                return 0;
+            }
+
+            const parts = lichChieuDi.split('vào các ngày');
+            const hoursPart = parts[0] || '';
+            let daysPart = parts[1] || '';
+
+            const hoursClean = hoursPart.replace(/\./g, '');
+            const hourTokens = hoursClean.split(',')
+                .map(s => s.trim())
+                .filter(s => /^\d{1,2}:\d{2}$/.test(s));
+            const hoursCount = hourTokens.length;
+
+            daysPart = daysPart.replace(/\./g, '');
+            const dayTokens = daysPart.split(',')
+                .map(s => s.trim())
+                .filter(s => s !== '');
+
+            let daysCount = 0;
+            dayTokens.forEach(token => {
+                const numMatch = token.match(/\d+/);
+                if (numMatch) {
+                    daysCount++;
+                }
+            });
+
+            return hoursCount * daysCount;
         }
 
-        // Load data từ AppSheet
+        // Load data from AppSheet
         async function loadData() {
             try {
                 const idTB = getIDFromURL();
+                console.log('🔍 ID từ URL:', idTB);
+
                 if (!idTB) {
                     throw new Error('Không tìm thấy ID_TB trong URL');
                 }
 
                 const thongbaoList = await fetchAppSheetData('THONGBAO_KHAITHAC');
+
                 if (!thongbaoList || thongbaoList.length === 0) {
                     throw new Error('Không tìm thấy dữ liệu trong bảng THONGBAO_KHAITHAC');
                 }
@@ -559,18 +652,15 @@
                     throw new Error(`Không tìm thấy thông báo với ID: ${idTB}`);
                 }
 
+                // SỬ DỤNG HÀM FORMAT MỚI
                 const currentDate = getCurrentDateComponents();
+                const lichChieuDiStr = thongbaoData['LichChieuDi'] || '';
+                const tongChuyenThang = calculateTongChuyenThang(lichChieuDiStr);
 
                 globalDocumentData = {
                     ID_TB: thongbaoData['ID_TB'] || '',
-                    SoThongBao: thongbaoData['SoThongBao'] || '',
-                    NgayBanHanh: formatDateShort(thongbaoData['NgayBanHanh']),
-                    NgayBatDau: formatDateShort(thongbaoData['NgayBatDau']),
-                    CQBanHanh: thongbaoData['CQBanHanh'] || '',
-                    TrangThai: thongbaoData['TrangThai'] || '',
-                    GhiChu: thongbaoData['GhiChu'] || '',
+                    SoCongVan: thongbaoData['SoThongBao'] || '',
                     DonViKDVT: thongbaoData['Đơn vị kinh doanh vận tải'] || '',
-                    DiaChiDVKDVT: thongbaoData['Địa chỉ sau xác nhập DVKDVT'] || '',
                     RefBendi: thongbaoData['RefBendi'] || '',
                     RefBenden: thongbaoData['RefBenden'] || '',
                     RefTinhdi: thongbaoData['RefTinhdi'] || '',
@@ -579,19 +669,26 @@
                     RefHanhtrinh: thongbaoData['RefHanhtrinh'] || '',
                     RefMasotuyen: thongbaoData['RefMasotuyen'] || '',
                     RefCuly: thongbaoData['RefCuly'] || '',
-                    LichChieuDi: thongbaoData['LichChieuDi'] || '',
-                    LichChieuVe: thongbaoData['LichChieuVe'] || '',
-                    ThongBaoHienThi: thongbaoData['ThongBaoHienThi'] || '',
+                    TongChuyenThang: tongChuyenThang,
+                    GioChieuDi: thongbaoData['GioChieuDi'] || '',
+                    GioChieuVe: thongbaoData['GioChieuVe'] || '',
+                    RefLuuLuongConLai: thongbaoData['RefLuuLuongConLai'] || '',
+                    RefGianCachToiThieu_phut: thongbaoData['RefGianCachToiThieu_phut'] || '',
+                    // SỬ DỤNG FORMAT MỚI CHO NGÀY HIỆN TẠI
                     Ngay: currentDate.day,
                     Thang: currentDate.month,
                     Nam: currentDate.year,
                     ngay: currentDate.day,
                     thang: currentDate.month,
-                    nam: currentDate.year
+                    nam: currentDate.year,
+                    // BỎ GIÁ TRỊ MẶC ĐỊNH - ĐỂ TRỐNG
+                    CVsoHS: getCVSoHSFromInput(),
+                    NgayHS: getNgayHSFromInput()
                 };
 
                 populateHTML(globalDocumentData);
                 hideLoadingMessage();
+
             } catch (error) {
                 console.error('Error loading data:', error);
                 hideLoadingMessage();
@@ -599,7 +696,7 @@
             }
         }
 
-        // Đổ dữ liệu ra HTML
+        // Populate HTML with data
         function populateHTML(data) {
             const setText = (id, value) => {
                 const element = document.getElementById(id);
@@ -614,43 +711,53 @@
                 donViInput.value = data.DonViKDVT;
             }
 
+            // Header - SỬ DỤNG FORMAT MỚI
             setText('ref-tinh-di-upper', data.RefTinhdi_upper);
-            setText('so-thong-bao', data.SoThongBao);
+            setText('so-cong-van', data.SoCongVan);
             setText('ref-tinh-di', data.RefTinhdi);
             setText('ngay', data.Ngay);
             setText('thang', data.Thang);
             setText('nam', data.Nam);
 
+            // Subject
             setText('ref-ben-di', data.RefBendi);
             setText('ref-ben-den', data.RefBenden);
+
+            // Recipient
             setText('ref-tinh-den', data.RefTinhden);
 
+            // Content
             setText('ref-tinh-di-2', data.RefTinhdi);
-            setText('ref-tinh-den-2', data.RefTinhden);
-
-            setText('ref-tinh-di-3', data.RefTinhdi);
-            setText('ref-tinh-di-4', data.RefTinhdi);
-            setText('ref-tinh-di-5', data.RefTinhdi);
-            setText('ref-tinh-di-6', data.RefTinhdi);
-
-            setText('ref-tinh-den-3', data.RefTinhden);
-            setText('ref-tinh-den-4', data.RefTinhden);
-
             setText('don-vi-kdvt', data.DonViKDVT);
-
+            setText('ref-tinh-di-3', data.RefTinhdi);
+            setText('ref-tinh-den-2', data.RefTinhden);
+            setText('don-vi-kdvt-2', data.DonViKDVT);
+            setText('TongChuyenThang', data.TongChuyenThang);
             setText('ref-ben-di-2', data.RefBendi);
-            setText('ref-ben-di-3', data.RefBendi);
-
+            setText('gio-chieu-di', data.GioChieuDi);
             setText('ref-ben-den-2', data.RefBenden);
+            setText('gio-chieu-ve', data.GioChieuVe);
+            setText('ref-tinh-di-4', data.RefTinhdi);
 
-            setText('ref-hanh-trinh', data.RefHanhtrinh);
-            setText('ref-ma-so-tuyen', data.RefMasotuyen);
-            setText('ref-ma-so-tuyen-2', data.RefMasotuyen);
-            setText('ref-cu-ly', data.RefCuly);
-            setText('lich-chieu-di', data.LichChieuDi);
+            // CV So HS and NgayHS - HIỂN THỊ TRẠNG THÁI CHƯA NHẬP
+            const cvDisplay = data.CVsoHS || '[Chưa nhập]';
+            const ngayDisplay = data.NgayHS || '[Chưa chọn]';
+            setText('cv-so-hs-display', cvDisplay);
+            setText('ngay-hs-display', ngayDisplay);
+
+            // Table
+            setText('table-ma-so-tuyen', data.RefMasotuyen);
+            setText('table-tinh-di', data.RefTinhdi);
+            setText('table-tinh-den', data.RefTinhden);
+            setText('table-ben-di', data.RefBendi);
+            setText('table-ben-den', data.RefBenden);
+            setText('table-hanh-trinh', data.RefHanhtrinh);
+            setText('table-cu-ly', data.RefCuly);
+            setText('table-luu-luong', data.RefLuuLuongConLai);
+            setText('table-gian-cach', data.RefGianCachToiThieu_phut);
         }
 
-        // Xuất Word
+        // Export to Word template
         async function exportToWordTemplate() {
             try {
                 if (!globalDocumentData) {
@@ -658,29 +765,33 @@
                     return;
                 }
 
-                const donViKDVT = document.getElementById('don-vi-kdvt-input').value.trim();
+                const donViKDVT = document.getElementById('don-vi-kdvt-input').value;
+                const cvSoHS = getCVSoHSFromInput();
                 const ngayHS = getNgayHSFromInput();
-                const cvSoHS = getCVsoHSFromInput();
 
-                if (!donViKDVT) {
-                    alert('Vui lòng nhập đơn vị kinh doanh vận tải trước khi xuất file.');
+                // KIỂM TRA DỮ LIỆU TRƯỚC KHI XUẤT
+                if (!donViKDVT.trim()) {
+                    alert('Vui lòng nhập đơn vị kinh doanh vận tải trước khi xuất file Word!');
                     document.getElementById('don-vi-kdvt-input').focus();
                     return;
                 }
-                if (!ngayHS) {
-                    alert('Vui lòng chọn ngày nhận hồ sơ trước khi xuất file.');
+
+                if (!cvSoHS.trim()) {
+                    alert('Vui lòng nhập số công văn hồ sơ trước khi xuất file Word!');
+                    document.getElementById('cv-so-hs').focus();
                     return;
                 }
-                if (!cvSoHS) {
-                    alert('Vui lòng nhập Công văn số trước khi xuất file.');
+
+                if (!ngayHS) {
+                    alert('Vui lòng chọn ngày hồ sơ trước khi xuất file Word!');
+                    document.getElementById('ngay-hs').focus();
                     return;
                 }
 
                 document.getElementById('loading-message').style.display = 'block';
                 document.getElementById('loading-message').textContent = 'Đang xuất file Word...';
 
-                // Đổi link này sang file template trả lời đúng của bạn
-                const templateUrl = 'https://hoangmv.github.io/templates_BG/vanban_traloi_So_doi_luu.docx';
+                const templateUrl = 'https://hoangmv.github.io/templates_BG/DeNghi_BoSungTuyen.docx';
 
                 const response = await fetch(templateUrl);
                 if (!response.ok) {
@@ -697,11 +808,11 @@
                 const exportData = {
                     ...globalDocumentData,
                     DonViKDVT: donViKDVT,
-                    NgayHS: ngayHS,  // map với {NgayHS}
-                    CVsoHS: cvSoHS   // map với {CVsoHS}
+                    CVsoHS: cvSoHS,
+                    NgayHS: ngayHS
                 };
 
-                console.log('📋 Dữ liệu gửi vào template Word:', exportData);
+                console.log('📋 Dữ liệu xuất Word:', exportData);
 
                 doc.setData(exportData);
                 doc.render();
@@ -710,11 +821,11 @@
                     mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 });
 
-                const fileName =
-                    `CongVan_TraLoi_${globalDocumentData.RefBendi || ''}_${globalDocumentData.RefBenden || ''}.docx`;
+                const fileName = `DeNghi_BoSungTuyen_${globalDocumentData.RefBendi || ''}_${globalDocumentData.RefBenden || ''}.docx`;
                 saveAs(blob, fileName);
 
                 hideLoadingMessage();
+
             } catch (error) {
                 console.error('Lỗi xuất file Word:', error);
                 alert('Có lỗi xảy ra khi xuất file Word: ' + error.message);
@@ -722,12 +833,63 @@
             }
         }
 
-        // Ẩn loading
+        // Update display when inputs change
+        function updateDisplayFromInputs() {
+            // Update DonViKDVT
+            const donViKDVT = document.getElementById('don-vi-kdvt-input').value;
+
+            const donViElement = document.getElementById('don-vi-kdvt');
+            if (donViElement) {
+                donViElement.textContent = donViKDVT || '...';
+            }
+
+            const donViElement2 = document.getElementById('don-vi-kdvt-2');
+            if (donViElement2) {
+                donViElement2.textContent = donViKDVT || '...';
+            }
+
+            const cvSoHS = getCVSoHSFromInput();
+            const ngayHS = getNgayHSFromInput();
+
+            // Update display với trạng thái
+            const cvDisplay = cvSoHS || '[Chưa nhập]';
+            const ngayDisplay = ngayHS || '[Chưa chọn]';
+
+            document.getElementById('cv-so-hs-display').textContent = cvDisplay;
+            document.getElementById('ngay-hs-display').textContent = ngayDisplay;
+
+            // Update global data if available
+            if (globalDocumentData) {
+                globalDocumentData.DonViKDVT = donViKDVT;
+                globalDocumentData.CVsoHS = cvSoHS;
+                globalDocumentData.NgayHS = ngayHS;
+            }
+        }
+
+        // Initialize event listeners
+        document.addEventListener('DOMContentLoaded', function () {
+            const donViInput = document.getElementById('don-vi-kdvt-input');
+            const cvSoHSInput = document.getElementById('cv-so-hs');
+            const ngayHSInput = document.getElementById('ngay-hs');
+
+            // Add event listeners
+            donViInput.addEventListener('input', updateDisplayFromInputs);
+            cvSoHSInput.addEventListener('input', updateDisplayFromInputs);
+            ngayHSInput.addEventListener('change', updateDisplayFromInputs);
+
+            // KHÔNG SET GIÁ TRỊ MẶC ĐỊNH - ĐỂ TRỐNG
+
+            setTimeout(() => {
+                initialize();
+            }, 500);
+        });
+
+        // Hide loading message
         function hideLoadingMessage() {
             document.getElementById('loading-message').classList.add('hidden');
         }
 
-        // Khởi tạo
+        // Initialize application
         async function initialize() {
             try {
                 const idTB = getIDFromURL();
@@ -743,48 +905,7 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
-            const donViInput = document.getElementById('don-vi-kdvt-input');
-            const dateInput = document.getElementById('ngay-ho-so');
-            const cvInput = document.getElementById('cv-so-hs');
-
-            // cập nhật DonViKDVT hiển thị
-            donViInput.addEventListener('input', function () {
-                const donViKDVT = donViInput.value;
-                const element = document.getElementById('don-vi-kdvt');
-                if (element) {
-                    element.textContent = donViKDVT || '...';
-                }
-                // Update global data
-                if (globalDocumentData) {
-                    globalDocumentData.DonViKDVT = donViKDVT;
-                }
-            });
-
-            // cập nhật ngày hiển thị
-            dateInput.addEventListener('change', function () {
-                const ngayHS = getNgayHSFromInput();
-                const element = document.getElementById('ngay-ho-so-display');
-                if (element) {
-                    element.textContent = ngayHS || '...';
-                }
-            });
-
-            // cập nhật Công văn số hiển thị
-            cvInput.addEventListener('input', function () {
-                const cvSoHS = getCVsoHSFromInput();
-                const element = document.getElementById('cv-so-hs-display');
-                if (element) {
-                    element.textContent = cvSoHS || '...';
-                }
-            });
-
-            setTimeout(() => {
-                initialize();
-            }, 500);
-        });
-
-        // Khóa chuột phải & F12 (giữ nguyên như trang cũ)
+        // Disable right-click and F12
         document.addEventListener('contextmenu', function (e) {
             e.preventDefault();
         }, false);
