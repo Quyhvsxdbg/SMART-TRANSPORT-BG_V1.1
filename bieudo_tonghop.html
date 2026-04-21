@@ -2923,7 +2923,6 @@
                 console.log('Total routes:', allTuyenData.length);
                 console.log('Total notifications:', allThongBaoData.length);
                 console.log('Total details:', allChiTietData.length);
-                console.log('DEBUG TB fields:', allThongBaoData.slice(0,3).map(tb => ({SoThongBao: tb.SoThongBao, HieuLuc: tb.HieuLuc, SoChuyen: tb.SoChuyen_KhaiThac_Thang})));
 
                 updateProgress(80, 'Đang hiển thị danh sách tuyến...');
 
@@ -3625,8 +3624,6 @@
                 tongSoChuyen += calculateActualTrips(maTuyen);
                 tongLuuLuong += getRemainingCapacity(tuyen);
             });
-            console.log('DEBUG allXeRaw soTB:', allXeRaw.map(x => ({BienSo: x.BienSo, tenDV: x.tenDV, soTB: x.soTB})));
-            console.log('DEBUG TB 143:', allThongBaoData.filter(tb => tb.SoThongBao === '143/TB-SXD').map(tb => ({SoThongBao: tb.SoThongBao, HieuLuc: tb.HieuLuc, SoChuyen: tb.SoChuyen_KhaiThac_Thang})));
 
             // Deduplicate biển số TRONG CÙNG 1 TUYẾN (1 xe trên cùng tuyến chỉ đếm 1 lần)
             const seenKey = new Set();
