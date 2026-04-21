@@ -317,7 +317,7 @@
         <div class="document-container">
             <div class="header">
                 <div class="header-left">
-                    <div style="margin-bottom: 5px;">UBND TỈNH <span id="tinh-header">BẮC GIANG</span></div>
+                    <div style="margin-bottom: 5px;">UBND TỈNH <span id="tinh-header"></span></div>
                     <div class="underline-title"><strong>SỞ XÂY DỰNG</strong></div>
                     <div class="document-number">Số: <span>______</span>/QĐ-SXD</div>
                 </div>
@@ -326,7 +326,7 @@
                     <div class="underline-title-full"><span class="underline-text">Độc lập – Tự do – Hạnh phúc</span>
                     </div>
                     <div style="font-style: italic; font-weight: normal; margin-top: 10px; text-align: center;"
-                        id="ngay-thang"><span id="tinh-footer">Bắc Giang</span>, ngày &nbsp;&nbsp;&nbsp; tháng
+                        id="ngay-thang"><span id="tinh-footer"></span>, ngày &nbsp;&nbsp;&nbsp; tháng
                         &nbsp;&nbsp;&nbsp; <span>năm 2025</span>
                     </div>
                 </div>
@@ -366,7 +366,7 @@
 
             <div class="article">
                 <strong>Điều 1.</strong> Thu hồi phù hiệu xe ô tô kinh doanh vận tải do Sở Xây dựng tỉnh <span
-                    id="tinh-content-4">Bắc Giang</span> cấp
+                    id="tinh-content-4"></span> cấp
                 cho các phương tiện <span style="font-style: italic; font-weight: normal;">(có danh sách kèm
                     theo)</span>.
             </div>
@@ -593,12 +593,12 @@
         // Populate QUYETDINH_THUHOI_PHUHIEU data for page 1 with tinh data
         function populateQuyetDinhData(data, tinhData, canCuData) {
             // Xử lý tên tỉnh
-            let tenTinh = 'Bắc Giang'; // Default value
+            let tenTinh = ''; // Default value
             if (tinhData && tinhData.length > 0) {
                 const sortedTinhData = tinhData.sort((a, b) =>
                     new Date(b.Ngay_hieu_luc) - new Date(a.Ngay_hieu_luc)
                 );
-                tenTinh = sortedTinhData[0].Tinh || 'Bắc Giang';
+                tenTinh = sortedTinhData[0].Tinh || '';
             }
 
             // Update all tinh references
@@ -727,12 +727,12 @@
                 const quyetDinh = globalQuyetDinhData[0];
 
                 // Xử lý tên tỉnh cho Word export
-                let tenTinh = 'Bắc Giang';
+                let tenTinh = '';
                 if (globalTinhData && globalTinhData.length > 0) {
                     const sortedTinhData = globalTinhData.sort((a, b) =>
                         new Date(b.Ngay_hieu_luc) - new Date(a.Ngay_hieu_luc)
                     );
-                    tenTinh = sortedTinhData[0].Tinh || 'Bắc Giang';
+                    tenTinh = sortedTinhData[0].Tinh || '';
                 }
 
                 // Format ngày tháng with administrative rules
@@ -804,7 +804,7 @@
                 });
 
                 // Tải template Word
-                const response = await fetch('/templates_BG/quyet_dinh_thu_hoi_phu_hieu_template.docx');
+                const response = await fetch('https://quyhvsxdbg.github.io/SMART-TRANSPORT-BG_V1.1/templates_BG_V1.1/quyet_dinh_thu_hoi_phu_hieu_template.docx');
                 if (!response.ok) {
                     throw new Error('Không thể tải template Word');
                 }
@@ -842,7 +842,7 @@
                     mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 });
 
-                const fileName = `Quyet_dinh_thu_hoi_Phu_hieu_${quyetDinh.SoQuyetDinh || 'new'}.docx`;
+                const fileName = `Quyết định thu hồi phù hiệu số ${quyetDinh.SoQuyetDinh || 'new'}.docx`;
                 saveAs(blob, fileName);
 
             } catch (error) {

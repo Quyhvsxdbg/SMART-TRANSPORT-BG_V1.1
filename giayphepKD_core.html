@@ -343,7 +343,7 @@
             const day = date.getDate().toString().padStart(2, '0'); // Luôn có 2 chữ số
             const month = date.getMonth() + 1;
             const year = date.getFullYear();
-            
+
             // Tháng 1,2: có số 0 đằng trước (01, 02)
             // Tháng 3-12: không có số 0 đằng trước (3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
             let formattedMonth;
@@ -352,7 +352,7 @@
             } else {
                 formattedMonth = month.toString();
             }
-            
+
             return {
                 day: day,
                 month: formattedMonth,
@@ -454,7 +454,7 @@
                     new Date(b.Ngay_hieu_luc) - new Date(a.Ngay_hieu_luc)
                 );
                 document.querySelector('.header').textContent = (sortedTinhData[0].Tinh || 'BẮC GIANG').toUpperCase();
-                
+
                 // Cập nhật tên tỉnh cho footer
                 const tenTinh = sortedTinhData[0].Tinh || 'Bắc Giang';
                 document.getElementById('tinh-footer').textContent = tenTinh;
@@ -600,7 +600,7 @@
                 }
 
                 // Lấy template từ server
-                const response = await fetch('https://hoangmv.github.io/templates_BG/giayphep_template.docx');
+                const response = await fetch('https://quyhvsxdbg.github.io/SMART-TRANSPORT-BG_V1.1/templates_BG_V1.1/giayphep_template.docx');
                 if (!response.ok) {
                     throw new Error('Không thể tải template Word');
                 }

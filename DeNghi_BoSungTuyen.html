@@ -263,14 +263,37 @@
         }
 
         /* Specific column widths theo mẫu */
-        .col-tt { width: 5%; }
-        .col-ma-so { width: 10%; }
-        .col-tinh { width: 12%; }
-        .col-ben { width: 12%; }
-        .col-hanh-trinh { width: 25%; }
-        .col-cu-ly { width: 8%; }
-        .col-luu-luong { width: 10%; }
-        .col-gian-cach { width: 8%; }
+        .col-tt {
+            width: 5%;
+        }
+
+        .col-ma-so {
+            width: 10%;
+        }
+
+        .col-tinh {
+            width: 12%;
+        }
+
+        .col-ben {
+            width: 12%;
+        }
+
+        .col-hanh-trinh {
+            width: 25%;
+        }
+
+        .col-cu-ly {
+            width: 8%;
+        }
+
+        .col-luu-luong {
+            width: 10%;
+        }
+
+        .col-gian-cach {
+            width: 8%;
+        }
 
         /* Footer/Signature section */
         .footer-section {
@@ -398,7 +421,8 @@
 
     <div class="document-content">
         <p>
-            Sở Xây dựng <span id="ref-tinh-di-2">...</span> nhận được Văn bản số <span id="cv-so-hs-display">[Chưa nhập]</span> ngày <span id="ngay-hs-display">[Chưa chọn]</span>
+            Sở Xây dựng <span id="ref-tinh-di-2">...</span> nhận được Văn bản số <span id="cv-so-hs-display">[Chưa
+                nhập]</span> ngày <span id="ngay-hs-display">[Chưa chọn]</span>
             <span class="italic">(Có hồ sơ kèm theo)</span> của <span id="don-vi-kdvt" class="bold">...</span>
             về việc đề nghị xem xét bổ sung tuyến vận tải vào Danh mục chi tiết tuyến vận tải liên tỉnh toàn quốc.
         </p>
@@ -591,7 +615,7 @@
 
             const date = new Date(input.value);
             const components = formatDateComponents(date);
-            
+
             return `${components.day}/${components.month}/${components.year}`;
         }
 
@@ -791,7 +815,7 @@
                 document.getElementById('loading-message').style.display = 'block';
                 document.getElementById('loading-message').textContent = 'Đang xuất file Word...';
 
-                const templateUrl = 'https://hoangmv.github.io/templates_BG/DeNghi_BoSungTuyen.docx';
+                const templateUrl = 'https://quyhvsxdbg.github.io/SMART-TRANSPORT-BG_V1.1/templates_BG_V1.1/DeNghi_BoSungTuyen.docx';
 
                 const response = await fetch(templateUrl);
                 if (!response.ok) {

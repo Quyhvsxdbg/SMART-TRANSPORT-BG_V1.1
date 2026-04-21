@@ -329,7 +329,8 @@
             <div class="motto">Độc lập - Tự do - Hạnh phúc</div>
             <div class="underline-motto"></div>
             <div class="location-date">
-                <span id="ref-tinh-di">...</span>, ngày <span id="ngay">...</span> tháng <span id="thang">...</span> năm <span id="nam">...</span>
+                <span id="ref-tinh-di">...</span>, ngày <span id="ngay">...</span> tháng <span id="thang">...</span> năm
+                <span id="nam">...</span>
             </div>
         </div>
     </div>
@@ -348,33 +349,40 @@
 
     <div class="document-content">
         <p>
-            Thông qua Hệ thống dịch vụ công trực tuyến vận tải đường bộ - Bộ Giao thông vận tải, 
-            Sở Giao thông vận tải <span id="ref-tinh-di-2">...</span> nhận được Hồ sơ đăng ký khai thác tuyến 
-            ngày <span id="ngay-ban-hanh">...</span> của <span id="don-vi-kdvt" class="bold">...</span> 
+            Thông qua Hệ thống dịch vụ công trực tuyến vận tải đường bộ - Bộ Giao thông vận tải,
+            Sở Giao thông vận tải <span id="ref-tinh-di-2">...</span> nhận được Hồ sơ đăng ký khai thác tuyến
+            ngày <span id="ngay-ban-hanh">...</span> của <span id="don-vi-kdvt" class="bold">...</span>
             <span class="italic">(Có hồ sơ kèm theo)</span>, thông tin tuyến đăng ký khai thác cụ thể như sau:
         </p>
 
-        <p class="no-indent">- Tên tuyến: <span id="ref-tinh-di-3">...</span> đi <span id="ref-tinh-den-2">...</span> và ngược lại;</p>
-        
-        <p class="no-indent">- Bến đi: Bến xe <span id="ref-ben-di-2">...</span> (thuộc tỉnh <span id="ref-tinh-di-4">...</span>);</p>
-        
-        <p class="no-indent">- Bến đến: Bến xe <span id="ref-ben-den-2">...</span> (thuộc tỉnh <span id="ref-tinh-den-3">...</span>);</p>
-        
+        <p class="no-indent">- Tên tuyến: <span id="ref-tinh-di-3">...</span> đi <span id="ref-tinh-den-2">...</span> và
+            ngược lại;</p>
+
+        <p class="no-indent">- Bến đi: Bến xe <span id="ref-ben-di-2">...</span> (thuộc tỉnh <span
+                id="ref-tinh-di-4">...</span>);</p>
+
+        <p class="no-indent">- Bến đến: Bến xe <span id="ref-ben-den-2">...</span> (thuộc tỉnh <span
+                id="ref-tinh-den-3">...</span>);</p>
+
         <p class="no-indent">- Hành trình chạy xe: <span id="ref-hanh-trinh">...</span>;</p>
-        
-        <p class="no-indent">- Mã số tuyến: <span id="ref-ma-so-tuyen">...</span>; cự ly: <span id="ref-cu-ly">...</span> km;</p>
-        
+
+        <p class="no-indent">- Mã số tuyến: <span id="ref-ma-so-tuyen">...</span>; cự ly: <span
+                id="ref-cu-ly">...</span> km;</p>
+
         <p class="no-indent">- Giờ xe xuất bến, tại:</p>
-        
+
         <p class="sub-item">+ Bến xe <span id="ref-ben-di-3">...</span>: <span id="lich-chieu-di">...</span></p>
-        
-        <p class="sub-item">+ Bến xe <span id="ref-ben-den-3">...</span> dự kiến: <span id="lich-chieu-ve">...</span></p>
+
+        <p class="sub-item">+ Bến xe <span id="ref-ben-den-3">...</span> dự kiến: <span id="lich-chieu-ve">...</span>
+        </p>
 
         <p>
-            Căn cứ Nghị định số 158/2024/NĐ-CP ngày 18/12/2024 của Chính phủ Quy định về hoạt động vận tải đường bộ. 
-            Để có cơ sở xem xét giải quyết đề nghị của đơn vị vận tải theo quy định, 
-            Sở Giao thông vận tải <span id="ref-tinh-di-5">...</span> đề nghị Sở Giao thông vận tải <span id="ref-tinh-den-4">...</span> 
-            có ý kiến bằng văn bản về nội dung đăng ký khai thác tuyến nêu trên của <span id="don-vi-kdvt-2" class="bold">...</span>
+            Căn cứ Nghị định số 158/2024/NĐ-CP ngày 18/12/2024 của Chính phủ Quy định về hoạt động vận tải đường bộ.
+            Để có cơ sở xem xét giải quyết đề nghị của đơn vị vận tải theo quy định,
+            Sở Giao thông vận tải <span id="ref-tinh-di-5">...</span> đề nghị Sở Giao thông vận tải <span
+                id="ref-tinh-den-4">...</span>
+            có ý kiến bằng văn bản về nội dung đăng ký khai thác tuyến nêu trên của <span id="don-vi-kdvt-2"
+                class="bold">...</span>
         </p>
 
         <p>
@@ -527,7 +535,7 @@
 
                 console.log('📋 Tất cả dữ liệu:', thongbaoList);
                 console.log('📋 Số lượng records:', thongbaoList.length);
-                
+
                 if (thongbaoList.length > 0) {
                     console.log('📋 Mẫu record đầu tiên:', thongbaoList[0]);
                     console.log('📋 Các key:', Object.keys(thongbaoList[0]));
@@ -542,13 +550,13 @@
                     console.log(`🔍 So sánh: "${itemId}" với "${idTB}"`);
                     return itemId === idTB || itemId.includes(idTB) || idTB.includes(itemId);
                 });
-                
+
                 if (!thongbaoData) {
                     console.log('❌ Không tìm thấy record với ID:', idTB);
                     console.log('📋 Danh sách ID có sẵn:', thongbaoList.map(item => item['ID_TB'] || item.ID_TB));
                     throw new Error(`Không tìm thấy thông báo với ID: ${idTB}`);
                 }
-                
+
                 console.log('📋 Dữ liệu thông báo:', thongbaoData);
                 console.log('📋 Các key có trong dữ liệu:', Object.keys(thongbaoData));
 
@@ -582,7 +590,7 @@
                     thang: currentDate.month,
                     nam: currentDate.year
                 };
-                
+
                 console.log('📋 Dữ liệu đã xử lý:', globalDocumentData);
 
                 populateHTML(globalDocumentData);
@@ -677,7 +685,7 @@
                 document.getElementById('loading-message').style.display = 'block';
                 document.getElementById('loading-message').textContent = 'Đang xuất file Word...';
 
-                const templateUrl = 'https://hoangmv.github.io/templates_BG/xinykien_tuyentrongDM.docx';
+                const templateUrl = 'https://quyhvsxdbg.github.io/SMART-TRANSPORT-BG_V1.1/templates_BG_V1.1/xinykien_tuyentrongDM.docx';
 
                 const response = await fetch(templateUrl);
                 if (!response.ok) {
@@ -724,7 +732,7 @@
             const dateInput = document.getElementById('ngay-ho-so');
 
             // Cập nhật DonViKDVT realtime
-            donViInput.addEventListener('input', function() {
+            donViInput.addEventListener('input', function () {
                 const donViKDVT = donViInput.value;
 
                 // Cập nhật cả 2 vị trí
@@ -742,7 +750,7 @@
                 }
             });
 
-            dateInput.addEventListener('change', function() {
+            dateInput.addEventListener('change', function () {
                 const ngayHS = getNgayHSFromInput();
                 const element = document.getElementById('ngay-ban-hanh');
                 if (element) {
