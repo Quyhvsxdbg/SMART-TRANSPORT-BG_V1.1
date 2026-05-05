@@ -84,7 +84,22 @@
             font-size: 13px;
         }
 
+        .input-group select {
+            width: 100%;
+            padding: 6px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-family: "Times New Roman", serif;
+            font-size: 13px;
+            background: white;
+        }
+
         .input-group input:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        .input-group select:focus {
             outline: none;
             border-color: #4CAF50;
         }
@@ -351,6 +366,13 @@
                 <label for="ngay-ktct">Ngày khai thác chính thức:</label>
                 <input type="date" id="ngay-ktct">
             </div>
+
+            <div class="input-group">
+                <label for="nguoi-ky-select">Người ký:</label>
+                <select id="nguoi-ky-select">
+                    <option value="">Chọn người ký</option>
+                </select>
+            </div>
         </div>
 
         <button class="button print-button" onclick="window.print()">
@@ -469,9 +491,9 @@
             <p>- Lưu: VT, VTATGT.</p>
         </div>
         <div class="footer-right">
-            <div class="title">KT. GIÁM ĐỐC</div>
-            <div class="sub-title">PHÓ GIÁM ĐỐC</div>
-            <div class="name">Nguyễn Quốc Ân</div>
+            <div class="title" id="tham-quyen-ky">KT. GIÁM ĐỐC</div>
+            <div class="sub-title" id="chuc-vu-ky">PHÓ GIÁM ĐỐC</div>
+            <div class="name" id="nguoi-ky"></div>
         </div>
     </div>
 
@@ -481,6 +503,10 @@
         const region = 'www';
 
         let globalDocumentData = null;
+        let globalTinhData = [];
+        let globalNguoiPhuTrachList = [];
+        let globalSelectedNguoiKyId = '';
+        let globalSelectedNguoiPhuTrachInfo = null;
         let vehicleData = [];
 
         function getIDFromURL() {
@@ -562,6 +588,128 @@
                 month: (month === 1 || month === 2) ? month.toString().padStart(2, '0') : month.toString(),
                 year: today.getFullYear()
             };
+        }
+
+        function parseDateValue(value) {
+            if (!value) return null;
+            const parsedDate = new Date(value);
+            return Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
+        }
+
+        function filterTinhDataByDate(tinhData, referenceDateValue) {
+            const referenceDate = parseDateValue(referenceDateValue) || new Date();
+            return (tinhData || []).filter(item => {
+                const ngayHieuLuc = parseDateValue(item.Ngay_hieu_luc);
+                return !ngayHieuLuc || ngayHieuLuc <= referenceDate;
+            });
+        }
+
+        function normalizeText(value) {
+            return String(value || '').trim().toLowerCase();
+        }
+
+        function getNguoiPhuTrachInfoById(nguoiKyId, nguoiPhuTrachList = globalNguoiPhuTrachList) {
+            const normalizedId = String(nguoiKyId || '').trim();
+            if (!normalizedId || !Array.isArray(nguoiPhuTrachList) || nguoiPhuTrachList.length === 0) {
+                return null;
+            }
+
+            return nguoiPhuTrachList.find(item =>
+                String(item.IDNguoi || '').trim() === normalizedId
+            ) || null;
+        }
+
+        function filterNguoiPhuTrachForSigner(nguoiPhuTrachList) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            return (nguoiPhuTrachList || []).filter(item => {
+                const vaiTro = normalizeText(item.VaiTro);
+                const laLanhDaoSo = vaiTro === normalizeText('Lãnh đạo Sở');
+
+                const ngayKetThuc = parseDateValue(item.NgayKetThuc);
+                if (ngayKetThuc) {
+                    ngayKetThuc.setHours(0, 0, 0, 0);
+                }
+
+                const conHieuLuc = !ngayKetThuc || ngayKetThuc >= today;
+                return laLanhDaoSo && conHieuLuc;
+            });
+        }
+
+        function getDefaultNguoiKyId(tinhData, nguoiPhuTrachList) {
+            if (!Array.isArray(nguoiPhuTrachList) || nguoiPhuTrachList.length === 0) {
+                return '';
+            }
+
+            if (globalSelectedNguoiKyId && getNguoiPhuTrachInfoById(globalSelectedNguoiKyId, nguoiPhuTrachList)) {
+                return globalSelectedNguoiKyId;
+            }
+
+            const sortedTinhData = Array.isArray(tinhData)
+                ? [...tinhData].sort((a, b) => new Date(b.Ngay_hieu_luc) - new Date(a.Ngay_hieu_luc))
+                : [];
+            const defaultNguoiKyValue = String(sortedTinhData[0]?.NguoiKy || '').trim();
+
+            if (defaultNguoiKyValue) {
+                const matchedById = nguoiPhuTrachList.find(item =>
+                    String(item.IDNguoi || '').trim() === defaultNguoiKyValue
+                );
+                if (matchedById) {
+                    return String(matchedById.IDNguoi || '').trim();
+                }
+
+                const matchedByName = nguoiPhuTrachList.find(item =>
+                    normalizeText(item.HoTen) === normalizeText(defaultNguoiKyValue)
+                );
+                if (matchedByName) {
+                    return String(matchedByName.IDNguoi || '').trim();
+                }
+            }
+
+            return String(nguoiPhuTrachList[0]?.IDNguoi || '').trim();
+        }
+
+        function populateNguoiKySelector(nguoiPhuTrachList, selectedId) {
+            const select = document.getElementById('nguoi-ky-select');
+            if (!select) return;
+
+            select.innerHTML = '<option value="">Chọn người ký</option>';
+
+            (nguoiPhuTrachList || []).forEach(item => {
+                const option = document.createElement('option');
+                option.value = String(item.IDNguoi || '').trim();
+
+                const hoTen = String(item.HoTen || '').trim();
+                const chucVu = String(item.ChucVu || '').trim();
+                option.textContent = chucVu ? `${hoTen} - ${chucVu}` : hoTen;
+
+                if (option.value === String(selectedId || '').trim()) {
+                    option.selected = true;
+                }
+
+                select.appendChild(option);
+            });
+        }
+
+        function updateSelectedNguoiKyInfo(selectedId) {
+            globalSelectedNguoiKyId = String(selectedId || '').trim();
+            globalSelectedNguoiPhuTrachInfo = getNguoiPhuTrachInfoById(globalSelectedNguoiKyId, globalNguoiPhuTrachList);
+
+            const nguoiKy = String(globalSelectedNguoiPhuTrachInfo?.HoTen || '').trim();
+            const thamQuyen = String(globalSelectedNguoiPhuTrachInfo?.ThamQuyen || '').trim();
+            const chucVu = String(globalSelectedNguoiPhuTrachInfo?.ChucVu || '').trim();
+
+            document.getElementById('nguoi-ky').textContent = nguoiKy;
+            document.getElementById('tham-quyen-ky').textContent = thamQuyen;
+            document.getElementById('chuc-vu-ky').textContent = chucVu;
+        }
+
+        function initializeNguoiKySelection(tinhData, nguoiPhuTrachList) {
+            globalNguoiPhuTrachList = filterNguoiPhuTrachForSigner(nguoiPhuTrachList);
+            const defaultNguoiKyId = getDefaultNguoiKyId(tinhData, globalNguoiPhuTrachList);
+            populateNguoiKySelector(globalNguoiPhuTrachList, defaultNguoiKyId);
+            updateSelectedNguoiKyInfo(defaultNguoiKyId);
         }
 
         function calculateTongChuyenThang(lichChieuDi) {
@@ -679,8 +827,11 @@
 
                 console.log('Loading data for ID_TB:', idTB);
 
-                // Load thông báo data
-                const thongbaoList = await fetchAppSheetData('THONGBAO_KHAITHAC');
+                const [thongbaoList, nguoiPhuTrachList, tinhList] = await Promise.all([
+                    fetchAppSheetData('THONGBAO_KHAITHAC'),
+                    fetchAppSheetData('NguoiPhuTrach'),
+                    fetchAppSheetData('ThongTin')
+                ]);
 
                 if (!thongbaoList || thongbaoList.length === 0) {
                     throw new Error('Không có dữ liệu trong bảng THONGBAO_KHAITHAC');
@@ -742,7 +893,9 @@
                     NgayKTCT: ''
                 };
 
+                globalTinhData = filterTinhDataByDate(tinhList, null);
                 populateHTML(globalDocumentData);
+                initializeNguoiKySelection(globalTinhData, nguoiPhuTrachList);
                 hideLoadingMessage();
             } catch (error) {
                 console.error('Error loading data:', error);
@@ -900,6 +1053,11 @@
                     return;
                 }
 
+                if (!globalSelectedNguoiPhuTrachInfo) {
+                    alert('Vui lòng chọn người ký.');
+                    return;
+                }
+
                 if (vehicleData.length === 0) {
                     alert('Không có dữ liệu phương tiện để xuất.');
                     return;
@@ -944,6 +1102,9 @@
                     LichChieuDi: globalDocumentData.LichChieuDi,
                     LichChieuVe: globalDocumentData.LichChieuVe,
                     NgayKTCT: formatDateFromInput(ngayKTCT),
+                    nguoi_ky: String(globalSelectedNguoiPhuTrachInfo?.HoTen || '').trim(),
+                    tham_quyen_ky: String(globalSelectedNguoiPhuTrachInfo?.ThamQuyen || '').trim(),
+                    chuc_vu_ky: String(globalSelectedNguoiPhuTrachInfo?.ChucVu || '').trim(),
                     vehicles: vehicleData
                 };
 
@@ -999,6 +1160,9 @@
             document.getElementById('so-tb').addEventListener('input', updateDisplayFromInputs);
             document.getElementById('ngay-tb').addEventListener('change', updateDisplayFromInputs);
             document.getElementById('ngay-ktct').addEventListener('change', updateDisplayFromInputs);
+            document.getElementById('nguoi-ky-select').addEventListener('change', function () {
+                updateSelectedNguoiKyInfo(this.value);
+            });
 
             setTimeout(() => {
                 initialize();

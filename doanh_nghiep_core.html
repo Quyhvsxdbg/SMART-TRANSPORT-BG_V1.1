@@ -231,7 +231,7 @@
             </div>
         </div>
         <div class="footer-section">
-            <div><span id="tinh-footer">Bắc Giang</span>, ngày <span id="ngay-cap"></span></div>
+            <div><span id="tinh-footer"></span>, ngày <span id="ngay-cap"></span></div>
             <div class="signature-area">
                 <div class="signature-title">CƠ QUAN CẤP PHÉP</div>
                 <div class="signature-subtitle">Issuing authority</div>
@@ -279,6 +279,20 @@
             return await response.json();
         }
 
+        function parseDateValue(value) {
+            if (!value) return null;
+            const parsedDate = new Date(value);
+            return Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
+        }
+
+        function filterTinhDataByDate(tinhData, referenceDateValue) {
+            const referenceDate = parseDateValue(referenceDateValue) || new Date();
+            return (tinhData || []).filter(item => {
+                const ngayHieuLuc = parseDateValue(item.Ngay_hieu_luc);
+                return !ngayHieuLuc || ngayHieuLuc <= referenceDate;
+            });
+        }
+
         // Format date function
         function formatDate(dateString) {
             if (!dateString) return '';
@@ -316,19 +330,17 @@
 
             try {
                 // Prepare API calls
-                const currentDate = new Date().toISOString();
-
                 const apiCalls = [
                     // 1. Get DoanhNghiep data
                     callAPI('DoanhNghiep', `Filter(DoanhNghiep, [IDDoanhNghiep] = "${idDoanhNghiep}")`),
 
                     // 2. Get ThongTin data (for tinh)
-                    callAPI('ThongTin', `Filter(ThongTin, [Ngay_hieu_luc] <= "${currentDate}")`)
+                    callAPI('ThongTin', 'Filter(ThongTin, true)')
                 ];
 
                 // Execute first batch of API calls
                 console.log("Bắt đầu gọi API đầu tiên...");
-                const [doanhNghiepResult, tinhResult] = await Promise.all(apiCalls);
+                let [doanhNghiepResult, tinhResult] = await Promise.all(apiCalls);
 
                 console.log("DoanhNghiep data:", doanhNghiepResult);
                 console.log("Tinh data:", tinhResult);
@@ -339,6 +351,8 @@
                     alert('Không tìm thấy dữ liệu doanh nghiệp với ID: ' + idDoanhNghiep);
                     return;
                 }
+
+                tinhResult = filterTinhDataByDate(tinhResult, doanhNghiepResult[0].NgayCap);
 
                 // Get Ref_ThongTinDonViVanTai from doanh nghiep data
                 const refThongTinDonVi = doanhNghiepResult[0].Ref_DoanhNghiep; // hoặc tên trường reference khác
@@ -390,7 +404,7 @@
                 const sortedTinhData = tinhData.sort((a, b) =>
                     new Date(b.Ngay_hieu_luc) - new Date(a.Ngay_hieu_luc)
                 );
-                const tenTinh = sortedTinhData[0].Tinh || 'Bắc Giang';
+                const tenTinh = sortedTinhData[0].Tinh || '';
                 document.getElementById('tinh-footer').textContent = tenTinh;
             }
 
@@ -444,12 +458,12 @@
                 const { doanhNghiep, thongTinDonVi, tinh } = globalDoanhNghiepData;
 
                 // Xử lý tên tỉnh cho Word export
-                let tenTinh = 'Bắc Giang';
+                let tenTinh = '';
                 if (tinh && tinh.length > 0) {
                     const sortedTinhData = tinh.sort((a, b) =>
                         new Date(b.Ngay_hieu_luc) - new Date(a.Ngay_hieu_luc)
                     );
-                    tenTinh = sortedTinhData[0].Tinh || 'Bắc Giang';
+                    tenTinh = sortedTinhData[0].Tinh || '';
                     // Chuẩn hóa định dạng: chữ cái đầu viết hoa
                     tenTinh = tenTinh.toLowerCase().split(' ')
                         .map(word => word.charAt(0).toUpperCase() + word.slice(1))

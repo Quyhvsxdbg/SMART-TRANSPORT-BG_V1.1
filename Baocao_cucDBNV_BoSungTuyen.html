@@ -412,7 +412,7 @@
         <div class="footer-right">
             <div class="title">KT. GIÁM ĐỐC</div>
             <div class="sub-title">PHÓ GIÁM ĐỐC</div>
-            <div class="name" id="nguoi-ky">Nguyễn Quốc Ân</div>
+            <div class="name" id="nguoi-ky"></div>
         </div>
     </div>
 
@@ -502,6 +502,17 @@
 
             const data = await response.json();
             return Array.isArray(data) ? data : [];
+        }
+
+        function getNguoiPhuTrachInfo(record, nguoiPhuTrachList) {
+            if (!record || !Array.isArray(nguoiPhuTrachList) || nguoiPhuTrachList.length === 0) return null;
+            const nguoiKyId = String(record.NguoiKy || '').trim();
+            if (!nguoiKyId) return null;
+            return nguoiPhuTrachList.find(item => String(item.IDNguoi || '').trim() === nguoiKyId) || null;
+        }
+
+        function getNguoiKyName(nguoiPhuTrachInfo) {
+            return String(nguoiPhuTrachInfo?.HoTen || '').trim();
         }
 
         // ===== HÀM FORMAT NGÀY THÁNG THEO QUY TẮC (GIỮ Y NGUYÊN MẪU CỦA BẠN) =====
@@ -600,6 +611,17 @@
 
             setText('table-vb-dx', vbDX, '[Chưa nhập]');
             setText('table-vb-ct', vbCT, '[Chưa nhập]');
+            setText('nguoi-ky', data.NguoiKy, '');
+
+            const thamQuyenElement = document.querySelector('.footer-right .title');
+            if (thamQuyenElement) {
+                thamQuyenElement.textContent = data.ThamQuyenKy || '';
+            }
+
+            const chucVuElement = document.querySelector('.footer-right .sub-title');
+            if (chucVuElement) {
+                chucVuElement.textContent = data.ChucVuKy || '';
+            }
         }
 
         function updateFromInputs() {
@@ -629,6 +651,16 @@
             });
 
             if (!thongbaoData) throw new Error(`Không tìm thấy thông báo với ID: ${idTB}`);
+
+            let nguoiPhuTrachInfo = null;
+            const nguoiKyId = String(thongbaoData.NguoiKy || '').trim();
+            if (nguoiKyId) {
+                const nguoiPhuTrachData = await fetchAppSheetData(
+                    'NguoiPhuTrach',
+                    `Filter(NguoiPhuTrach, [IDNguoi] = "${nguoiKyId}")`
+                );
+                nguoiPhuTrachInfo = getNguoiPhuTrachInfo(thongbaoData, nguoiPhuTrachData);
+            }
 
             const currentDate = getCurrentDateComponents();
 
@@ -661,6 +693,12 @@
                 NgayDX: getNgayDXFromInput(),
                 SoVBCT: getSoVBCTFromInput(),
                 NgayCT: getNgayCTFromInput(),
+                NguoiKy: getNguoiKyName(nguoiPhuTrachInfo),
+                nguoi_ky: getNguoiKyName(nguoiPhuTrachInfo),
+                ThamQuyenKy: nguoiPhuTrachInfo?.ThamQuyen || '',
+                ChucVuKy: nguoiPhuTrachInfo?.ChucVu || '',
+                tham_quyen_ky: nguoiPhuTrachInfo?.ThamQuyen || '',
+                chuc_vu_ky: nguoiPhuTrachInfo?.ChucVu || ''
             };
 
             populateHTML(globalDocumentData);

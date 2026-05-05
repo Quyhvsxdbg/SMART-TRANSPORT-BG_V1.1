@@ -501,30 +501,13 @@
                 return null;
             }
 
-            const ngayApDung = parseDateValue(quyetDinh.NgayKy) || new Date();
-            const danhSachTheoNguoi = nguoiPhuTrachList.filter(item =>
+            return nguoiPhuTrachList.find(item =>
                 String(item.IDNguoi || '').trim() === nguoiKyId
-            );
+            ) || null;
+        }
 
-            if (danhSachTheoNguoi.length === 0) {
-                return null;
-            }
-
-            const danhSachHieuLuc = danhSachTheoNguoi.filter(item => {
-                const ngayBatDau = parseDateValue(item.NgayBatDau);
-                const ngayKetThuc = parseDateValue(item.NgayKetThuc);
-
-                return (!ngayBatDau || ngayBatDau <= ngayApDung) &&
-                    (!ngayKetThuc || ngayKetThuc >= ngayApDung);
-            });
-
-            const danhSachUuTien = danhSachHieuLuc.length > 0 ? danhSachHieuLuc : danhSachTheoNguoi;
-
-            return danhSachUuTien.sort((a, b) => {
-                const ngayBatDauA = parseDateValue(a.NgayBatDau);
-                const ngayBatDauB = parseDateValue(b.NgayBatDau);
-                return (ngayBatDauB?.getTime() || 0) - (ngayBatDauA?.getTime() || 0);
-            })[0] || null;
+        function getNguoiKyName(nguoiPhuTrachInfo) {
+            return String(nguoiPhuTrachInfo?.HoTen || '').trim();
         }
 
         // Main function to fetch data
@@ -540,7 +523,6 @@
 
             try {
                 // Prepare API calls
-                const currentDate = new Date().toISOString();
 
                 const apiCalls = [
                     // 1. Fetch QUYETDINH_THUHOI_PHUHIEU data for page 1
@@ -550,19 +532,17 @@
                     callAPI('PHUHIEU_THUHOI_CHITIET', `Filter(PHUHIEU_THUHOI_CHITIET, [Ref_QDThuHoi] = "${idQuyetDinh}")`),
 
                     // 3. Get ThongTin data (for tinh)
-                    callAPI('ThongTin', `Filter(ThongTin, [Ngay_hieu_luc] <= "${currentDate}")`),
-
+                    callAPI('ThongTin', 'Filter(ThongTin, true)'),
                     // 4. Fetch toàn bộ CANCU_PHAPLY
                     callAPI('CANCU_PHAPLY', 'Filter(CANCU_PHAPLY, true)')
                 ];
 
                 // Execute API calls
                 console.log("Bắt đầu gọi API...");
-                const [quyetDinhData, chitietData, tinhResult, canCuData] = await Promise.all(apiCalls);
+                let [quyetDinhData, chitietData, tinhResult, canCuData] = await Promise.all(apiCalls);
 
                 console.log("QuyetDinh data:", quyetDinhData);
                 console.log("ChiTiet data:", chitietData);
-                console.log("Tinh data:", tinhResult);
                 console.log("CanCu data:", canCuData);
                 console.log("Ref_CanCuPhapLy:", quyetDinhData?.[0]?.['Ref_CanCuPhapLy']);
 
@@ -595,6 +575,14 @@
                     alert('Không tìm thấy dữ liệu chi tiết cho ID quyết định: ' + idQuyetDinh);
                     return;
                 }
+
+                const mocTinhHieuLuc = parseDateValue(quyetDinhData[0]?.NgayKy) || new Date();
+                tinhResult = (tinhResult || []).filter(item => {
+                    const ngayHieuLuc = parseDateValue(item.Ngay_hieu_luc);
+                    return !ngayHieuLuc || ngayHieuLuc <= mocTinhHieuLuc;
+                });
+                globalTinhData = tinhResult;
+                console.log("Tinh data by NgayKy:", tinhResult);
 
                 // Populate page 1 with data including tinh data
                 populateQuyetDinhData(quyetDinhData[0], tinhResult, canCuData || [], nguoiPhuTrachInfo);
@@ -684,13 +672,11 @@
             }
 
             // Update signature
-            if (data.TenNguoiKy) {
-                document.getElementById('nguoi-ky').textContent = data.TenNguoiKy;
-            }
+            document.getElementById('nguoi-ky').textContent = getNguoiKyName(nguoiPhuTrachInfo);
             document.getElementById('tham-quyen-ky').textContent =
-                nguoiPhuTrachInfo?.ThamQuyen || 'KT. GIÁM ĐỐC';
+                nguoiPhuTrachInfo?.ThamQuyen || '';
             document.getElementById('chuc-vu-ky').textContent =
-                nguoiPhuTrachInfo?.ChucVu || 'PHÓ GIÁM ĐỐC';
+                nguoiPhuTrachInfo?.ChucVu || '';
 
             // Update Căn cứ pháp lý
             const canCuEl = document.getElementById('can-cu-phap-ly');
@@ -890,9 +876,9 @@
                     nam: namKy,
                     can_cu_list: canCuItems.map(v => ({ noi_dung: v })),
                     can_cu_phap_ly: canCuItems.map(v => `Căn cứ ${v}`).join('\n'),
-                    tham_quyen_ky: globalNguoiPhuTrachInfo?.ThamQuyen || 'KT. GIÁM ĐỐC',
-                    chuc_vu_ky: globalNguoiPhuTrachInfo?.ChucVu || 'PHÓ GIÁM ĐỐC',
-                    nguoi_ky: quyetDinh.TenNguoiKy || '',
+                    tham_quyen_ky: globalNguoiPhuTrachInfo?.ThamQuyen || '',
+                    chuc_vu_ky: globalNguoiPhuTrachInfo?.ChucVu || '',
+                    nguoi_ky: getNguoiKyName(globalNguoiPhuTrachInfo),
                     don_vi_list: donViList
                 };
 

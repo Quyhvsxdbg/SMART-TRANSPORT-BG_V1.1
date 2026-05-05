@@ -424,6 +424,11 @@
             <select id="year-select">
                 <!-- Years will be populated dynamically -->
             </select>
+
+            <label for="nguoi-ky-select">Người ký:</label>
+            <select id="nguoi-ky-select">
+                <option value="">Chọn người ký</option>
+            </select>
         </div>
 
         <div class="action-buttons">
@@ -442,7 +447,7 @@
             <div class="document-container">
                 <div class="header">
                     <div class="header-left">
-                        <div style="margin-bottom: 5px;">UBND TỈNH <span id="tinh-header">BẮC GIANG</span></div>
+                        <div style="margin-bottom: 5px;">UBND TỈNH <span id="tinh-header"></span></div>
                         <div class="underline-title"><strong>SỞ XÂY DỰNG</strong></div>
                         <div class="document-number">Số: <span>______</span>/TB-SXD</div>
                     </div>
@@ -452,7 +457,7 @@
                                 phúc</span>
                         </div>
                         <div style="font-style: italic; font-weight: normal; margin-top: 10px; text-align: center;"
-                            id="ngay-thang"><span id="tinh-footer">Bắc Giang</span>, ngày &nbsp;&nbsp;&nbsp; tháng
+                            id="ngay-thang"><span id="tinh-footer"></span>, ngày &nbsp;&nbsp;&nbsp; tháng
                             &nbsp;&nbsp;&nbsp; <span>năm 2025</span>
                         </div>
                     </div>
@@ -477,7 +482,7 @@
 
                 <div class="text-block">
                     Để phục vụ công tác kiểm tra, giám sát của các cơ quan chức năng và chính quyền địa phương trong
-                    hoạt động kinh doanh vận tải bằng xe ô tô, Sở Xây dựng tỉnh <span id="tinh-content">Bắc Giang</span>
+                    hoạt động kinh doanh vận tải bằng xe ô tô, Sở Xây dựng tỉnh <span id="tinh-content"></span>
                     thông báo danh sách phương
                     tiện, loại phù hiệu đã cấp, thời hạn có hiệu lực của phù hiệu và đơn vị kinh doanh vận tải đã được
                     cấp giấy phép kinh doanh vận tải bằng xe ô tô; danh sách phương tiện bị thu hồi, bị tước phù hiệu;
@@ -501,7 +506,7 @@
                 </div>
 
                 <div class="text-block">
-                    Sở Xây dựng tỉnh <span id="tinh-content-2">Bắc Giang</span> trân trọng thông báo./.
+                    Sở Xây dựng tỉnh <span id="tinh-content-2"></span> trân trọng thông báo./.
                 </div>
 
                 <div class="footer">
@@ -519,10 +524,10 @@
                         <div class="recipient-item">- Lưu: VT, VTATGT.</div>
                     </div>
                     <div class="footer-right">
-                        <div class="signature-title">KT. GIÁM ĐỐC</div>
-                        <div class="signature-title">PHÓ GIÁM ĐỐC</div>
+                        <div class="signature-title" id="tham-quyen-ky">KT. GIÁM ĐỐC</div>
+                        <div class="signature-title" id="chuc-vu-ky">PHÓ GIÁM ĐỐC</div>
                         <div style="margin-top: 195px;"></div>
-                        <div class="signature-name" id="nguoi-ky">Nguyễn Quốc Ân</div>
+                        <div class="signature-name" id="nguoi-ky"></div>
                     </div>
                 </div>
             </div>
@@ -558,6 +563,9 @@
         };
 
         let globalTinhData = null;
+        let globalNguoiPhuTrachList = [];
+        let globalSelectedNguoiKyId = '';
+        let globalSelectedNguoiPhuTrachInfo = null;
 
         // Function to populate year selector
         function populateYearSelector() {
@@ -637,6 +645,128 @@
             }
 
             return await response.json();
+        }
+
+        function parseDateValue(value) {
+            if (!value) return null;
+            const parsedDate = new Date(value);
+            return Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
+        }
+
+        function filterTinhDataByDate(tinhData, referenceDateValue) {
+            const referenceDate = parseDateValue(referenceDateValue) || new Date();
+            return (tinhData || []).filter(item => {
+                const ngayHieuLuc = parseDateValue(item.Ngay_hieu_luc);
+                return !ngayHieuLuc || ngayHieuLuc <= referenceDate;
+            });
+        }
+
+        function normalizeText(value) {
+            return String(value || '').trim().toLowerCase();
+        }
+
+        function getNguoiPhuTrachInfoById(nguoiKyId, nguoiPhuTrachList = globalNguoiPhuTrachList) {
+            const normalizedId = String(nguoiKyId || '').trim();
+            if (!normalizedId || !Array.isArray(nguoiPhuTrachList) || nguoiPhuTrachList.length === 0) {
+                return null;
+            }
+
+            return nguoiPhuTrachList.find(item =>
+                String(item.IDNguoi || '').trim() === normalizedId
+            ) || null;
+        }
+
+        function filterNguoiPhuTrachForSigner(nguoiPhuTrachList) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            return (nguoiPhuTrachList || []).filter(item => {
+                const vaiTro = normalizeText(item.VaiTro);
+                const laLanhDaoSo = vaiTro === normalizeText('Lãnh đạo Sở');
+
+                const ngayKetThuc = parseDateValue(item.NgayKetThuc);
+                if (ngayKetThuc) {
+                    ngayKetThuc.setHours(0, 0, 0, 0);
+                }
+
+                const conHieuLuc = !ngayKetThuc || ngayKetThuc >= today;
+                return laLanhDaoSo && conHieuLuc;
+            });
+        }
+
+        function getDefaultNguoiKyId(tinhData, nguoiPhuTrachList) {
+            if (!Array.isArray(nguoiPhuTrachList) || nguoiPhuTrachList.length === 0) {
+                return '';
+            }
+
+            if (globalSelectedNguoiKyId && getNguoiPhuTrachInfoById(globalSelectedNguoiKyId, nguoiPhuTrachList)) {
+                return globalSelectedNguoiKyId;
+            }
+
+            const sortedTinhData = Array.isArray(tinhData)
+                ? [...tinhData].sort((a, b) => new Date(b.Ngay_hieu_luc) - new Date(a.Ngay_hieu_luc))
+                : [];
+            const defaultNguoiKyValue = String(sortedTinhData[0]?.NguoiKy || '').trim();
+
+            if (defaultNguoiKyValue) {
+                const matchedById = nguoiPhuTrachList.find(item =>
+                    String(item.IDNguoi || '').trim() === defaultNguoiKyValue
+                );
+                if (matchedById) {
+                    return String(matchedById.IDNguoi || '').trim();
+                }
+
+                const matchedByName = nguoiPhuTrachList.find(item =>
+                    normalizeText(item.HoTen) === normalizeText(defaultNguoiKyValue)
+                );
+                if (matchedByName) {
+                    return String(matchedByName.IDNguoi || '').trim();
+                }
+            }
+
+            return String(nguoiPhuTrachList[0].IDNguoi || '').trim();
+        }
+
+        function populateNguoiKySelector(nguoiPhuTrachList, selectedId) {
+            const select = document.getElementById('nguoi-ky-select');
+            if (!select) return;
+
+            select.innerHTML = '<option value="">Chọn người ký</option>';
+
+            (nguoiPhuTrachList || []).forEach(item => {
+                const option = document.createElement('option');
+                option.value = String(item.IDNguoi || '').trim();
+
+                const hoTen = String(item.HoTen || '').trim();
+                const chucVu = String(item.ChucVu || '').trim();
+                option.textContent = chucVu ? `${hoTen} - ${chucVu}` : hoTen;
+
+                if (option.value === String(selectedId || '').trim()) {
+                    option.selected = true;
+                }
+
+                select.appendChild(option);
+            });
+        }
+
+        function updateSelectedNguoiKyInfo(selectedId) {
+            globalSelectedNguoiKyId = String(selectedId || '').trim();
+            globalSelectedNguoiPhuTrachInfo = getNguoiPhuTrachInfoById(globalSelectedNguoiKyId, globalNguoiPhuTrachList);
+
+            const nguoiKy = String(globalSelectedNguoiPhuTrachInfo?.HoTen || '').trim();
+            const thamQuyen = String(globalSelectedNguoiPhuTrachInfo?.ThamQuyen || '').trim();
+            const chucVu = String(globalSelectedNguoiPhuTrachInfo?.ChucVu || '').trim();
+
+            document.getElementById('nguoi-ky').textContent = nguoiKy;
+            document.getElementById('tham-quyen-ky').textContent = thamQuyen;
+            document.getElementById('chuc-vu-ky').textContent = chucVu;
+        }
+
+        function initializeNguoiKySelection(tinhData, nguoiPhuTrachList) {
+            globalNguoiPhuTrachList = filterNguoiPhuTrachForSigner(nguoiPhuTrachList);
+            const defaultNguoiKyId = getDefaultNguoiKyId(tinhData, globalNguoiPhuTrachList);
+            populateNguoiKySelector(globalNguoiPhuTrachList, defaultNguoiKyId);
+            updateSelectedNguoiKyInfo(defaultNguoiKyId);
         }
 
         // Function to fetch all THONGTINDONVIVANTAI data for lookup
@@ -729,26 +859,21 @@
 
         // Function to update tinh information
         function updateTinhInfo(tinhData) {
-            let tenTinh = 'Bắc Giang'; // Default value
-            let nguoiKy = 'Nguyễn Quốc Ân'; // Default value
+            let tenTinh = ''; // Default value
 
             if (tinhData && tinhData.length > 0) {
                 const sortedTinhData = tinhData.sort((a, b) =>
                     new Date(b.Ngay_hieu_luc) - new Date(a.Ngay_hieu_luc)
                 );
-                tenTinh = sortedTinhData[0].Tinh || 'Bắc Giang';
-                if (sortedTinhData[0].NguoiKy) {
-                    nguoiKy = sortedTinhData[0].NguoiKy;
-                }
+                tenTinh = sortedTinhData[0].Tinh || '';
             }
 
             // Update all tinh references
             document.getElementById('tinh-header').textContent = tenTinh.toUpperCase();
             document.getElementById('tinh-content').textContent = tenTinh;
             document.getElementById('tinh-content-2').textContent = tenTinh;
-            document.getElementById('nguoi-ky').textContent = nguoiKy;
 
-            return { tenTinh, nguoiKy };
+            return { tenTinh };
         }
 
         function extractNumber(value) {
@@ -1035,8 +1160,6 @@
                 console.log(`Fetching data for month: ${month}, year: ${year}`);
 
                 // Prepare API calls
-                const currentDate = new Date().toISOString();
-
                 const apiCalls = [
                     // Main data fetches
                     fetchTableDataWithFilter('PHUHIEUXE', 'ID_PhuHieu', 'NgayCap', month, year),
@@ -1046,17 +1169,20 @@
 
                     // Company lookup and ThongTin data
                     fetchAllCompanyData(),
-                    callAPI('ThongTin', `Filter(ThongTin, [Ngay_hieu_luc] <= "${currentDate}")`)
+                    callAPI('ThongTin', 'Filter(ThongTin, true)'),
+                    callAPI('NguoiPhuTrach', 'Filter(NguoiPhuTrach, true)')
                 ];
 
                 // Execute API calls
                 console.log("Bắt đầu gọi API...");
-                const [phuHieuData, gpkdData, phuHieuThuHoiData, gpkdThuHoiData, companyData, tinhData] = await Promise.all(apiCalls);
+                let [phuHieuData, gpkdData, phuHieuThuHoiData, gpkdThuHoiData, companyData, tinhData, nguoiPhuTrachList] = await Promise.all(apiCalls);
 
                 console.log("Tinh data:", tinhData);
 
                 // Store tinhData globally
+                tinhData = filterTinhDataByDate(tinhData, null);
                 globalTinhData = tinhData;
+                initializeNguoiKySelection(tinhData, nguoiPhuTrachList);
 
                 // Process company lookup
                 const companyLookup = {};
@@ -1127,7 +1253,7 @@
         // Function to update page 1 content
         function updatePage1Content(month, year, tinhData) {
             // Update tinh information first
-            const { tenTinh, nguoiKy } = updateTinhInfo(tinhData);
+            const { tenTinh } = updateTinhInfo(tinhData);
 
             const today = new Date();
             const day = today.getDate().toString().padStart(2, '0'); // Always pad day
@@ -1193,8 +1319,6 @@
                 const today = new Date();
 
                 // Prepare API calls
-                const currentDate = new Date().toISOString();
-
                 const apiCalls = [
                     fetchTableDataWithFilter('PHUHIEUXE', 'ID_PhuHieu', 'NgayCap', month, year),
                     fetchTableDataWithFilter('GIAYPHEPKINHDOANHNOIDIA', 'ID_GPKD', 'NgayCap', month, year),
@@ -1202,11 +1326,13 @@
                     fetchTableDataWithFilter('GPKD_THUHOI_CHITIET', 'ID_Row', 'Ngày thu hồi', month, year),
                     fetchAllCompanyData(),
                     // Use global tinhData if available, otherwise fetch fresh
-                    globalTinhData ? Promise.resolve(globalTinhData) : callAPI('ThongTin', `Filter(ThongTin, [Ngay_hieu_luc] <= "${currentDate}")`)
+                    globalTinhData ? Promise.resolve(globalTinhData) : callAPI('ThongTin', 'Filter(ThongTin, true)')
                 ];
 
                 // Execute API calls
-                const [phuHieuData, gpkdData, phuHieuThuHoiData, gpkdThuHoiData, companyData, tinhDataResult] = await Promise.all(apiCalls);
+                let [phuHieuData, gpkdData, phuHieuThuHoiData, gpkdThuHoiData, companyData, tinhDataResult] = await Promise.all(apiCalls);
+
+                tinhDataResult = filterTinhDataByDate(tinhDataResult, null);
 
                 // Process company lookup
                 const companyLookup = {};
@@ -1228,18 +1354,21 @@
                 const groupedGpkdThuHoi = groupDataByLocation(gpkdThuHoiData || [], companyLookup);
 
                 // Get tinh info for Word export
-                let tenTinh = 'Bắc Giang';
-                let nguoiKy = 'Nguyễn Quốc Ân';
+                let tenTinh = '';
 
                 if (tinhDataResult && tinhDataResult.length > 0) {
                     const sortedTinhData = tinhDataResult.sort((a, b) =>
                         new Date(b.Ngay_hieu_luc) - new Date(a.Ngay_hieu_luc)
                     );
-                    tenTinh = sortedTinhData[0].Tinh || 'Bắc Giang';
-                    if (sortedTinhData[0].NguoiKy) {
-                        nguoiKy = sortedTinhData[0].NguoiKy;
-                    }
+                    tenTinh = sortedTinhData[0].Tinh || '';
                 }
+
+                const selectedNguoiPhuTrachInfo =
+                    globalSelectedNguoiPhuTrachInfo ||
+                    getNguoiPhuTrachInfoById(globalSelectedNguoiKyId, globalNguoiPhuTrachList);
+                const nguoiKy = String(selectedNguoiPhuTrachInfo?.HoTen || '').trim();
+                const thamQuyenKy = String(selectedNguoiPhuTrachInfo?.ThamQuyen || '').trim();
+                const chucVuKy = String(selectedNguoiPhuTrachInfo?.ChucVu || '').trim();
 
                 // Prepare grouped data for Word template
                 // Trong hàm exportToWordTemplate(), tìm phần prepareGroupedDataForWord và cập nhật:
@@ -1380,6 +1509,7 @@
                 };
 
                 const response = await fetch('https://quyhvsxdbg.github.io/SMART-TRANSPORT-BG_V1.1/templates_BG_V1.1/Thong_bao_van_tai.docx');
+                // const response = await fetch('/templates_BG_V1.1/Thong_bao_van_tai.docx');
                 if (!response.ok) {
                     throw new Error('Không thể tải template Word');
                 }
@@ -1409,6 +1539,11 @@
                     tinh: tenTinh,
                     tinh_upper: tenTinh.toUpperCase(),
                     nguoi_ky: nguoiKy,
+                    ten_nguoi_ky: nguoiKy,
+                    tham_quyen_ky: thamQuyenKy,
+                    chuc_vu_ky: chucVuKy,
+                    thamQuyenKy: thamQuyenKy,
+                    chucVuKy: chucVuKy,
                     ngayKy: ngayKy,
                     thangKy: formattedThangKy,
                     nam: today.getFullYear(),
@@ -1455,6 +1590,12 @@
         document.addEventListener('DOMContentLoaded', function () {
             populateYearSelector();
             setDefaultMonthYear();
+            const nguoiKySelect = document.getElementById('nguoi-ky-select');
+            if (nguoiKySelect) {
+                nguoiKySelect.addEventListener('change', function () {
+                    updateSelectedNguoiKyInfo(this.value);
+                });
+            }
             const { month, year } = getSelectedMonthYear();
             fetchData(month, year);
         });

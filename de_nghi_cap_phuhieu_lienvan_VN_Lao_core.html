@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giấy đề nghị cấp giấy phép liên vận VN-Lào</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.37.11/docxtemplater.js"></script>
+    <script src="https://unpkg.com/pizzip@3.1.4/dist/pizzip.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        body {
+            font-family: "Times New Roman", serif;
+            font-size: 13px;
+            line-height: 1.5;
+            background: white;
+            width: 210mm;
+            margin: 0 auto;
+            padding: 20mm;
+            min-height: 297mm;
+            position: relative;
+        }
+
+        .button-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+            width: 320px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .input-container {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 320px;
+        }
+
+        .input-container h4 {
+            margin-bottom: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .input-group {
+            margin-bottom: 10px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 6px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-family: "Times New Roman", serif;
+            font-size: 13px;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        .button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-family: "Times New Roman", serif;
+            transition: all 0.3s;
+        }
+
+        .print-button {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .print-button:hover {
+            background-color: #45a049;
+        }
+
+        .export-button {
+            background-color: #2b579a;
+            color: white;
+        }
+
+        .export-button:hover {
+            background-color: #1e3f6f;
+        }
+
+        #loading-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            z-index: 2000;
+            display: none;
+        }
+
+        /* Document layout */
+        .document-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .header-left {
+            text-align: center;
+            width: 40%;
+        }
+
+        .header-left .company-name {
+            font-weight: bold;
+            text-decoration: underline;
+            font-size: 13px;
+        }
+
+        .header-right {
+            text-align: center;
+            width: 55%;
+        }
+
+        .header-right .country {
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .header-right .motto {
+            font-weight: bold;
+            font-size: 13px;
+            text-decoration: underline;
+        }
+
+        .title-section {
+            text-align: center;
+            margin: 20px 0 15px 0;
+        }
+
+        .title-section .title {
+            font-weight: bold;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        .title-section .subtitle {
+            font-weight: bold;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+
+        .kinh-gui {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+
+        .document-content {
+            margin: 10px 0;
+            line-height: 1.8;
+        }
+
+        .document-content p {
+            margin-bottom: 6px;
+        }
+
+        .vehicle-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 12px;
+        }
+
+        .vehicle-table th,
+        .vehicle-table td {
+            border: 1px solid #000;
+            padding: 4px 5px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .vehicle-table th {
+            font-weight: bold;
+            background-color: #f0f0f0;
+        }
+
+        .loai-hinh-section {
+            margin-top: 10px;
+            margin-bottom: 30px;
+        }
+
+        .loai-hinh-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+            margin-left: 20px;
+        }
+
+        .loai-hinh-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13px;
+        }
+
+        .checkbox-box {
+            width: 16px;
+            height: 16px;
+            border: 1px solid #000;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .footer-section {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .footer-right {
+            text-align: center;
+            width: 50%;
+        }
+
+        .footer-right .location-date {
+            font-style: italic;
+            margin-bottom: 5px;
+        }
+
+        .footer-right .don-vi-label {
+            font-weight: bold;
+        }
+
+        .footer-right .ky-ten {
+            font-style: italic;
+        }
+
+        @media print {
+            body {
+                width: 210mm;
+                height: 297mm;
+                margin: 0;
+                padding: 20mm;
+            }
+
+            .button-container {
+                display: none;
+            }
+        }
+
+        @media screen {
+            body {
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                margin: 20px auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Button Container -->
+    <div class="button-container">
+        <div class="input-container">
+            <h4>Thông tin cần nhập:</h4>
+            <div class="input-group">
+                <label for="input-don-vi">Đơn vị kinh doanh vận tải:</label>
+                <input type="text" id="input-don-vi" placeholder="Tự động từ dữ liệu">
+            </div>
+        </div>
+        <button class="button print-button" onclick="window.print()">
+            <i class="fas fa-print"></i> In Tài Liệu
+        </button>
+        <button class="button export-button" onclick="exportToWord()">
+            <i class="fas fa-file-word"></i> Xuất Word
+        </button>
+    </div>
+
+    <!-- Loading Message -->
+    <div id="loading-message">Đang tải dữ liệu...</div>
+
+    <!-- Document Header -->
+    <div class="document-header">
+        <div class="header-left">
+            <div class="company-name" id="DonVi_Upper">...</div>
+        </div>
+        <div class="header-right">
+            <div class="country">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+            <div class="motto">Độc lập – Tự do – Hạnh phúc</div>
+        </div>
+    </div>
+
+    <!-- Title -->
+    <div class="title-section">
+        <div class="title">GIẤY ĐỀ NGHỊ</div>
+        <div class="subtitle">CẤP, CẤP LẠI GIẤY PHÉP LIÊN VẬN GIỮA</div>
+        <div class="subtitle">VIỆT NAM VÀ LÀO CHO PHƯƠNG TIỆN THƯƠNG MẠI</div>
+    </div>
+
+    <!-- Kính gửi -->
+    <div class="kinh-gui">
+        Kính gửi: Sở Xây dựng <span id="Tinh">...</span>
+    </div>
+
+    <!-- Nội dung -->
+    <div class="document-content">
+        <p>1. Tên đơn vị kinh doanh vận tải: <span id="DonVi_content">...</span></p>
+        <p>2. Địa chỉ: <span id="DiaChi">...</span></p>
+        <p>3. Số điện thoại: <span id="SoDienThoai">...</span></p>
+        <p>4. Giấy phép vận tải đường bộ quốc tế giữa Việt Nam và Lào số <span id="SoGPLienVanQT">...</span> ngày cấp
+            <span id="NgayCapGPLVQT">...</span>
+        </p>
+        <p>5. Đề nghị Sở Xây dựng <span id="Tinh_2">...</span> cấp Giấy phép liên vận giữa Việt Nam và Lào cho các
+            phương tiện vận tải sau:</p>
+    </div>
+
+    <!-- Bảng phương tiện -->
+    <table class="vehicle-table">
+        <thead>
+            <tr>
+                <th>STT</th>
+                <th>Biển số</th>
+                <th>Trọng tải</th>
+                <th>Năm SX</th>
+                <th>Nhãn hiệu</th>
+                <th>Số khung</th>
+                <th>Số máy</th>
+                <th>Màu sơn</th>
+                <th>Thời gian đề nghị cấp Giấy phép</th>
+                <th>Hình thức hoạt động</th>
+                <th>Cửa khẩu xuất - nhập</th>
+            </tr>
+        </thead>
+        <tbody id="vehicle-table-body">
+            <tr>
+                <td colspan="11">Đang tải dữ liệu...</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Loại hình kinh doanh -->
+    <div class="loai-hinh-section">
+        <p>6. Loại hình kinh doanh vận tải:</p>
+        <div class="loai-hinh-grid">
+            <div class="loai-hinh-item">
+                a) Hành khách theo tuyến cố định
+                <div class="checkbox-box" id="cb-a"></div>
+            </div>
+            <div class="loai-hinh-item">
+                b) Khách du lịch:
+                <div class="checkbox-box" id="cb-b"></div>
+            </div>
+            <div class="loai-hinh-item">
+                c) Hành khách theo hợp đồng:
+                <div class="checkbox-box" id="cb-c"></div>
+            </div>
+            <div class="loai-hinh-item">
+                d) Vận tải hàng hóa:
+                <div class="checkbox-box" id="cb-d">x</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-section">
+        <div class="footer-right">
+            <div class="location-date">
+                <span id="Tinh_footer">...</span>, ngày <span id="Ngay">...</span> tháng <span id="Thang">...</span> năm
+                <span id="Nam">...</span>
+            </div>
+            <div class="don-vi-label">Đơn vị kinh doanh vận tải</div>
+            <div class="ky-ten">(Ký tên, đóng dấu)</div>
+        </div>
+    </div>
+
+    <script>
+        const appId = '7ee20176-7cb1-4ad4-9d13-e541c8b1b3dc';
+        const accessKey = 'V2-EYFgE-X83x3-xFTsK-y3eTp-L9F22-MKoI1-TGU28-sWcWd';
+        const region = 'www';
+
+        let globalData = null;
+        let globalVehicles = [];
+        let globalTinh = '';
+
+        function getIdFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('IdVL') || urlParams.get('id_vl');
+        }
+
+        async function fetchAppSheetData(tableName, selector) {
+            const body = {
+                Action: 'Find',
+                Properties: {},
+                Selector: selector || `Filter(${tableName}, true)`
+            };
+
+            const response = await fetch(`https://${region}.appsheet.com/api/v2/apps/${appId}/tables/${encodeURIComponent(tableName)}/Action`, {
+                method: 'POST',
+                headers: {
+                    'ApplicationAccessKey': accessKey,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(body)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status} for table: ${tableName}`);
+            }
+
+            const data = await response.json();
+            return Array.isArray(data) ? data : [];
+        }
+
+        function parseDateValue(value) {
+            if (!value) return null;
+            const d = new Date(value);
+            return isNaN(d.getTime()) ? null : d;
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const parts = dateString.split('/');
+            if (parts.length === 3) {
+                const day = parts[0].padStart(2, '0');
+                const monthNum = parseInt(parts[1], 10);
+                const month = (monthNum <= 2) ? String(monthNum).padStart(2, '0') : String(monthNum);
+                return `${day}/${month}/${parts[2]}`;
+            }
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return dateString;
+            const day = date.getDate().toString().padStart(2, '0');
+            const monthNum = date.getMonth() + 1;
+            const month = (monthNum <= 2) ? String(monthNum).padStart(2, '0') : String(monthNum);
+            return `${day}/${month}/${date.getFullYear()}`;
+        }
+
+        function getCurrentDateComponents() {
+            const today = new Date();
+            const monthNum = today.getMonth() + 1;
+            return {
+                day: today.getDate().toString().padStart(2, '0'),
+                month: (monthNum <= 2) ? String(monthNum).padStart(2, '0') : String(monthNum),
+                year: today.getFullYear()
+            };
+        }
+
+        function getTinhByDate(thongTinList, ngayKy) {
+            const moc = parseDateValue(ngayKy) || new Date();
+            const hopLe = (thongTinList || []).filter(item => {
+                const ngayHieuLuc = parseDateValue(item.Ngay_hieu_luc);
+                return !ngayHieuLuc || ngayHieuLuc <= moc;
+            });
+            hopLe.sort((a, b) => new Date(b.Ngay_hieu_luc) - new Date(a.Ngay_hieu_luc));
+            return hopLe[0]?.Tinh || '';
+        }
+
+        function updateVehicleTable(vehicles) {
+            const tbody = document.getElementById('vehicle-table-body');
+            tbody.innerHTML = '';
+
+            if (!vehicles || vehicles.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="11" style="color:#999;">Không có dữ liệu phương tiện</td></tr>';
+                return;
+            }
+
+            vehicles.forEach((v, idx) => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${idx + 1}</td>
+                    <td>${v.BienSo || ''}</td>
+                    <td>${v.TaiTrong || ''}</td>
+                    <td>${v.NamSX || ''}</td>
+                    <td>${v.NhanHieu || ''}</td>
+                    <td>${v.SoKhung || ''}</td>
+                    <td>${v.SoMay || ''}</td>
+                    <td>${v.MauSon || ''}</td>
+                    <td>12 tháng</td>
+                    <td>Hàng hóa</td>
+                    <td>Các cửa khẩu đã được cho phép</td>
+                `;
+            });
+        }
+
+        function updateDonViDisplay(donVi) {
+            const setText = (id, value) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = value || '...';
+            };
+            setText('DonVi_Upper', donVi.toUpperCase());
+            setText('DonVi_content', donVi);
+        }
+
+        function populateHTML(donDeNghi, vehicles, tinh) {
+            const setText = (id, value) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = value || '...';
+            };
+
+            const currentDate = getCurrentDateComponents();
+
+            const donVi = donDeNghi.Don_Vi || '';
+            const inputDonVi = document.getElementById('input-don-vi');
+            if (inputDonVi) inputDonVi.value = donVi;
+            setText('DonVi_Upper', donVi.toUpperCase());
+            setText('DonVi_content', donVi);
+            setText('DiaChi', donDeNghi.Dia_Chi || '');
+            setText('SoDienThoai', donDeNghi.So_DT || '');
+            setText('SoGPLienVanQT', donDeNghi.SoGPLienVanQT || '');
+            setText('NgayCapGPLVQT', formatDate(donDeNghi.NgayCapGPLVQT) || '');
+
+            setText('Tinh', tinh);
+            setText('Tinh_2', tinh);
+            setText('Tinh_footer', tinh);
+
+            setText('Ngay', currentDate.day);
+            setText('Thang', currentDate.month);
+            setText('Nam', currentDate.year);
+
+            updateVehicleTable(vehicles);
+        }
+
+        async function loadData() {
+            const idVL = getIdFromURL();
+            if (!idVL) {
+                hideLoadingMessage();
+                alert('Không tìm thấy IdVL trong URL. Ví dụ: ?IdVL=VL001');
+                return;
+            }
+
+            try {
+                const [donDeNghiList, danhSachList, thongTinList] = await Promise.all([
+                    fetchAppSheetData('12. DON_DE_NGHI_VIET_LAO', `Filter([12. DON_DE_NGHI_VIET_LAO], [IdVL] = "${idVL}")`),
+                    fetchAppSheetData('12.1. DANH_SACH_DE_NGHI_CAP_VL', `Filter([12.1. DANH_SACH_DE_NGHI_CAP_VL], [Ref_DonDeNghi] = "${idVL}")`),
+                    fetchAppSheetData('ThongTin')
+                ]);
+
+                if (!donDeNghiList || donDeNghiList.length === 0) {
+                    hideLoadingMessage();
+                    alert('Không tìm thấy đơn đề nghị với IdVL: ' + idVL);
+                    return;
+                }
+
+                const donDeNghi = donDeNghiList[0];
+                const tinh = getTinhByDate(thongTinList, null);
+
+                globalData = donDeNghi;
+                globalVehicles = danhSachList || [];
+                globalTinh = tinh;
+
+                populateHTML(donDeNghi, globalVehicles, tinh);
+                hideLoadingMessage();
+
+            } catch (error) {
+                console.error('Lỗi tải dữ liệu:', error);
+                hideLoadingMessage();
+                alert('Đã xảy ra lỗi khi lấy dữ liệu: ' + error.message);
+            }
+        }
+
+        async function exportToWord() {
+            try {
+                if (!globalData) {
+                    alert('Dữ liệu chưa được tải. Vui lòng đợi.');
+                    return;
+                }
+
+                document.getElementById('loading-message').style.display = 'block';
+                document.getElementById('loading-message').textContent = 'Đang xuất file Word...';
+
+                const templateUrl = 'https://quyhvsxdbg.github.io/SMART-TRANSPORT-BG_V1.1/templates_BG_V1.1/de_nghi_cap_phu_hieu_lien_van_VN_Lao.docx';
+                const response = await fetch(templateUrl);
+                if (!response.ok) {
+                    throw new Error('Không thể tải template Word');
+                }
+
+                const templateContent = await response.arrayBuffer();
+                const zip = new PizZip(templateContent);
+                const doc = new window.docxtemplater(zip, {
+                    paragraphLoop: true,
+                    linebreaks: true
+                });
+
+                const currentDate = getCurrentDateComponents();
+
+                const vehicles = globalVehicles.map((v, idx) => ({
+                    STT: idx + 1,
+                    BienSo: v.BienSo || '',
+                    TaiTrong: v.TaiTrong || '',
+                    NamSX: v.NamSX || '',
+                    NhanHieu: v.NhanHieu || '',
+                    SoKhung: v.SoKhung || '',
+                    SoMay: v.SoMay || '',
+                    MauSon: v.MauSon || '',
+                    ThoiGian: '12 tháng',
+                    HinhThuc: 'Hàng hóa',
+                    CuaKhau: 'Các cửa khẩu đã được cho phép'
+                }));
+
+                const donViExport = document.getElementById('input-don-vi').value || globalData.Don_Vi || '';
+
+                const exportData = {
+                    DonVi: donViExport,
+                    DonVi_Upper: donViExport.toUpperCase(),
+                    DiaChi: globalData.Dia_Chi || '',
+                    SoDienThoai: globalData.So_DT || '',
+                    SoGPLienVanQT: globalData.SoGPLienVanQT || '',
+                    NgayCapGPLVQT: formatDate(globalData.NgayCapGPLVQT) || '',
+                    tinh: globalTinh,
+                    Ngay: currentDate.day,
+                    Thang: currentDate.month,
+                    Nam: currentDate.year,
+                    vehicles: vehicles
+                };
+
+                doc.setData(exportData);
+                doc.render();
+
+                const blob = doc.getZip().generate({
+                    type: 'blob',
+                    mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                });
+
+                const fileName = `De_nghi_cap_phuhieu_lienvan_VN_Lao_${globalData.Don_Vi || 'unknown'}.docx`;
+                saveAs(blob, fileName);
+
+                hideLoadingMessage();
+
+            } catch (error) {
+                console.error('Lỗi xuất Word:', error);
+                if (error.properties && error.properties.errors) {
+                    console.log('Template errors:', error.properties.errors);
+                }
+                alert('Có lỗi khi xuất file Word: ' + error.message);
+                hideLoadingMessage();
+            }
+        }
+
+        function hideLoadingMessage() {
+            document.getElementById('loading-message').style.display = 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('loading-message').style.display = 'block';
+            loadData();
+
+            document.getElementById('input-don-vi').addEventListener('input', function () {
+                updateDonViDisplay(this.value);
+            });
+        });
+
+        document.addEventListener('contextmenu', e => e.preventDefault(), false);
+
+        document.onkeydown = function (e) {
+            if (e.keyCode === 123) return false;
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 'I'.charCodeAt(0)) return false;
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 'J'.charCodeAt(0)) return false;
+            if (e.ctrlKey && e.keyCode === 'U'.charCodeAt(0)) return false;
+        };
+    </script>
+</body>
+
+</html>

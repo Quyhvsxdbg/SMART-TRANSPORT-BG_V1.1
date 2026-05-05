@@ -386,14 +386,14 @@
     <div class="page" id="page1">
         <div class="header">
             <div class="header-left">
-                <div>SỞ XÂY DỰNG <span id="tinh-header">BẮC GIANG</span></div>
+                <div>SỞ XÂY DỰNG <span id="tinh-header"></span></div>
                 <div class="underline-title">PHÒNG VẬN TẢI& ATGT</div> <br> <br>
                 <div class="document-number">Số: <span id="so-bien-ban"></span></div>
             </div>
             <div class="header-right">
                 <div style="font-size: 13pt;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
                 <div class="underline-title-full">Độc lập - Tự do - Hạnh phúc</div><br><br>
-                <div id="ngay-tham-dinh"><span id="tinh-footer">Bắc Giang</span>, ngày tháng năm </div>
+                <div id="ngay-tham-dinh"><span id="tinh-footer"></span>, ngày tháng năm </div>
             </div>
         </div>
 
@@ -403,7 +403,7 @@
         </div>
 
         <div class="content">
-            Phòng Vận tải và An toàn giao thông- Sở Xây dựng tỉnh <span id="tinh-content">Bắc Giang</span> nhận được Hồ
+            Phòng Vận tải và An toàn giao thông- Sở Xây dựng tỉnh <span id="tinh-content"></span> nhận được Hồ
             sơ đề nghị cấp Giấy phép liên
             vận Việt Nam-Lào của các tổ chức, cá nhân trên địa bàn tỉnh. Thực hiện chức năng, nhiệm vụ được giao, Phòng
             Vận tải và An toàn giao thông báo cáo kết quả thẩm định hồ sơ như sau:
@@ -498,6 +498,20 @@
             return await response.json();
         }
 
+        function parseDateValue(value) {
+            if (!value) return null;
+            const parsedDate = new Date(value);
+            return Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
+        }
+
+        function filterTinhDataByDate(tinhData, referenceDateValue) {
+            const referenceDate = parseDateValue(referenceDateValue) || new Date();
+            return (tinhData || []).filter(item => {
+                const ngayHieuLuc = parseDateValue(item.Ngay_hieu_luc);
+                return !ngayHieuLuc || ngayHieuLuc <= referenceDate;
+            });
+        }
+
         // Main function to fetch data
         async function fetchData() {
             const idThamDinh = getIDThamDinhFromURL();
@@ -511,19 +525,17 @@
 
             try {
                 // Prepare API calls
-                const currentDate = new Date().toISOString();
-
                 const apiCalls = [
                     // 1. Fetch ThamDinhHoSo data
                     fetchThamDinhData(idThamDinh),
 
                     // 2. Get ThongTin data (for tinh)
-                    callAPI('ThongTin', `Filter(ThongTin, [Ngay_hieu_luc] <= "${currentDate}")`)
+                    callAPI('ThongTin', 'Filter(ThongTin, true)')
                 ];
 
                 // Execute API calls
                 console.log("Bắt đầu gọi API...");
-                const [thamDinhData, tinhResult] = await Promise.all(apiCalls);
+                let [thamDinhData, tinhResult] = await Promise.all(apiCalls);
 
                 console.log("ThamDinh data:", thamDinhData);
                 console.log("Tinh data:", tinhResult);
@@ -536,6 +548,7 @@
                 }
 
                 // Lưu dữ liệu tỉnh vào biến toàn cục
+                tinhResult = filterTinhDataByDate(tinhResult, thamDinhData[0].NgayThamDinh);
                 globalTinhData = tinhResult;
 
                 // Populate header information với tên tỉnh
@@ -874,12 +887,12 @@
         // Populate ThamDinhHoSo data với tên tỉnh
         function populateThamDinhData(data, tinhData) {
             // Xử lý tên tỉnh
-            let tenTinh = 'Bắc Giang'; // Giá trị mặc định
+            let tenTinh = ''; // Giá trị mặc định
             if (tinhData && tinhData.length > 0) {
                 const sortedTinhData = tinhData.sort((a, b) =>
                     new Date(b.Ngay_hieu_luc) - new Date(a.Ngay_hieu_luc)
                 );
-                tenTinh = sortedTinhData[0].Tinh || 'Bắc Giang';
+                tenTinh = sortedTinhData[0].Tinh || '';
             }
 
             // Cập nhật tên tỉnh ở các vị trí khác nhau

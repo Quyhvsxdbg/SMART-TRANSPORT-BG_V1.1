@@ -279,9 +279,7 @@
     <!-- Loading Message -->
     <div id="loading-message">Đang tải dữ liệu...</div>
 
-    <div class="header">
-        BẮC NINH
-    </div>
+    <div class="header"></div>
 
     <div class="license-info">
         <div class="license-number" id="so-giay-phep">______/GPKDVT</div>
@@ -319,13 +317,12 @@
 
         <div class="signature-area">
             <div class="signature-date" id="ngay-ky-footer">
-                <em id="tinh-footer">Bắc Giang</em>&nbsp;&nbsp;&nbsp;&nbsp;<em
-                    id="ngay-ky">__</em>&nbsp;&nbsp;&nbsp;&nbsp;<em id="thang-ky">__</em>&nbsp;&nbsp;&nbsp;&nbsp;<em
-                    id="nam-ky">____</em>
+                <em id="tinh-footer"></em>&nbsp;&nbsp;&nbsp;&nbsp;<em id="ngay-ky">__</em>&nbsp;&nbsp;&nbsp;&nbsp;<em
+                    id="thang-ky">__</em>&nbsp;&nbsp;&nbsp;&nbsp;<em id="nam-ky">____</em>
             </div>
             <div class="signature-title1">KT. GIÁM ĐỐC</div>
             <div class="signature-title2">PHÓ GIÁM ĐỐC</div>
-            <div class="signature-name" id="ten-nguoi-ky">Nguyễn Quốc Ân</div>
+            <div class="signature-name" id="ten-nguoi-ky"></div>
         </div>
     </div>
 
@@ -337,6 +334,7 @@
 
         // Biến toàn cục để lưu dữ liệu
         let globalLicenseData = null;
+        let globalNguoiPhuTrachInfo = null;
 
         // Function to format date according to specified rules
         function formatDate(date) {
@@ -389,6 +387,39 @@
             return await response.json();
         }
 
+        function getNguoiPhuTrachInfo(record, nguoiPhuTrachList) {
+            if (!record || !Array.isArray(nguoiPhuTrachList) || nguoiPhuTrachList.length === 0) {
+                return null;
+            }
+
+            const nguoiKyId = String(record.NguoiKy || '').trim();
+            if (!nguoiKyId) {
+                return null;
+            }
+
+            return nguoiPhuTrachList.find(item =>
+                String(item.IDNguoi || '').trim() === nguoiKyId
+            ) || null;
+        }
+
+        function getNguoiKyName(nguoiPhuTrachInfo) {
+            return String(nguoiPhuTrachInfo?.HoTen || '').trim();
+        }
+
+        function parseDateValue(value) {
+            if (!value) return null;
+            const parsedDate = new Date(value);
+            return Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
+        }
+
+        function filterTinhDataByDate(tinhData, referenceDateValue) {
+            const referenceDate = parseDateValue(referenceDateValue) || new Date();
+            return (tinhData || []).filter(item => {
+                const ngayHieuLuc = parseDateValue(item.Ngay_hieu_luc);
+                return !ngayHieuLuc || ngayHieuLuc <= referenceDate;
+            });
+        }
+
         // Main function to fetch all data simultaneously
         async function fetchData() {
             const idGiayPhep = getGiayPhepIDFromURL();
@@ -402,19 +433,17 @@
 
             try {
                 // Prepare all API calls
-                const currentDate = new Date().toISOString();
-
                 const apiCalls = [
                     // 1. Get GIAYPHEPKINHDOANHNOIDIA data
                     callAPI('GIAYPHEPKINHDOANHNOIDIA', `Filter(GIAYPHEPKINHDOANHNOIDIA, [ID_GPKD] = "${idGiayPhep}")`),
 
                     // 2. Get ThongTin data (for header)
-                    callAPI('ThongTin', `Filter(ThongTin, [Ngay_hieu_luc] <= "${currentDate}")`)
+                    callAPI('ThongTin', 'Filter(ThongTin, true)')
                 ];
 
                 // Execute API calls
                 console.log("Bắt đầu gọi API...");
-                const [giayPhepResult, tinhResult] = await Promise.all(apiCalls);
+                let [giayPhepResult, tinhResult] = await Promise.all(apiCalls);
 
                 console.log("Giấy phép data:", giayPhepResult);
                 console.log("Tỉnh data:", tinhResult);
@@ -427,13 +456,27 @@
                 }
 
                 // Lưu dữ liệu vào biến toàn cục
+                tinhResult = filterTinhDataByDate(tinhResult, giayPhepResult[0].NgayCap);
+
+                let nguoiPhuTrachInfo = null;
+                const nguoiKyId = String(giayPhepResult[0].NguoiKy || '').trim();
+                if (nguoiKyId) {
+                    const nguoiPhuTrachData = await callAPI(
+                        'NguoiPhuTrach',
+                        `Filter(NguoiPhuTrach, [IDNguoi] = "${nguoiKyId}")`
+                    );
+                    nguoiPhuTrachInfo = getNguoiPhuTrachInfo(giayPhepResult[0], nguoiPhuTrachData);
+                }
+
+                globalNguoiPhuTrachInfo = nguoiPhuTrachInfo;
                 globalLicenseData = {
                     giayPhep: giayPhepResult[0],
-                    tinh: tinhResult
+                    tinh: tinhResult,
+                    nguoiPhuTrachInfo
                 };
 
                 // Process and populate all data
-                populateData(giayPhepResult[0], tinhResult);
+                populateData(giayPhepResult[0], tinhResult, nguoiPhuTrachInfo);
 
                 // Hide loading message
                 hideLoadingMessage();
@@ -447,16 +490,16 @@
         }
 
         // Populate all data into HTML elements
-        function populateData(giayPhepData, tinhData) {
+        function populateData(giayPhepData, tinhData, nguoiPhuTrachInfo) {
             // Update header with Tinh data
             if (tinhData && tinhData.length > 0) {
                 const sortedTinhData = tinhData.sort((a, b) =>
                     new Date(b.Ngay_hieu_luc) - new Date(a.Ngay_hieu_luc)
                 );
-                document.querySelector('.header').textContent = (sortedTinhData[0].Tinh || 'BẮC GIANG').toUpperCase();
+                document.querySelector('.header').textContent = (sortedTinhData[0].Tinh || '').toUpperCase();
 
                 // Cập nhật tên tỉnh cho footer
-                const tenTinh = sortedTinhData[0].Tinh || 'Bắc Giang';
+                const tenTinh = sortedTinhData[0].Tinh || '';
                 document.getElementById('tinh-footer').textContent = tenTinh;
             }
 
@@ -535,6 +578,18 @@
                 document.getElementById('thang-ky').textContent = formattedSignDate.month;
                 document.getElementById('nam-ky').textContent = formattedSignDate.year;
             }
+
+            document.getElementById('ten-nguoi-ky').textContent = getNguoiKyName(nguoiPhuTrachInfo);
+
+            const thamQuyenElement = document.querySelector('.signature-title1');
+            if (thamQuyenElement) {
+                thamQuyenElement.textContent = nguoiPhuTrachInfo?.ThamQuyen || '';
+            }
+
+            const chucVuElement = document.querySelector('.signature-title2');
+            if (chucVuElement) {
+                chucVuElement.textContent = nguoiPhuTrachInfo?.ChucVu || '';
+            }
         }
 
         // Hàm xuất Word template
@@ -548,7 +603,7 @@
                 document.getElementById('loading-message').style.display = 'block';
                 document.getElementById('loading-message').textContent = 'Đang xuất file Word...';
 
-                const { giayPhep, tinh } = globalLicenseData;
+                const { giayPhep, tinh, nguoiPhuTrachInfo } = globalLicenseData;
 
                 // Xử lý ngày cấp từ NgayCapRef_DoanhNghiep
                 let ngayCap = '', thangCap = '', namCap = '';
@@ -588,12 +643,12 @@
                 }
 
                 // Xử lý tên tỉnh
-                let tenTinh = 'Bắc Giang'; // Giá trị mặc định
+                let tenTinh = ''; // Giá trị mặc định
                 if (tinh && tinh.length > 0) {
                     const sortedTinhData = tinh.sort((a, b) =>
                         new Date(b.Ngay_hieu_luc) - new Date(a.Ngay_hieu_luc)
                     );
-                    tenTinh = sortedTinhData[0].Tinh || 'Bắc Giang';
+                    tenTinh = sortedTinhData[0].Tinh || '';
                     tenTinh = tenTinh.toLowerCase().split(' ')
                         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
                         .join(' ');
@@ -631,10 +686,15 @@
                     ngay_ky: ngayKy,          // Từ NgayCap
                     thang_ky: thangKy,        // Từ NgayCap
                     nam_ky: namKy,            // Từ NgayCap
-                    ten_nguoi_ky: 'Nguyễn Quốc Ân'
+                    ten_nguoi_ky: ''
                 };
 
                 // Render template với dữ liệu
+                data.ten_nguoi_ky = getNguoiKyName(nguoiPhuTrachInfo);
+                data.nguoi_ky = getNguoiKyName(nguoiPhuTrachInfo);
+                data.tham_quyen_ky = nguoiPhuTrachInfo?.ThamQuyen || '';
+                data.chuc_vu_ky = nguoiPhuTrachInfo?.ChucVu || '';
+
                 doc.setData(data);
                 doc.render();
 

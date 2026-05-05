@@ -408,7 +408,7 @@
         <div class="footer-right">
             <div class="title">KT. GIÁM ĐỐC</div>
             <div class="sub-title">PHÓ GIÁM ĐỐC</div>
-            <div class="name" id="nguoi-ky">Nguyễn Quốc Ân</div>
+            <div class="name" id="nguoi-ky"></div>
         </div>
     </div>
 
@@ -456,6 +456,25 @@
                 console.error(`Failed to fetch ${tableName}:`, error);
                 throw error;
             }
+        }
+
+        function getNguoiPhuTrachInfo(record, nguoiPhuTrachList) {
+            if (!record || !Array.isArray(nguoiPhuTrachList) || nguoiPhuTrachList.length === 0) {
+                return null;
+            }
+
+            const nguoiKyId = String(record.NguoiKy || '').trim();
+            if (!nguoiKyId) {
+                return null;
+            }
+
+            return nguoiPhuTrachList.find(item =>
+                String(item.IDNguoi || '').trim() === nguoiKyId
+            ) || null;
+        }
+
+        function getNguoiKyName(nguoiPhuTrachInfo) {
+            return String(nguoiPhuTrachInfo?.HoTen || '').trim();
         }
 
         // Format date dd/mm/yyyy
@@ -558,6 +577,16 @@
                     throw new Error(`Không tìm thấy thông báo với ID: ${idTB}`);
                 }
 
+                let nguoiPhuTrachInfo = null;
+                const nguoiKyId = String(thongbaoData.NguoiKy || '').trim();
+                if (nguoiKyId) {
+                    const nguoiPhuTrachData = await fetchAppSheetData(
+                        'NguoiPhuTrach',
+                        `Filter(NguoiPhuTrach, [IDNguoi] = "${nguoiKyId}")`
+                    );
+                    nguoiPhuTrachInfo = getNguoiPhuTrachInfo(thongbaoData, nguoiPhuTrachData);
+                }
+
                 const currentDate = getCurrentDateComponents();
 
                 globalDocumentData = {
@@ -586,7 +615,13 @@
                     Nam: currentDate.year,
                     ngay: currentDate.day,
                     thang: currentDate.month,
-                    nam: currentDate.year
+                    nam: currentDate.year,
+                    NguoiKy: getNguoiKyName(nguoiPhuTrachInfo),
+                    nguoi_ky: getNguoiKyName(nguoiPhuTrachInfo),
+                    ThamQuyenKy: nguoiPhuTrachInfo?.ThamQuyen || '',
+                    ChucVuKy: nguoiPhuTrachInfo?.ChucVu || '',
+                    tham_quyen_ky: nguoiPhuTrachInfo?.ThamQuyen || '',
+                    chuc_vu_ky: nguoiPhuTrachInfo?.ChucVu || ''
                 };
 
                 populateHTML(globalDocumentData);
@@ -600,10 +635,10 @@
 
         // Đổ dữ liệu ra HTML
         function populateHTML(data) {
-            const setText = (id, value) => {
+            const setText = (id, value, fallback = '...') => {
                 const element = document.getElementById(id);
                 if (element) {
-                    element.textContent = value || '...';
+                    element.textContent = (value !== undefined && value !== null && value !== '') ? value : fallback;
                 }
             };
 
@@ -647,6 +682,17 @@
             setText('ref-ma-so-tuyen-2', data.RefMasotuyen);
             setText('ref-cu-ly', data.RefCuly);
             setText('lich-chieu-di', data.LichChieuDi);
+            setText('nguoi-ky', data.NguoiKy, '');
+
+            const thamQuyenElement = document.querySelector('.footer-right .title');
+            if (thamQuyenElement) {
+                thamQuyenElement.textContent = data.ThamQuyenKy || '';
+            }
+
+            const chucVuElement = document.querySelector('.footer-right .sub-title');
+            if (chucVuElement) {
+                chucVuElement.textContent = data.ChucVuKy || '';
+            }
         }
 
         // Xuất Word
