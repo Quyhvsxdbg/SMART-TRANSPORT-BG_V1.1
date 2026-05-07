@@ -428,11 +428,17 @@
             return urlParams.get('IdVL') || urlParams.get('id_vl');
         }
 
+        function buildFilterSelector(tableName, condition = 'true') {
+            const safeTableName = String(tableName || '').replace(/'/g, "\\'");
+            return `Filter('${safeTableName}', ${condition})`;
+        }
+
         async function fetchAppSheetData(tableName, selector) {
             const body = {
                 Action: 'Find',
-                Properties: {},
-                Selector: selector || `Filter(${tableName}, true)`
+                Properties: {
+                    Selector: selector || buildFilterSelector(tableName, 'true')
+                }
             };
 
             const response = await fetch(`https://${region}.appsheet.com/api/v2/apps/${appId}/tables/${encodeURIComponent(tableName)}/Action`, {
@@ -460,18 +466,27 @@
 
         function formatDate(dateString) {
             if (!dateString) return '';
-            const parts = dateString.split('/');
+            const parts = String(dateString).split('/');
             if (parts.length === 3) {
-                const day = parts[0].padStart(2, '0');
-                const monthNum = parseInt(parts[1], 10);
-                const month = (monthNum <= 2) ? String(monthNum).padStart(2, '0') : String(monthNum);
-                return `${day}/${month}/${parts[2]}`;
+                const [a, b, c] = parts.map(p => String(p).trim());
+                const first = parseInt(a, 10);
+                const second = parseInt(b, 10);
+                const third = parseInt(c, 10);
+
+                if (!isNaN(first) && !isNaN(second) && !isNaN(third)) {
+                    const looksLikeMdY = first <= 12 && second > 12;
+                    const day = looksLikeMdY ? second : first;
+                    const month = looksLikeMdY ? first : second;
+                    return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${c}`;
+                }
+
+                return `${a}/${b}/${c}`;
             }
             const date = new Date(dateString);
             if (isNaN(date.getTime())) return dateString;
             const day = date.getDate().toString().padStart(2, '0');
             const monthNum = date.getMonth() + 1;
-            const month = (monthNum <= 2) ? String(monthNum).padStart(2, '0') : String(monthNum);
+            const month = String(monthNum).padStart(2, '0');
             return `${day}/${month}/${date.getFullYear()}`;
         }
 
@@ -570,8 +585,8 @@
 
             try {
                 const [donDeNghiList, danhSachList, thongTinList] = await Promise.all([
-                    fetchAppSheetData('12. DON_DE_NGHI_VIET_LAO', `Filter([12. DON_DE_NGHI_VIET_LAO], [IdVL] = "${idVL}")`),
-                    fetchAppSheetData('12.1. DANH_SACH_DE_NGHI_CAP_VL', `Filter([12.1. DANH_SACH_DE_NGHI_CAP_VL], [Ref_DonDeNghi] = "${idVL}")`),
+                    fetchAppSheetData('12. DON_DE_NGHI_VIET_LAO', buildFilterSelector('12. DON_DE_NGHI_VIET_LAO', `[IdVL] = "${idVL}"`)),
+                    fetchAppSheetData('12.1. DANH_SACH_DE_NGHI_CAP_VL', buildFilterSelector('12.1. DANH_SACH_DE_NGHI_CAP_VL', `[Ref_DonDeNghi] = "${idVL}"`)),
                     fetchAppSheetData('ThongTin')
                 ]);
 
@@ -583,9 +598,10 @@
 
                 const donDeNghi = donDeNghiList[0];
                 const tinh = getTinhByDate(thongTinList, null);
+                const selectedVehicles = (danhSachList || []).filter(item => String(item.Ref_DonDeNghi || '').trim() === String(idVL).trim());
 
                 globalData = donDeNghi;
-                globalVehicles = danhSachList || [];
+                globalVehicles = selectedVehicles;
                 globalTinh = tinh;
 
                 populateHTML(donDeNghi, globalVehicles, tinh);
