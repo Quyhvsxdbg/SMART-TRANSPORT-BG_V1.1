@@ -236,7 +236,7 @@
                     class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2">
                     <i class="fas fa-filter"></i> Bộ lọc
                 </button>
-                <button onclick="loadData()"
+                <button onclick="loadData(true)"
                     class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2">
                     <i class="fas fa-sync-alt"></i> Làm mới
                 </button>
@@ -257,7 +257,7 @@
                     </label>
                     <input id="searchInput" type="text" placeholder="Nhập tên đơn vị, mã DN..."
                         class="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-500 transition"
-                        oninput="applyFilters()">
+                        oninput="debouncedApplyFilters()">
                 </div>
                 <!-- Loại hình -->
                 <div class="min-w-[180px]">
@@ -302,10 +302,10 @@
                             <option value="lte">&le; Nhỏ hơn</option>
                             <option value="between">Trong khoảng</option>
                         </select>
-                        <input id="totalMin" type="number" min="0" placeholder="Số" oninput="applyFilters()"
+                        <input id="totalMin" type="number" min="0" placeholder="Số" oninput="debouncedApplyFilters()"
                             class="w-20 border-2 border-gray-200 rounded-xl px-2 py-2 text-sm focus:outline-none focus:border-blue-500 transition">
                         <span id="totalBetweenSep" class="text-gray-400 text-xs hidden">—</span>
-                        <input id="totalMax" type="number" min="0" placeholder="Đến" oninput="applyFilters()"
+                        <input id="totalMax" type="number" min="0" placeholder="Đến" oninput="debouncedApplyFilters()"
                             class="w-20 border-2 border-gray-200 rounded-xl px-2 py-2 text-sm focus:outline-none focus:border-blue-500 transition hidden">
                     </div>
                 </div>
@@ -361,8 +361,14 @@
         let phLoaiTypes = [];   // Danh sách LoaiPH duy nhất
         let statsData = [];   // Dữ liệu đã xử lý theo đơn vị
         let filteredStats = [];   // Sau khi lọc
+        let companyLookup = new Map();
+        let filteredSummary = { totalDV: 0, totalPH: 0, totalDKT: 0, typeTotals: {} };
+        let filterDebounceTimer = null;
         let sortCol = 'total';
         let sortDir = 'desc';
+        const FILTER_DEBOUNCE_MS = 250;
+        const CACHE_KEY = 'thongke_phuhieu_donvi_v3';
+        const CACHE_TTL_MS = 15 * 60 * 1000;
 
         // ============================================================
         // API
@@ -378,34 +384,128 @@
             return res.json();
         }
 
+        function getCurrentFilters() {
+            return {
+                searchInput: document.getElementById('searchInput').value,
+                loaihinhFilter: document.getElementById('loaihinhFilter').value,
+                loaiphFilter: document.getElementById('loaiphFilter').value,
+                quanhuyenFilter: document.getElementById('quanhuyenFilter').value,
+                totalOp: document.getElementById('totalOp').value,
+                totalMin: document.getElementById('totalMin').value,
+                totalMax: document.getElementById('totalMax').value
+            };
+        }
+
+        function restoreFilters(filters) {
+            if (!filters) return;
+            document.getElementById('searchInput').value = filters.searchInput || '';
+            document.getElementById('loaihinhFilter').value = filters.loaihinhFilter || '';
+            document.getElementById('loaiphFilter').value = filters.loaiphFilter || '';
+            document.getElementById('quanhuyenFilter').value = filters.quanhuyenFilter || '';
+            document.getElementById('totalOp').value = filters.totalOp || '';
+            document.getElementById('totalMin').value = filters.totalMin || '';
+            document.getElementById('totalMax').value = filters.totalMax || '';
+        }
+
+        function cloneStatsData(data) {
+            return (Array.isArray(data) ? data : []).map(item => ({
+                ...item,
+                byType: { ...(item.byType || {}) }
+            }));
+        }
+
+        function loadCache() {
+            try {
+                const raw = localStorage.getItem(CACHE_KEY);
+                if (!raw) return null;
+                const cached = JSON.parse(raw);
+                if (!cached || !Array.isArray(cached.statsData) || !Array.isArray(cached.phLoaiTypes)) return null;
+                if (Date.now() - Number(cached.ts || 0) > CACHE_TTL_MS) return null;
+                return cached;
+            } catch (error) {
+                console.warn('Không đọc được cache:', error);
+                return null;
+            }
+        }
+
+        function saveCache(payload) {
+            try {
+                localStorage.setItem(CACHE_KEY, JSON.stringify(payload));
+            } catch (error) {
+                console.warn('Không lưu được cache:', error);
+            }
+        }
+
+        function applyProcessedData(nextStatsData, nextPhLoaiTypes, ts, prefix = 'Cập nhật') {
+            const currentFilters = getCurrentFilters();
+            statsData = cloneStatsData(nextStatsData);
+            phLoaiTypes = Array.isArray(nextPhLoaiTypes) ? [...nextPhLoaiTypes] : [];
+            populateFilters();
+            restoreFilters(currentFilters);
+            applyFilters();
+            document.getElementById('last-updated').textContent =
+                `${prefix}: ${new Date(ts).toLocaleString('vi-VN')}`;
+        }
+
+        async function fetchRemoteData() {
+            const [emblemsRaw, companyRaw] = await Promise.all([
+                apiRequest('PHUHIEUXE', 'Filter(PHUHIEUXE, [TrangThai] = "Hiệu lực")'),
+                apiRequest('THONGTINDONVIVANTAI', 'Filter(THONGTINDONVIVANTAI, true)')
+            ]);
+
+            allEmblemsData = Array.isArray(emblemsRaw) ? emblemsRaw : [];
+            allCompanyData = Array.isArray(companyRaw) ? companyRaw : [];
+            companyLookup = new Map(
+                allCompanyData.map(item => [String(item.IDDoanhNghiep || '').trim(), item])
+            );
+
+            console.log('Phù hiệu:', allEmblemsData.length, '| Đơn vị:', allCompanyData.length);
+
+            buildStatsData();
+
+            return {
+                ts: Date.now(),
+                statsData: cloneStatsData(statsData),
+                phLoaiTypes: [...phLoaiTypes]
+            };
+        }
+
+        async function refreshDataInBackground() {
+            try {
+                const fresh = await fetchRemoteData();
+                saveCache(fresh);
+                applyProcessedData(fresh.statsData, fresh.phLoaiTypes, fresh.ts, 'Cập nhật');
+            } catch (err) {
+                console.error('Lỗi làm mới nền:', err);
+            }
+        }
+
         // ============================================================
         // LOAD DATA
         // ============================================================
-        async function loadData() {
+        async function loadData(forceRefresh = false) {
+            const cached = !forceRefresh ? loadCache() : null;
+            if (cached) {
+                applyProcessedData(cached.statsData, cached.phLoaiTypes, cached.ts, 'Dữ liệu lưu');
+                showLoading(false);
+                refreshDataInBackground();
+                return;
+            }
+
             showLoading(true);
             try {
-                setLoadingText('Đang tải dữ liệu phù hiệu...');
-                const [emblemsRaw, companyRaw] = await Promise.all([
-                    apiRequest('PHUHIEUXE', 'Filter(PHUHIEUXE, true)'),
-                    apiRequest('THONGTINDONVIVANTAI', 'Filter(THONGTINDONVIVANTAI, true)')
-                ]);
-
-                allEmblemsData = Array.isArray(emblemsRaw) ? emblemsRaw : [];
-                allCompanyData = Array.isArray(companyRaw) ? companyRaw : [];
-
-                console.log('Phù hiệu:', allEmblemsData.length, '| Đơn vị:', allCompanyData.length);
-
-                buildStatsData();
-                populateFilters();
-                applyFilters();
-
-                document.getElementById('last-updated').textContent =
-                    'Cập nhật: ' + new Date().toLocaleString('vi-VN');
+                setLoadingText(forceRefresh ? 'Đang làm mới dữ liệu...' : 'Đang tải dữ liệu phù hiệu...');
+                const fresh = await fetchRemoteData();
+                saveCache(fresh);
+                applyProcessedData(fresh.statsData, fresh.phLoaiTypes, fresh.ts, 'Cập nhật');
             } catch (err) {
                 console.error(err);
-                alert('Lỗi khi tải dữ liệu: ' + err.message);
+                if (!statsData.length) {
+                    alert('Lỗi khi tải dữ liệu: ' + err.message);
+                }
+            } finally {
+                showLoading(false);
             }
-            showLoading(false);
         }
 
         // ============================================================
@@ -441,42 +541,47 @@
             // Thu thập LoaiPH
             phLoaiTypes = [...new Set(validEmblems.map(e => (e.LoaiPH || '').trim()).filter(Boolean))].sort();
 
-            const companyMap = {};
+            const companyMap = new Map();
 
             validEmblems.forEach(e => {
                 // Key theo Ref_DonViCapPhuHieu, fallback Ten_don_vi
-                const key = (e.Ref_DonViCapPhuHieu || '').trim() || (e.Ten_don_vi || '').trim() || 'unknown';
+                const refDonVi = String(e.Ref_DonViCapPhuHieu || '').trim();
+                const key = refDonVi || (e.Ten_don_vi || '').trim() || 'unknown';
 
-                if (!companyMap[key]) {
+                if (!companyMap.has(key)) {
                     // Tìm thông tin bổ sung từ THONGTINDONVIVANTAI
-                    const comp = allCompanyData.find(c => c.IDDoanhNghiep === e.Ref_DonViCapPhuHieu);
+                    const comp = refDonVi ? companyLookup.get(refDonVi) : null;
+                    const tenDonVi = e.Ten_don_vi || (comp ? (comp.TenDoanhNghiep || '') : '');
+                    const maDN = comp ? (comp.MaDN || comp.IDDoanhNghiep || key) : key;
 
-                    companyMap[key] = {
+                    companyMap.set(key, {
                         companyId: key,
-                        tenDonVi: e.Ten_don_vi || (comp ? (comp.TenDoanhNghiep || '') : ''),
+                        tenDonVi: tenDonVi,
                         diaChi: comp ? (comp.DiaChiSauSapNhap || '') : '',
                         loaihinh: e.Loaihinh_donvi || (comp ? (comp.Loaihinh_donvi || comp.LoaihinhDonvi || '') : ''),
                         quanHuyen: comp ? (comp.XaPhuongSauSapNhap || '') : '',
-                        maDN: comp ? (comp.MaDN || comp.IDDoanhNghiep || key) : key,
+                        maDN: maDN,
                         nguoiDaiDien: comp ? (comp.NguoiDaiDienTheoPhapLuat || comp.NguoiDaiDien || comp.NguoidaidienTheoPhapLuat || '') : '',
                         dienThoai: comp ? (comp.SoDienThoai || comp.DienThoai || '') : '',
                         email: comp ? (comp.Email || comp.EmailDonVi || '') : (e.GuiEmailbao || ''),
+                        searchIndex: removeAccents(`${tenDonVi} ${maDN}`.toLowerCase()),
                         total: 0,
                         dangKhaiThac: 0,
                         byType: {}
-                    };
+                    });
                 }
 
-                companyMap[key].total++;
-                if (isDangKhaiThac(e)) companyMap[key].dangKhaiThac++;
+                const company = companyMap.get(key);
+                company.total++;
+                if (isDangKhaiThac(e)) company.dangKhaiThac++;
 
                 const loai = (e.LoaiPH || '').trim();
                 if (loai) {
-                    companyMap[key].byType[loai] = (companyMap[key].byType[loai] || 0) + 1;
+                    company.byType[loai] = (company.byType[loai] || 0) + 1;
                 }
             });
 
-            statsData = Object.values(companyMap);
+            statsData = Array.from(companyMap.values());
         }
 
         // ============================================================
@@ -502,6 +607,11 @@
         }
 
         function applyFilters() {
+            if (filterDebounceTimer) {
+                clearTimeout(filterDebounceTimer);
+                filterDebounceTimer = null;
+            }
+
             const search = removeAccents(document.getElementById('searchInput').value.toLowerCase().trim());
             const loaihinh = document.getElementById('loaihinhFilter').value;
             const loaiph = document.getElementById('loaiphFilter').value;
@@ -520,9 +630,7 @@
                 if (qh && s.quanHuyen !== qh) return false;
                 if (loaiph && !(s.byType[loaiph] > 0)) return false;
                 if (search) {
-                    const name = removeAccents(s.tenDonVi.toLowerCase());
-                    const ma = removeAccents(s.maDN.toLowerCase());
-                    if (!name.includes(search) && !ma.includes(search)) return false;
+                    if (!s.searchIndex.includes(search)) return false;
                 }
                 if (totalOp && !isNaN(totalMin)) {
                     if (totalOp === 'gte' && s.total < totalMin) return false;
@@ -533,8 +641,17 @@
             });
 
             sortStats();
+            filteredSummary = calculateSummary(filteredStats);
             renderSummaryCards();
             renderTable();
+        }
+
+        function debouncedApplyFilters() {
+            if (filterDebounceTimer) clearTimeout(filterDebounceTimer);
+            filterDebounceTimer = setTimeout(() => {
+                filterDebounceTimer = null;
+                applyFilters();
+            }, FILTER_DEBOUNCE_MS);
         }
 
         function resetFilters() {
@@ -584,16 +701,31 @@
         // ============================================================
         // RENDER: Summary Cards
         // ============================================================
-        function renderSummaryCards() {
-            const totalDV = filteredStats.length;
-            const totalPH = filteredStats.reduce((s, r) => s + r.total, 0);
-            const totalDKT = filteredStats.reduce((s, r) => s + r.dangKhaiThac, 0);
+        function calculateSummary(stats) {
+            const summary = {
+                totalDV: stats.length,
+                totalPH: 0,
+                totalDKT: 0,
+                typeTotals: {}
+            };
 
-            // Tổng theo LoaiPH
-            const typeTotals = {};
             phLoaiTypes.forEach(t => {
-                typeTotals[t] = filteredStats.reduce((s, r) => s + (r.byType[t] || 0), 0);
+                summary.typeTotals[t] = 0;
             });
+
+            stats.forEach(item => {
+                summary.totalPH += item.total;
+                summary.totalDKT += item.dangKhaiThac;
+                Object.entries(item.byType).forEach(([type, count]) => {
+                    summary.typeTotals[type] = (summary.typeTotals[type] || 0) + count;
+                });
+            });
+
+            return summary;
+        }
+
+        function renderSummaryCards() {
+            const summary = filteredSummary;
 
             const colors = [
                 'from-blue-600 to-blue-500',
@@ -617,13 +749,13 @@
             </div>`;
 
             let html =
-                card('from-blue-800 to-blue-600', 'fas fa-building', 'Đơn vị vận tải', totalDV.toLocaleString('vi-VN')) +
-                card('from-green-700 to-green-500', 'fas fa-id-card', 'PH còn hiệu lực', totalPH.toLocaleString('vi-VN')) +
-                card('from-indigo-700 to-indigo-500', 'fas fa-play-circle', 'Đang khai thác', totalDKT.toLocaleString('vi-VN'));
+                card('from-blue-800 to-blue-600', 'fas fa-building', 'Đơn vị vận tải', summary.totalDV.toLocaleString('vi-VN')) +
+                card('from-green-700 to-green-500', 'fas fa-id-card', 'PH còn hiệu lực', summary.totalPH.toLocaleString('vi-VN')) +
+                card('from-indigo-700 to-indigo-500', 'fas fa-play-circle', 'Đang khai thác', summary.totalDKT.toLocaleString('vi-VN'));
 
             phLoaiTypes.forEach((t, i) => {
                 const colorIdx = (i + 3) % colors.length;
-                html += card(colors[colorIdx], icons[colorIdx % icons.length], t, (typeTotals[t] || 0).toLocaleString('vi-VN'));
+                html += card(colors[colorIdx], icons[colorIdx % icons.length], t, (summary.typeTotals[t] || 0).toLocaleString('vi-VN'));
             });
 
             document.getElementById('summary-cards').innerHTML = html;
@@ -664,7 +796,8 @@
                 tbody.innerHTML = `<tr><td colspan="${8 + phLoaiTypes.length}" class="py-16 text-center text-gray-400">
                 <i class="fas fa-inbox text-4xl mb-3 block"></i>Không có dữ liệu phù hợp
             </td></tr>`;
-                document.getElementById('result-count').textContent = 'Không có kết quả';
+                const resultCountEl = document.getElementById('result-count');
+                if (resultCountEl) resultCountEl.textContent = 'Không có kết quả';
                 return;
             }
 
@@ -706,8 +839,6 @@
             const totalRow = document.createElement('tr');
             totalRow.className = 'footer-row font-bold border-t-2 border-blue-200';
             totalRow.style.backgroundColor = '#eff6ff';
-            const totalPH = filteredStats.reduce((s, r) => s + r.total, 0);
-            const totalDKT = filteredStats.reduce((s, r) => s + r.dangKhaiThac, 0);
             let footerHtml = `
             <td class="sc-stt px-2 py-3 text-center text-xs text-blue-700 font-bold" style="background:#eff6ff"></td>
             <td class="sc-loai px-2 py-3 text-xs text-blue-700 font-bold" style="background:#eff6ff">TỔNG</td>
@@ -716,11 +847,10 @@
             <td class="sc-ndd px-3 py-3" style="background:#eff6ff"></td>
             <td class="sc-dt  px-3 py-3" style="background:#eff6ff"></td>
             <td class="px-3 py-3"></td>
-            <td class="px-3 py-3 text-center text-indigo-700 font-bold">${totalDKT}</td>
-            <td class="px-3 py-3 text-center text-green-700 font-bold">${totalPH}</td>`;
+            <td class="px-3 py-3 text-center text-indigo-700 font-bold">${filteredSummary.totalDKT}</td>
+            <td class="px-3 py-3 text-center text-green-700 font-bold">${filteredSummary.totalPH}</td>`;
             phLoaiTypes.forEach(t => {
-                const sum = filteredStats.reduce((s, r) => s + (r.byType[t] || 0), 0);
-                footerHtml += `<td class="px-3 py-3 text-center text-blue-700">${sum}</td>`;
+                footerHtml += `<td class="px-3 py-3 text-center text-blue-700">${filteredSummary.typeTotals[t] || 0}</td>`;
             });
             totalRow.innerHTML = footerHtml;
             document.getElementById('tableBody').appendChild(totalRow);
@@ -735,6 +865,7 @@
 
             const wb = XLSX.utils.book_new();
             const today = new Date().toLocaleString('vi-VN');
+            const summary = calculateSummary(filteredStats);
 
             // ---- Sheet 1: Thống kê theo đơn vị ----
             const headers = [
@@ -747,8 +878,7 @@
             const titleRow = [`THỐNG KÊ PHÙ HIỆU XE THEO ĐƠN VỊ VẬN TẢI`];
             const subtitleRow = [`Phù hiệu còn hiệu lực — phân theo loại`];
             const dateRow = [`Ngày xuất: ${today}`];
-            const totalPH = filteredStats.reduce((s, r) => s + r.total, 0);
-            const summaryRow = [`Tổng số: ${filteredStats.length} đơn vị — ${totalPH} phù hiệu còn hiệu lực`];
+            const summaryRow = [`Tổng số: ${filteredStats.length} đơn vị — ${summary.totalPH} phù hiệu còn hiệu lực`];
 
             const data = [titleRow, subtitleRow, dateRow, summaryRow, [], headers];
 
@@ -771,9 +901,9 @@
             // Dòng tổng
             const sumRow = [
                 '', '', '', '', '', '', 'TỔNG CỘNG',
-                filteredStats.reduce((s, r) => s + r.dangKhaiThac, 0),
-                totalPH,
-                ...phLoaiTypes.map(t => filteredStats.reduce((s, r) => s + (r.byType[t] || 0), 0))
+                summary.totalDKT,
+                summary.totalPH,
+                ...phLoaiTypes.map(t => summary.typeTotals[t] || 0)
             ];
             data.push([]);
             data.push(sumRow);
@@ -805,11 +935,11 @@
                 [],
                 ['Loại phù hiệu', 'Số lượng', 'Tỉ lệ (%)'],
                 ...phLoaiTypes.map(t => {
-                    const cnt = filteredStats.reduce((s, r) => s + (r.byType[t] || 0), 0);
-                    return [t, cnt, totalPH > 0 ? ((cnt / totalPH) * 100).toFixed(1) + '%' : '0%'];
+                    const cnt = summary.typeTotals[t] || 0;
+                    return [t, cnt, summary.totalPH > 0 ? ((cnt / summary.totalPH) * 100).toFixed(1) + '%' : '0%'];
                 }),
                 [],
-                ['TỔNG CỘNG', totalPH, '100%']
+                ['TỔNG CỘNG', summary.totalPH, '100%']
             ];
             const ws2 = XLSX.utils.aoa_to_sheet(ws2Data);
             ws2['!cols'] = [{ wch: 30 }, { wch: 12 }, { wch: 12 }];
